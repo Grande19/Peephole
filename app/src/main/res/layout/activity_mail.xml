@@ -9,23 +9,46 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.pruebas.grande.bluetoothfime.MailActivity"
+    tools:context="com.tfguniovi.grande.peephole.MailActivity"
     android:weightSum="1">
 
+    <EditText
+        android:ems="10"
+        android:hint="Introducir e-mail"
+        android:id="@+id/email1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPostalAddress"/>
 
     <EditText
-        android:id="@+id/mensaje"
+        android:ems="10"
+        android:hint="Introducir e-mail"
+        android:id="@+id/email2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName" />
+        android:inputType="textPostalAddress" />
+
+    <EditText
+    android:ems="10"
+    android:hint="E-mail de la policia [policia@policia.com]"
+    android:id="@+id/epolicia"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="textPostalAddress" />
 
     <Button
-        android:id="@+id/enviar"
-        android:text="Enviar"
-        android:layout_below = "@+id/mensaje"
-        android:layout_width="match_parent"
+        android:id="@+id/btn_submit"
         android:layout_height="wrap_content"
-        />
-</LinearLayout>
+        android:layout_marginTop="5dip"
+        android:layout_width="wrap_content"
+        android:onClick="correo"
+        android:text="Send Mail" />
 
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="main_screen"
+        android:text="Main screen" />
+
+</LinearLayout>

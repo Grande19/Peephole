@@ -18,7 +18,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tfguniovi.grande.peephole.R;
+import com.tfguniovi.grande.peephole.MainActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +29,7 @@ import java.io.OutputStreamWriter;
 
 
 public class MainActivity extends AppCompatActivity {
-    private Button botonON, botonOFF, botonDIS, botonDES , botonLocal , cam;
+    private Button    botonDES , botonLocal , cam;
     private final static int REQUEST_ENABLE_BT = 1;
     ListView lv, ls;
     private Set<BluetoothDevice> pairedDevices;
@@ -52,9 +52,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         BA = BluetoothAdapter.getDefaultAdapter();
-        //botonON = (Button) findViewById(R.id.on);
-        //botonOFF = (Button) findViewById(R.id.off);
-        //botonDIS = (Button) findViewById(R.id.list);
         botonLocal = (Button)findViewById(R.id.localizacion);
         //lv = (ListView) findViewById(R.id.lvDispositivos);
         ls = (ListView) findViewById(R.id.DispositivosRSSI);
