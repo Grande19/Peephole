@@ -12,6 +12,15 @@
     tools:context="com.tfguniovi.grande.peephole.MailActivity"
     android:weightSum="1">
 
+    <TextView
+        android:id="@+id/txtIntro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Introducir los correos de los usuarios"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+
     <EditText
         android:ems="10"
         android:hint="Introducir e-mail"

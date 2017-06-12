@@ -46,6 +46,8 @@ public class MailActivity extends AppCompatActivity {
 
         context = this;
 
+        //El usuario debe introducir los correos a los que quiere notificar
+
         email1 = (EditText) findViewById(R.id.email1);
         //sub = (EditText) findViewById(R.id.et_sub);
         email2 = (EditText) findViewById(R.id.email2);
@@ -54,7 +56,8 @@ public class MailActivity extends AppCompatActivity {
 
     }
 
-    //CUANDO PULSAMOS PARA ENVIAR EL MAIL EMPIEZA AQUI
+    //CUANDO PULSAMOS PARA ENVIAR EL MAIL EMPIEZA AQUI , método onClick()
+    //quiero que se haga autómaticamente después de cierto tiempo descubriendo dispositivos
     public void correo(View v) {
         rec = email1.getText().toString();
         subject = "Alerta intruso"; //Poner de asunto algo significativo !
@@ -73,6 +76,7 @@ public class MailActivity extends AppCompatActivity {
 
                 //Registro del correo en servidor Gmail
                 //ACORDARSE DE METER PASSWORD CUANDO QUIERA MANDAR CORREO!!!!!!!!!!!!!!!!
+                //Aplicación creada para que envie correos a los usuarios
                 return new PasswordAuthentication("peepholeuniovi@gmail.com", "pass");
             }
         });

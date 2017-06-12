@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,14 +17,11 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tfguniovi.grande.peephole.MainActivity;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Set;
 import java.io.OutputStreamWriter;
-
 
 
 public class MainActivity extends AppCompatActivity {
@@ -35,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice device;
     private BluetoothAdapter BA;
-    private BroadcastReceiver mReciever;
+    private BroadcastReceiver mReciever , gReciever , gpsReceiver ;
     final ArrayList rssi_list = new ArrayList();
     private ArrayList dispositivos = new ArrayList();
     public Double longitud , latitud , ublat , ublong ;
@@ -44,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean localizacion =false;
     ProgressDialog descub = null ;
     public int cont ;
+    //public LocationService location = new LocationService(getApplicationContext());
+
+
 
 
     @Override
@@ -71,15 +70,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
         }
+        //Se inicia el LocationService
+        Intent gps_intent = new Intent(this , LocationService.class);
+        startService(gps_intent);
+
+        //this.startActivity();
+
 
     }
-
-/* Apagar BT lo cual es innecesario
-    public void off(View v) {
-        BA.disable();
-        //fichero();
-        Toast.makeText(this, "Turning off Bluetooth", Toast.LENGTH_LONG).show();
-    } */
 
     //Muestra con un ListView Los dispositivos sincronizados (no vale de mucho)
     /*public void discover(View v) {
@@ -97,12 +95,59 @@ public class MainActivity extends AppCompatActivity {
         }
     }*/
     /*
-    //Camara2Activity
-    public void camera(View view){
-        Intent intent = new Intent(MainActivity.this , Camera2Activity.class);
-        startActivity(intent);
+
+    //Inicia el servicio de obtención de coordenadas
+    /*public void gps(){
+
+        Log.d("GPS" , "entra en gps");
+        LocationService location = new LocationService(getApplicationContext());
+        Intent service = new Intent(this,LocationService.class);
+        location.onStart(service , 1 );
+        //startService(service);
+    }*/
+
+    /*public class GpsReciever extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context , Intent intent){
+            if(intent.getAction().equals(LocationService.ACTION_PROGRESO)){
+                Log.d("Prog" , "Intent en progreso");
+            }
+            else if(intent.getAction().equals(LocationService.ACTION_FIN)) {
+                Toast.makeText(MainActivity.this, "Datos GPS recogidos", Toast.LENGTH_SHORT).show();
+                longitud = intent.getDoubleExtra("Longitud" , 0000);
+                latitud = intent.getDoubleExtra("Latitud" , 0000);
+            }
+        }
+
 
     }*/
+
+
+
+    public void getCoordenadas() {
+
+
+
+        Log.d("GPS" , "entra en gps");
+        //LocationService location = new LocationService(getApplicationContext());
+        //Intent service = new Intent(this,LocationService.class);
+        //location.onStart(service , 1 );
+
+        final BroadcastReceiver gReciever = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                longitud = intent.getDoubleExtra("longitud" , 000000) ;
+                latitud = intent.getDoubleExtra("latitud" , 00000);
+                Log.d("Ub" , "Hace onRecieve");
+
+            }
+
+
+        };
+        IntentFilter filter = new IntentFilter(LOCATION_SERVICE);
+        registerReceiver(gReciever, filter);
+    }
 
     //CameraActivity
     public void camera(View view){
@@ -114,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void discovering () {
         //pulsado = false;
+        getCoordenadas();
         pairedDevices = BA.getBondedDevices();
         ArrayList list = new ArrayList();
 
@@ -193,19 +239,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void comenzar(View v){
+
+
         discovering();
     }
 
     //Chequea los dispositivos que no están en la lista get BondedDevices
 
 
-    //Llamando a otra Activity para obtener la ub del dispositivo
+  /*  //Llamando a otra Activity para obtener la ub del dispositivo
     public void gps(View v){
         Intent localizacion = new Intent(MainActivity.this,LocationActivity.class);
         startActivity(localizacion);
         //requerir que sea obligatorio pedir la ub
 
-    }
+    }*/
 
     /*public void getloc(){
         Intent localizacion = new Intent(MainActivity.this,LocationActivity.class);
@@ -230,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
         fichero(rss,address,name);
     }
 
-    public double getlongitud(){
+    /*public double getlongitud(){
         Bundle datos = this.getIntent().getExtras();
         longitud = datos.getDouble("Longitud");
         Log.d("ubicacion","Devuelve la ubicación del LocationActivity");
@@ -241,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
         Bundle datos = this.getIntent().getExtras();
         latitud = datos.getDouble("Latitud");
         return latitud;
-    }
+    }*/
 
     public void fichero(int rssi , String add,String nom){
         //ublong = getlatitud();
@@ -250,50 +298,20 @@ public class MainActivity extends AppCompatActivity {
 
             //falta añadir 2 dispositivos en el mismo fichero porque ahora solo detecta y escribe 1
             //getloc();
-            ublong = getlongitud();
-            ublat = getlatitud();
+
             File ruta_sd = Environment.getExternalStorageDirectory();
             File f = new File(ruta_sd.getAbsolutePath(),"intruso.txt");
             OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
             Log.d("Ficheros", "Escribiendo intruso.txt");
             String dir = add.toString();
             fout.write("Dispositivo :" + nom + "\n Direccion MAC :" + add + "\nIntensidad :" + rssi + "dBm"
-            + "\nUbicacion:[longitud,latitud]" + ublong + ublat + ublat);
+            + "\nUbicacion:[longitud,latitud]" + longitud + latitud);
             //fout.write("ubicacion : " + ubicacion );
             //fout.write("prueba");
             fout.close();
             discovering();
         } catch (Exception ex) {
             Log.e("Ficheros", "Error al escribir fichero en memoria interna");
-        }
-
-
-    }
-
-
-    public void sendE(int rssi , String add , double latitud , double longitud){
-        Bundle direcciones = this.getIntent().getExtras();
-        email1 = direcciones.getString("email1");
-        email2 = direcciones.getString("email2");
-        email3 = direcciones.getString("email3");
-
-        String[] TO ={email1,email2,email3};
-        Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-        emailIntent.setData(Uri.parse("mailto:"));
-        emailIntent.setType("text/plain");
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT , "Alerta intruso");
-        emailIntent.putExtra(Intent.EXTRA_TEXT , "Hemos detectado movimiento en tu casa , detalles : \n Intesidad " + rssi + "dBm" + "\n " +
-                "Localización[latitud , longitud] : " + latitud +","+ longitud + "\n Direccion MAC:" + add );
-
-
-        try{
-            startActivity(Intent.createChooser(emailIntent,"Send mail..."));
-            finish();
-            Log.i("Finished sending email","");
-        }
-        catch (android.content.ActivityNotFoundException ex){
-            Toast.makeText(MainActivity.this , "There is no email cliente installed" , Toast.LENGTH_SHORT).show();
         }
 
 
