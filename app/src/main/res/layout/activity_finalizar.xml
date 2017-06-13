@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.tfguniovi.grande.peephole.FinalizarActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <TextView
+            android:id="@+id/resume"
+            android:layout_width="356dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="Resumen de vigilancia"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColorLink="@drawable/common_plus_signin_btn_icon_dark"
+            android:textSize="30sp"
+            android:visibility="visible" />
+    </android.support.design.widget.AppBarLayout>
+
+    <Button
+        android:id="@+id/fin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:text="Salir"
+        android:onClick="salir"
+        app:layout_anchor="@+id/include"
+        app:layout_anchorGravity="bottom|right" />
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/content_finalizar2" />
+
+</android.support.design.widget.CoordinatorLayout>

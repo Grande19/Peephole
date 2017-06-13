@@ -28,7 +28,8 @@
             android:label="Peephole">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.intent.action.GPS"/>
+                <action android:name="android.intent.action.GPS" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -48,7 +49,16 @@
         <service
             android:name=".LocationService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity
+            android:name=".FinalizarActivity"
+            android:label="@string/title_activity_finalizar"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <service
+            android:name=".BluetoothService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
