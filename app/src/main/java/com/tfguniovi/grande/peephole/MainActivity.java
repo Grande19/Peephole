@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         BA = BluetoothAdapter.getDefaultAdapter();
-        botonLocal = (Button)findViewById(R.id.localizacion);
         //lv = (ListView) findViewById(R.id.lvDispositivos);
         ls = (ListView) findViewById(R.id.DispositivosRSSI);
         botonDES = (Button) findViewById(R.id.add);
@@ -71,12 +70,21 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
         }
         //Se inicia el LocationService
-        Intent gps_intent = new Intent(this , LocationService.class);
-        startService(gps_intent);
+        startGps();
 
         //this.startActivity();
 
 
+    }
+
+    private void startGps(){
+        Intent service = new Intent(this , LocationService.class);
+        startService(service);
+    }
+
+    private void stopGps(){
+        Intent service = new Intent(this , LocationService.class);
+        stopService(service);
     }
 
     //Muestra con un ListView Los dispositivos sincronizados (no vale de mucho)
@@ -94,59 +102,26 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }*/
-    /*
-
-    //Inicia el servicio de obtención de coordenadas
-    /*public void gps(){
-
-        Log.d("GPS" , "entra en gps");
-        LocationService location = new LocationService(getApplicationContext());
-        Intent service = new Intent(this,LocationService.class);
-        location.onStart(service , 1 );
-        //startService(service);
-    }*/
-
-    /*public class GpsReciever extends BroadcastReceiver{
-
-        @Override
-        public void onReceive(Context context , Intent intent){
-            if(intent.getAction().equals(LocationService.ACTION_PROGRESO)){
-                Log.d("Prog" , "Intent en progreso");
-            }
-            else if(intent.getAction().equals(LocationService.ACTION_FIN)) {
-                Toast.makeText(MainActivity.this, "Datos GPS recogidos", Toast.LENGTH_SHORT).show();
-                longitud = intent.getDoubleExtra("Longitud" , 0000);
-                latitud = intent.getDoubleExtra("Latitud" , 0000);
-            }
-        }
-
-
-    }*/
 
 
 
     public void getCoordenadas() {
 
 
-
-        Log.d("GPS" , "entra en gps");
+        Log.d("GPS", "entra en gps");
         //LocationService location = new LocationService(getApplicationContext());
         //Intent service = new Intent(this,LocationService.class);
         //location.onStart(service , 1 );
 
-        final BroadcastReceiver gReciever = new BroadcastReceiver() {
+        BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                longitud = intent.getDoubleExtra("longitud" , 000000) ;
-                latitud = intent.getDoubleExtra("latitud" , 00000);
-                Log.d("Ub" , "Hace onRecieve");
-
+                longitud = intent.getDoubleExtra("longitud",00000);
+                latitud = intent.getDoubleExtra("latitud",00000);
             }
-
-
         };
-        IntentFilter filter = new IntentFilter(LOCATION_SERVICE);
-        registerReceiver(gReciever, filter);
+        IntentFilter intentFilter = new IntentFilter("android.intent.action.GPS");
+        registerReceiver(gpsReceiver,intentFilter);
     }
 
     //CameraActivity
@@ -247,23 +222,7 @@ public class MainActivity extends AppCompatActivity {
     //Chequea los dispositivos que no están en la lista get BondedDevices
 
 
-  /*  //Llamando a otra Activity para obtener la ub del dispositivo
-    public void gps(View v){
-        Intent localizacion = new Intent(MainActivity.this,LocationActivity.class);
-        startActivity(localizacion);
-        //requerir que sea obligatorio pedir la ub
 
-    }*/
-
-    /*public void getloc(){
-        Intent localizacion = new Intent(MainActivity.this,LocationActivity.class);
-        startActivity(localizacion);
-    }*
-
-    public void info (View v){
-        Intent intent = new Intent(MainActivity.this,DatosActivity.class);
-        startActivity(intent);
-    }*/
 
 
 
@@ -278,34 +237,27 @@ public class MainActivity extends AppCompatActivity {
         fichero(rss,address,name);
     }
 
-    /*public double getlongitud(){
-        Bundle datos = this.getIntent().getExtras();
-        longitud = datos.getDouble("Longitud");
-        Log.d("ubicacion","Devuelve la ubicación del LocationActivity");
-        return longitud;
-    }
 
-    public double getlatitud(){
-        Bundle datos = this.getIntent().getExtras();
-        latitud = datos.getDouble("Latitud");
-        return latitud;
-    }*/
 
     public void fichero(int rssi , String add,String nom){
-        //ublong = getlatitud();
-        //ublong = getlongitud();
+
         try {
 
             //falta añadir 2 dispositivos en el mismo fichero porque ahora solo detecta y escribe 1
             //getloc();
-
+            /*if(longitud!=null && latitud!=null){
+                stopGps();
+            }
+            else {
+                startGps();
+            }*/
             File ruta_sd = Environment.getExternalStorageDirectory();
             File f = new File(ruta_sd.getAbsolutePath(),"intruso.txt");
             OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
             Log.d("Ficheros", "Escribiendo intruso.txt");
             String dir = add.toString();
             fout.write("Dispositivo :" + nom + "\n Direccion MAC :" + add + "\nIntensidad :" + rssi + "dBm"
-            + "\nUbicacion:[longitud,latitud]" + longitud + latitud);
+            + "\nUbicacion:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
             //fout.write("ubicacion : " + ubicacion );
             //fout.write("prueba");
             fout.close();

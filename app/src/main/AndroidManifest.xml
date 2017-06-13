@@ -28,14 +28,10 @@
             android:label="Peephole">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.intent.action.GPS"/>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".LocationActivity"
-            android:label="@string/title_activity_location"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".DatosActivity"
             android:label="@string/title_activity_datos"
