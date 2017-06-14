@@ -76,6 +76,12 @@ public class LocationService extends Service implements com.google.android.gms.l
         Log.e("Interrupción", "Se ha interrumpido la conexión con Google Play Services");
     }
 
+    public void onStart(Intent intent, int startId){
+        System.out.println("El servicio a comenzado");
+        this.stopSelf();
+    }
+
+
 
     @Override
     public void onConnectionFailed (@NonNull ConnectionResult connectionResult){

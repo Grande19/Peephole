@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     public String[] correo;
     public boolean localizacion =false;
     ProgressDialog descub = null ;
-    public int contador=0 , cont ;
+    public int contador=0 , cont=0 ;
     File ruta_sd = Environment.getExternalStorageDirectory();
     File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
     //File f;
@@ -78,42 +78,46 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
         }
         //Se inicia el LocationService
-        startGps();
+        //startGps();
 
         //this.startActivity();
-
-
     }
 
-    private void startGps(){
-        Intent service = new Intent(this , LocationService.class);
-        startService(service);
+    public void comenzar(View v){
+
+        startDiscovering();
+        //discovering();
+    }
+
+    public void fin (View view){
+        stopDiscovering();
+        stopGps();
+        Intent intent = new Intent(MainActivity.this , FinalizarActivity.class);
+        intent.putExtra("lista",rssi_list);
+        startActivity(intent);
+        //descub.dismiss();
+        //finish();
+    }
+
+
+    private void startDiscovering(){
+        Intent Iservice = new Intent(this,BluetoothService.class);
+        startService(Iservice);
+    }
+
+    private void stopDiscovering(){
+        Intent Iservice = new Intent(this,BluetoothService.class);
+        stopService(Iservice);
     }
 
     private void stopGps(){
-        Intent service = new Intent(this , LocationService.class);
-        stopService(service);
+        Intent Gservice = new Intent(this,LocationService.class);
+        stopService(Gservice);
     }
 
-    //Muestra con un ListView Los dispositivos sincronizados (no vale de mucho)
-    /*public void discover(View v) {
-        pairedDevices = BA.getBondedDevices();
-        ArrayList list = new ArrayList();
-        if (pairedDevices.size() > 0) {
-            //findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
-            for (BluetoothDevice device : pairedDevices) {
-                list.add(device.getName() + "\n" + device.getAddress());
-            }
-            Toast.makeText(this, "Showing paired devices", Toast.LENGTH_LONG).show();
-            final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, list);
-            lv.setAdapter(adapter);
-
-        }
-    }*/
 
 
-
-    public void getCoordenadas() {
+   /* public void getCoordenadas() {
 
 
         Log.d("GPS", "entra en gps");
@@ -130,9 +134,9 @@ public class MainActivity extends AppCompatActivity {
         };
         IntentFilter intentFilter = new IntentFilter("android.intent.action.GPS");
         registerReceiver(gpsReceiver,intentFilter);
-    }
+    }*/
 
-    public void onPause() {
+    /*public void onPause() {
         super.onPause();
         try{
             unregisterReceiver(gpsReceiver);
@@ -140,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Reciever" , "Error");
         }
 
-    }
+    }*/
 
     //CameraActivity
     public void camera(View view){
@@ -150,9 +154,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void discovering () {
+    /*public void discovering () {
         //pulsado = false;
-        getCoordenadas();
+        //getCoordenadas();
         pairedDevices = BA.getBondedDevices();
         ArrayList list = new ArrayList();
 
@@ -205,92 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //}//while
-    }//discovering
-    public void bucle(){
-        Log.d("Bucle","Entra");
-        //pulsado=true;
-        discovering();
-    }
-
-    public void alerta(int rssi , String name , String add){
-        imprimir(rssi, add, name, dispositivos);
-
-    }
-
-    public void fin (View view){
-        Intent intent = new Intent(MainActivity.this , FinalizarActivity.class);
-        intent.putExtra("lista",rssi_list);
-        startActivity(intent);
-
-
-
-        //descub.dismiss();
-        //finish();
-
-    }
-    public void comenzar(View v){
-
-
-        discovering();
-    }
-
-    //Chequea los dispositivos que no están en la lista get BondedDevices
-
-
-
-
-
-
-    public void imprimir(int rss , String address , String name , ArrayList disp) {
-        //rssi_list.clear();
-        rssi_list.add("["+ address + "]" + "\n" + name + "="+  + rss + "dBm\n");
-       // rssi_list.add(disp);
-        //
-        Toast.makeText(getApplicationContext(), "Imprimir lista", Toast.LENGTH_SHORT).show();
-        final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, rssi_list);
-        ls.setAdapter(adapter);
-
-    }
-
-
-
-    public void fichero(int rssi , String add,String nom){
-
-        try {
-
-            //falta añadir 2 dispositivos en el mismo fichero porque ahora solo detecta y escribe 1
-            if(longitud!=null && latitud!=null ){
-                    stopGps();
-
-
-                        //File ruta_sd = Environment.getExternalStorageDirectory();
-                        //File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
-                        OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
-                        //fout = new OutputStreamWriter(openFileOutput("intruso.txt", Context.MODE_PRIVATE));
-                        Log.d("Ficheros", "Escribiendo intruso.txt");
-                        fout.write("Dispositivo :" + nom + "\n Direccion MAC :" + add + "\nIntensidad :" + rssi + "dBm"
-                                + "\nUbicacion:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
-                        fout.close();
-                        cont++;
-                        discovering();
-
-
-            }
-            else {
-                Thread.sleep(5000);
-                discovering();
-            }
-
-
-
-
-
-        } catch (Exception ex) {
-            Log.e("Ficheros", "Error al escribir fichero en memoria interna");
-        }
-
-
-    }
+    }//discovering */
 
     public void enviar(View v){
         Intent intent = new Intent(MainActivity.this , MailActivity.class);
