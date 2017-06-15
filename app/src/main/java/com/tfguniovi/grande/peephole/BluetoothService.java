@@ -25,7 +25,7 @@ public class BluetoothService extends Service {
     private Set<BluetoothDevice> pairedDevices;
     public BluetoothDevice device;
     BluetoothAdapter BA = BluetoothAdapter.getDefaultAdapter();
-    private BroadcastReceiver mReciever , gReciever , gpsReceiver ;
+    public BroadcastReceiver mReciever , gpsReceiver;
     final ArrayList rssi_list = new ArrayList();
     private ArrayList dispositivos = new ArrayList();
     public Double longitud=null , latitud=null ;
@@ -45,25 +45,30 @@ public class BluetoothService extends Service {
         Log.d("ISERV" , "Entra Iserv");
         //startGps();}
        // for(int i = 0 ; i==1000000 ; i++) {
-            pairedDevices = BA.getBondedDevices();
-            BA.startDiscovery(); //start looking for new devices
-            Log.d("DES", "Starting discover new devices");
-            Toast.makeText(this, "Discovering devices", Toast.LENGTH_LONG).show();
-            discovering();
+        pairedDevices = BA.getBondedDevices();
+        //BA.startDiscovery(); //start looking for new devices
+        Log.d("DES", "Starting discover new devices");
+        Toast.makeText(this, "Discovering devices", Toast.LENGTH_LONG).show();
+        discovering();
         }
 
 
     public void discovering(){
-        Log.d("DISCOVER" , "dis");
+        Log.d("DISCOVER" , "dis" + cont);
+        if (BA.isDiscovering()) {
+            // El Bluetooth ya está en modo discover, lo cancelamos para iniciarlo de nuevo
+            BA.cancelDiscovery();
+        }
+        BA.startDiscovery();
+
+        //BA.startDiscovery();
         final BroadcastReceiver mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                if (BluetoothDevice.ACTION_FOUND.equals(action) && pairedDevices.contains(device) == false) {
                     //Get the bluetoothDevice from the intent
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                    if (pairedDevices.contains(device) == false) {
                         cont++;
                         dispositivos.add(device);
                         //señal de bluetooth recibida
@@ -72,25 +77,66 @@ public class BluetoothService extends Service {
                         String name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
                         //Log.d("DESCUBIERTO", name);
                         String address = device.getAddress();
-                        fichero(rssi, address, name);
+                        Log.d("DISPOSITIVO ->" , name);
+                        try {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    discovering();
+                        //fichero(rssi, address, name);
+                    /*try {
 
-                    }//if paired
-                    //bucle();
+                        //falta añadir 2 dispositivos en el mismo fichero porque ahora solo detecta y escribe 1
+                        //if(longitud!=null && latitud!=null ){
+                        //stopGps();
 
-
+                        //if(longitud!=null && latitud!=null && cont==0) {
+                        //stopGps();
+                        Log.d("DESCUBRE : nombre_disp" , name);
+                        File ruta_sd = Environment.getExternalStorageDirectory();
+                        File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
+                        OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
+                        //fout = new OutputStreamWriter(openFileOutput("intruso.txt", Context.MODE_APPEND));
+                        Log.d("Ficheros", "Escribiendo intruso.txt");
+                        fout.write("Dispositivo :" + name + "\n Direccion MAC :" + address + "\nIntensidad :" + rssi + "dBm"
+                                + "\nUbicacion:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
+                        fout.close();
+                        coordenadas=false;
+                        discovering();
+                        //discovering();
+                    } catch (Exception ex) {
+                        Log.e("Ficheros", "Error al escribir fichero en memoria interna");
+                    }*/
                 }//if
-                //bucle();
+
+                else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
+                {
+                    Log.d("FINISHED" , "Descubriendo otra vez");
+                    BA.startDiscovery();
+                    //discovering();
+                }
+
+                else{
+                 Log.d("NOT FOUND" , "No encuentra");
+                discovering();}
+
 
             }//onReceive
         };
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter);
 
+
     }
 
 
         //}//while
     //discovering
+
+    public void descubir(){
+
+    }
 
     public void send(){
         Intent i = new Intent("android.intent.action.INTRUSOS").putExtra("dispositivos",dispositivos);
@@ -156,7 +202,7 @@ public class BluetoothService extends Service {
                 fout.close();
             coordenadas=false;
             discovering();
-
+            //discovering();
 
 
         } catch (Exception ex) {
