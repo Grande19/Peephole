@@ -36,6 +36,13 @@
          android:text="Camara"
          android:id="@+id/cam"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Listar"
+        android:onClick="list"
+        android:id="@+id/lista"/>
+
 
 
 
