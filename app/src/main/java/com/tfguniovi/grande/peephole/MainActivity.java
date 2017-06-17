@@ -37,20 +37,23 @@ public class MainActivity extends AppCompatActivity {
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice device;
     private BluetoothAdapter BA;
-    private BroadcastReceiver mReciever , gReciever , gpsReceiver ;
+    private BroadcastReceiver mReciever , gReciever , gpsReceiver , usuReceiver , disReceiver;
     final ArrayList rssi_list = new ArrayList();
     private ArrayList dispositivos = new ArrayList();
     private ArrayList dispostivos_fin = new ArrayList();
-    public Double longitud , latitud , ublat , ublong ;
-    public String email1 , email2 , email3;
-    public String[] correo;
+    public ArrayList trusted_device = new ArrayList();
+    public ArrayList emails = new ArrayList();
+    public ArrayList discover = new ArrayList();
+    public Double longitud , latitud;
+    public String email1 , email2 , email3 , usu1 , usu2 , usu3;
     public boolean localizacion =false;
-    ProgressDialog descub = null ;
-    public int contador=0 , cont=0 ;
     File ruta_sd = Environment.getExternalStorageDirectory();
     File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
     public boolean finalizar = false;
+    public boolean get = false ;
     boolean running = true;
+    boolean coordenadas = false;
+
     //File f;
     //public LocationService location = new LocationService(getApplicationContext());
 
@@ -72,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         cam = (Button) findViewById(R.id.cam);
         list = (Button) findViewById(R.id.lista);
 
-
         //encendiendo el bluetooth nada más acceder a la app
         //final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, rssi_list);
         //ls.setAdapter(adapter);
@@ -86,7 +88,9 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
         }
 
-        getCoordenadas();
+
+
+
         //Se inicia el LocationService
         //startGps();
 
@@ -94,8 +98,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void comenzar(View v){
-        startGps();
-       new Bluetooth().execute();
+            startGps();
+            getCoordenadas();
+            new Bluetooth().execute();
 
     }
 
@@ -110,6 +115,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected ArrayList doInBackground(Void... params) {
 
+            if (get == false){
+                getTrustedDevice();
+                get = true;
+            }
+
+            if (coordenadas == false){
+                startGps();
+            }
+
 
             while (running) {
                 try {
@@ -123,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 BA.startDiscovery();
                 pairedDevices = BA.getBondedDevices();
-                Log.d("DESCUBRIENDO", "DESCUBRIENDO WEBAS");
+                Log.d("DESCUBRIENDO", "DESCUBRIENDO INTRUSOS");
 
                 //BA.startDiscovery();
                 final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -133,14 +147,15 @@ public class MainActivity extends AppCompatActivity {
                         if (BluetoothDevice.ACTION_FOUND.equals(action) && pairedDevices.contains(device) == false) {
                             //Get the bluetoothDevice from the intent
                             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                            cont++;
+
 
                             //señal de bluetooth recibida
                             int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
-                            //dispositivos.add(rssi);
                             String name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
-                            if(dispositivos.contains(device)==false) {
+                            if(discover.contains(device)==false && trusted_device.contains(name)==false) {
+                                discover.add(device);
                                 dispositivos.add(device + "->" + name);
+                                Log.d("DESCUBRE : nombre_disp" , name);
                             }
                             //Log.d("DESCUBIERTO", name);
                             String address = device.getAddress();
@@ -174,15 +189,21 @@ public class MainActivity extends AppCompatActivity {
             Log.d("ASYCN" , "Doing ASYCN Task");
         }
 
-       @Override
+        @Override
         protected void onCancelled(){
-           Log.d("FIN" , "Acaba");
-           running = false;
-          // unregisterReceiver(mReciever);
+            Log.d("FIN" , "Acaba");
+            running = false;
+            // unregisterReceiver(mReciever);
 
-       }
+        }
 
     } //Fin de AsynTask
+
+
+    public void confianza(View v){
+        Intent intent = new Intent(this,RegistroActivity.class);
+        startActivity(intent);
+    }
 
 
     public void fichero(int rss , String add , String name){
@@ -194,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
             //if(longitud!=null && latitud!=null && cont==0) {
             //stopGps();
-            Log.d("DESCUBRE : nombre_disp" , name);
+            //getCoordenadas();
             File ruta_sd = Environment.getExternalStorageDirectory();
             File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
             OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
@@ -225,17 +246,17 @@ public class MainActivity extends AppCompatActivity {
         dispostivos_fin = dispositivos;
         stopGps();
         //Bluetooth.onCancelled();
-        Intent intent = new Intent(MainActivity.this , FinalizarActivity.class);
+        Intent intent = new Intent(this , FinalizarActivity.class);
         intent.putCharSequenceArrayListExtra("lista",dispostivos_fin);
         startActivity(intent);
         //descub.dismiss();
         //finish();
     }
 
-private void startGps(){
-    Intent Gservice = new Intent(this,LocationService.class);
-    stopService(Gservice);
-}
+    private void startGps(){
+        Intent Gservice = new Intent(this,LocationService.class);
+        stopService(Gservice);
+    }
 
 
 
@@ -260,17 +281,43 @@ private void startGps(){
             public void onReceive(Context context, Intent intent) {
                 longitud = intent.getDoubleExtra("longitud",00000);
                 latitud = intent.getDoubleExtra("latitud",00000);
+        Log.d("GPS" , String.valueOf(latitud));
             }
         };
         IntentFilter intentFilter = new IntentFilter("android.intent.action.GPS");
         registerReceiver(gpsReceiver,intentFilter);
     }
 
+
+
+    public void getTrustedDevice() {
+
+            Bundle bundle = getIntent().getExtras();
+            usu1 = bundle.getString("dispo1");
+            trusted_device.add(usu1);
+            usu2 = bundle.getString("dispo2");
+            trusted_device.add(usu2);
+            usu3 = bundle.getString("dispo3");
+            trusted_device.add(usu3);
+            email1 = bundle.getString("email1");
+            emails.add(email1);
+            email2 = bundle.getString("email2");
+            emails.add(email2);
+            email3 = bundle.getString("email2");
+            emails.add(email3);
+            Log.d("TRUSTED_DEVICES", usu1 + usu2 + usu3 + email2 + email1);
+
+    }
+
+
+
     public void onPause() {
         super.onPause();
         try{
             unregisterReceiver(gpsReceiver);
             unregisterReceiver(mReciever);
+            unregisterReceiver(disReceiver);
+            unregisterReceiver(usuReceiver);
         }catch (Exception ex){
             Log.e("Reciever" , "Error");
         }
@@ -279,7 +326,7 @@ private void startGps(){
 
     //CameraActivity
     public void camera(View view){
-        Intent intent = new Intent(MainActivity.this , CameraActivity.class);
+        Intent intent = new Intent(this , CameraActivity.class);
         startActivity(intent);
 
     }
@@ -288,7 +335,7 @@ private void startGps(){
 
 
     public void enviar(View v){
-        Intent intent = new Intent(MainActivity.this , MailActivity.class);
+        Intent intent = new Intent(this , MailActivity.class);
         startActivity(intent);
     }
 

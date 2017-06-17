@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
+    android:id="@+id/activty_main"
     android:orientation = "vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,27 +21,18 @@
 
 
         <Button
-            android:id="@+id/Informacion"
-            android:onClick="info"
-            android:text="Usuario"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:onClick="camera"
+            android:text="Camara"
+            android:id="@+id/cam"/>
 
-
-
-     <Button
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:onClick="camera"
-         android:text="Camara"
-         android:id="@+id/cam"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Listar"
-        android:onClick="list"
-        android:id="@+id/lista"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Listar"
+            android:onClick="list"
+            android:id="@+id/lista"/>
 
 
 
@@ -49,13 +40,28 @@
 
     </LinearLayout>
 
-
-    <Button
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email"
-        android:id="@+id/email"
-        android:onClick="enviar"/>
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="enviar"
+            android:text="Email" />
+
+        <Button
+            android:id="@+id/confianza"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="confianza"
+            android:text="Registro de dispositivos y usuarios" />
+    </LinearLayout>
+
 
     <ListView
         android:id="@+id/DispositivosRSSI"

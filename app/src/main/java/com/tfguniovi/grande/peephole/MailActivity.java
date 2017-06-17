@@ -89,6 +89,9 @@ public class MailActivity extends AppCompatActivity {
 
         RetreiveFeedTask task = new RetreiveFeedTask(); //crea una tarea asíncrona
         task.execute(); //ejecuta la tarea asíncrona
+
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
     class RetreiveFeedTask extends AsyncTask<String, Void, String> {
