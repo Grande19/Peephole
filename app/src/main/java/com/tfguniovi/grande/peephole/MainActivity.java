@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList emails = new ArrayList();
     public ArrayList discover = new ArrayList();
     public Double longitud , latitud;
-    public String email1 , email2 , email3 , usu1 , usu2 , usu3;
+    public String dir1 , dir2 , dir3 , usu1 , usu2 , usu3;
     public boolean localizacion =false;
     File ruta_sd = Environment.getExternalStorageDirectory();
     File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
         }
+
 
 
 
@@ -223,8 +224,8 @@ public class MainActivity extends AppCompatActivity {
             OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
             //fout = new OutputStreamWriter(openFileOutput("intruso.txt", Context.MODE_APPEND));
             Log.d("Ficheros", "Escribiendo intruso.txt");
-            fout.write("Dispositivo :" + name + "\n Direccion MAC :" + add + "\nIntensidad :" + rss + "dBm"
-                    + "\nUbicacion:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
+            fout.write("[MAC->NOMBRE]:" + dispositivos
+                    + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
             fout.close();
             cont =2 ;
             //bucle();
@@ -301,13 +302,13 @@ public class MainActivity extends AppCompatActivity {
             trusted_device.add(usu2);
             usu3 = bundle.getString("dispo3");
             trusted_device.add(usu3);
-            email1 = bundle.getString("email1");
-            emails.add(email1);
-            email2 = bundle.getString("email2");
-            emails.add(email2);
-            email3 = bundle.getString("email2");
-            emails.add(email3);
-            Log.d("TRUSTED_DEVICES", usu1 + usu2 + usu3 + email2 + email1);
+            dir1 = bundle.getString("email1");
+            //emails.add(email1);
+            dir2 = bundle.getString("email2");
+            //emails.add(email2);
+            dir3 = bundle.getString("email2");
+            //emails.add(email3);
+            Log.d("TRUSTED_DEVICES", usu1 + usu2 + usu3 + dir1 + dir2);
 
     }
 
@@ -334,11 +335,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     public void enviar(View v){
-        Intent intent = new Intent(this , MailActivity.class);
-        startActivity(intent);
+        getTrustedDevice();
+        Intent send = new Intent(this,MailActivity.class);
+        send.putExtra("correo1" , dir1);
+        send.putExtra("correo2", dir2);
+        send.putExtra("correo3" , dir3);
+        startActivity(send);
     }
 
 

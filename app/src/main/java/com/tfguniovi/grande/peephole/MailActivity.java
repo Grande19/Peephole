@@ -10,11 +10,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
 import android.app.Activity;
 import android.os.Bundle;
 
+import java.util.ArrayList;
 import java.util.Properties;
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -22,6 +24,7 @@ import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -41,7 +44,12 @@ public class MailActivity extends AppCompatActivity {
     ProgressDialog pdialog = null;
     Context context = null;
     EditText email1, email2, msg;
-    String rec, subject, textMessage;
+    java.lang.String e1;
+    java.lang.String e2;
+    String e3 , pol;
+    InternetAddress[] ad = new InternetAddress[4];
+    String rec, subject, textMessage, extra , dir;
+    ArrayList correos = new ArrayList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,18 +60,35 @@ public class MailActivity extends AppCompatActivity {
 
         //El usuario debe introducir los correos a los que quiere notificar
 
-        email1 = (EditText) findViewById(R.id.email1);
+        //email1 = (EditText) findViewById(R.id.email1);
         //sub = (EditText) findViewById(R.id.et_sub);
-        email2 = (EditText) findViewById(R.id.email2);
-
-
-
+        //email2 = (EditText) findViewById(R.id.email2);
     }
 
     //CUANDO PULSAMOS PARA ENVIAR EL MAIL EMPIEZA AQUI , método onClick()
     //quiero que se haga autómaticamente después de cierto tiempo descubriendo dispositivos
     public void correo(View v) {
-        rec = email1.getText().toString();
+        //rec = email1.getText().toString();
+        //extra = email2.getText().toString();
+        Bundle bundle = getIntent().getExtras();
+        e1 = bundle.getString("correo1");
+
+        if(e1==null){
+            e1 = "peepholeuniovi@gmail.com";
+        }
+        e2 = bundle.getString("correo2");
+
+        if(e2==null){
+            e2 = "peepholeuniovi@gmail.com";
+        }
+        e3 = bundle.getString("correo3");
+        if(e3==null){
+           e3 = "peepholeuniovi@gmail.com";
+        }
+        pol = "policia@policia.com";
+
+
+
         subject = "Alerta intruso"; //Poner de asunto algo significativo !
         textMessage = "Hemos detectado los siguientes dispositivos sospechosos en su casa , adjuntamos información";
 
@@ -81,7 +106,7 @@ public class MailActivity extends AppCompatActivity {
                 //Registro del correo en servidor Gmail
                 //ACORDARSE DE METER PASSWORD CUANDO QUIERA MANDAR CORREO!!!!!!!!!!!!!!!!
                 //Aplicación creada para que envie correos a los usuarios
-                return new PasswordAuthentication("peepholeuniovi@gmail.com", "pass");
+                return new PasswordAuthentication("peepholeuniovi@gmail.com", "tfg_2017");
             }
         });
 
@@ -105,12 +130,20 @@ public class MailActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
 
             try{
-                Message message = new MimeMessage(session);
-                message.setFrom(new InternetAddress("peepholeuniovi@gmail.com" , "[Peephole]"));
-                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(rec));
-                message.setSubject(subject);
-                message.setContent(textMessage, "text/html; charset=utf-8");
-                Transport.send(message);
+
+
+                    Message message = new MimeMessage(session);
+                    message.setFrom(new InternetAddress("peepholeuniovi@gmail.com", "[Peephole]"));
+                    message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(e1));
+                    message.addRecipient(Message.RecipientType.TO, new InternetAddress(e2));
+                    message.addRecipient(Message.RecipientType.CC , new InternetAddress(e3));
+                    message.addRecipient(Message.RecipientType.CC , new InternetAddress(pol));
+                    // message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(extra));
+                    message.setSubject(subject);
+                    message.setContent(textMessage, "text/html; charset=utf-8");
+                    Transport.send(message);
+
+
             } catch(MessagingException e) {
                 e.printStackTrace();
             } catch(Exception e) {
@@ -128,12 +161,5 @@ public class MailActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
         }
     }
-
-    public void main_screen (View v ){
-        Intent intent = new Intent(MailActivity.this,MainActivity.class);
-        startActivity(intent);
-
-    }
-
 
 }

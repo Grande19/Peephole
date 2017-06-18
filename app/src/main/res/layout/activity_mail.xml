@@ -16,34 +16,10 @@
         android:id="@+id/txtIntro"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Introducir los correos de los usuarios"
+        android:text="Enviar Alerta"
         android:textSize="18sp"
         android:textStyle="bold" />
 
-
-    <EditText
-        android:ems="10"
-        android:hint="Introducir e-mail"
-        android:id="@+id/email1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPostalAddress"/>
-
-    <EditText
-        android:ems="10"
-        android:hint="Introducir e-mail"
-        android:id="@+id/email2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPostalAddress" />
-
-    <EditText
-    android:ems="10"
-    android:hint="E-mail de la policia [policia@policia.com]"
-    android:id="@+id/epolicia"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:inputType="textPostalAddress" />
 
     <Button
         android:id="@+id/btn_submit"

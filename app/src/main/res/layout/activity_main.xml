@@ -46,6 +46,14 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="enviar"
+            android:text="Email" />
+
+        <Button
             android:id="@+id/confianza"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
