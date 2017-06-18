@@ -4,6 +4,7 @@ package com.tfguniovi.grande.peephole;
  * Alvaro Grande
  */
 
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +29,7 @@ import com.tfguniovi.grande.peephole.R;
 public class CameraActivity extends Activity{
     private Camera camera; // camera object
     private TextView textTimeLeft; // time left field
+    private MediaRecorder video;
 
 
     /** Called when the activity is first created. */

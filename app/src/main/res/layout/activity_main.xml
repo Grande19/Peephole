@@ -13,11 +13,20 @@
     android:weightSum="1">
 
 
+
+
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/audio"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:text="Grabar audio"
+            android:onClick="record"/>
 
 
         <Button

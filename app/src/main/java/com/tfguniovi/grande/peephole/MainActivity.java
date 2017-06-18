@@ -4,6 +4,7 @@ package com.tfguniovi.grande.peephole;
  * Alvaro Grande
  */
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,8 +12,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,9 +34,11 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.io.OutputStreamWriter;
 
+import javax.mail.internet.InternetAddress;
+
 
 public class MainActivity extends AppCompatActivity {
-    private Button    botonDES , botonLocal , cam , list;
+    private Button    botonDES , botonLocal , cam , list , grabar;
     private final static int REQUEST_ENABLE_BT = 1;
     ListView lv, ls;
     private Set<BluetoothDevice> pairedDevices;
@@ -54,7 +61,16 @@ public class MainActivity extends AppCompatActivity {
     boolean running = true;
     boolean coordenadas = false;
     public int cont=1;
+    //Solicitud de permisos
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH = 2 ;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 3;
+    private static final int MY_PERMISSIONS_REQUEST_INTERNET = 4 ;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN = 5 ;
 
+
+
+    int i = 0;
     //File f;
     //public LocationService location = new LocationService(getApplicationContext());
 
@@ -75,10 +91,97 @@ public class MainActivity extends AppCompatActivity {
         botonDES = (Button) findViewById(R.id.add);
         cam = (Button) findViewById(R.id.cam);
         list = (Button) findViewById(R.id.lista);
+        grabar = (Button) findViewById(R.id.audio);
+
 
         //encendiendo el bluetooth nada más acceder a la app
         //final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, rssi_list);
         //ls.setAdapter(adapter);
+        /***
+         * Solicitud de permisos en caso de que estemos con un SO Android superior a 6.0
+         */
+
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                } else {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+                }
+            }
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.BLUETOOTH)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.BLUETOOTH)) {
+
+                } else {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.BLUETOOTH},
+                            MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH);
+
+                }
+            }
+
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.BLUETOOTH_ADMIN)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.BLUETOOTH_ADMIN)) {
+
+                } else {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.BLUETOOTH_ADMIN},
+                            MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN);
+
+                }
+            }
+
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                } else {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
+                }
+            }
+
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.INTERNET)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.INTERNET)) {
+
+                } else {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.INTERNET},
+                            MY_PERMISSIONS_REQUEST_INTERNET);
+
+                }
+            }
+
+
+
 
 
         if (!BA.isEnabled()) {
@@ -90,6 +193,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        try{
+            getTrustedDevice();
+        }
+        catch (Exception ex){
+            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+        }
 
 
 
@@ -98,6 +207,71 @@ public class MainActivity extends AppCompatActivity {
 
         //this.startActivity();
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                //Si la petición es cancelada, el resultado estará vacío.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
+
+                } else {
+                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH:
+            {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
+
+                } else {
+                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
+                }
+                return;
+        }
+            case MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN:
+            {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
+
+                } else {
+                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
+                }
+                return;
+            }
+
+            case MY_PERMISSIONS_REQUEST_INTERNET:
+            {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
+
+                } else {
+                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
+            {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
+
+                } else {
+                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
+                }
+                return;
+            }
+
+                // A continuación, se expondrían otras posibilidades de petición de permisos.
+            }
+        }
+
 
     public void comenzar(View v){
             //startGps();
@@ -344,6 +518,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(send);
     }
 
+    public void record(View v){
+        Intent intent = new Intent(this,AudioActivity.class);
+        startActivity(intent);
+    }
 
 
 }//MainActivity
