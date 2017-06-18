@@ -97,11 +97,14 @@ public class LocationService extends Service implements com.google.android.gms.l
         precision= location.getAccuracy();
         Log.d("GET" , "Location");
 
-            Intent i = new Intent("android.intent.action.GPS").putExtra("latitud",latitud);
+            Intent i = new Intent();
+            i.setAction("android.intent.action.GPS");
+            i.putExtra("latitud",latitud);
             i.putExtra("longitud" , longitud);
 
             //Se envian los valores de latitud y longitud a la MainActivity
             sendBroadcast(i);
+            stopSelf();
     }
 
     @Override
@@ -109,8 +112,8 @@ public class LocationService extends Service implements com.google.android.gms.l
         Log.d ("Depuración","Conectado");
         LocationRequest locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(300)
-                .setFastestInterval(300);
+                .setInterval(300000000)
+                .setFastestInterval(300000000);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -154,6 +157,7 @@ public class LocationService extends Service implements com.google.android.gms.l
     public void onDestroy(){
         Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
         super.onDestroy();
+        //stopService()
     }
 
 

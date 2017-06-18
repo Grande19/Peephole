@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -31,21 +32,19 @@ public class FinalizarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finalizar);
-        /*lv = (ListView) findViewById(R.id.dispo);
-        BroadcastReceiver dispReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                dispositivos = intent.getStringArrayListExtra("dispositivos");
-
-            }
-        };
-        IntentFilter intentFilter = new IntentFilter("android.intent.action.INTRUSO");
-        registerReceiver(dispReceiver,intentFilter);
+        lv = (ListView) findViewById(R.id.dispo);
+        /*
+        try{
+        Bundle bundle = getIntent().getExtras();
+        dispositivos = bundle.getCharSequenceArrayList("dispositivos_fin");
         final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, dispositivos);
-        lv.setAdapter(adapter);
+        lv.setAdapter(adapter);}
+        catch (Exception ex){
+            Toast.makeText(this, "No se han encontrado intrusos", Toast.LENGTH_LONG).show();
 
-    }*/
+    }^*/
     }
+
 
 
 
@@ -54,7 +53,7 @@ public class FinalizarActivity extends AppCompatActivity {
     //Botón para salir de la app
     public void salir(View v){
 
-        unregisterReceiver(dispReciever);
+
         finish();
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);

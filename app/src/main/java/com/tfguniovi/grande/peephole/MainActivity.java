@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean get = false ;
     boolean running = true;
     boolean coordenadas = false;
+    public int cont=1;
 
     //File f;
     //public LocationService location = new LocationService(getApplicationContext());
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void comenzar(View v){
-            startGps();
+            //startGps();
             getCoordenadas();
             new Bluetooth().execute();
 
@@ -120,9 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 get = true;
             }
 
-            if (coordenadas == false){
-                startGps();
-            }
+
 
 
             while (running) {
@@ -137,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 BA.startDiscovery();
                 pairedDevices = BA.getBondedDevices();
+                stopGps();
                 Log.d("DESCUBRIENDO", "DESCUBRIENDO INTRUSOS");
-
                 //BA.startDiscovery();
                 final BroadcastReceiver mReceiver = new BroadcastReceiver() {
                     @Override
@@ -147,20 +146,24 @@ public class MainActivity extends AppCompatActivity {
                         if (BluetoothDevice.ACTION_FOUND.equals(action) && pairedDevices.contains(device) == false) {
                             //Get the bluetoothDevice from the intent
                             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-
                             //señal de bluetooth recibida
                             int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
                             String name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
-                            if(discover.contains(device)==false && trusted_device.contains(name)==false) {
+                            String address = device.getAddress();
+                            discover.add(name);
+                            /***pairedDevices = Lista de dispositivos sincronizados del móvil
+                            trusted_device = Dispositivos que se le indican por pantalla que son de confianza
+                            discover = dispositivos desbiertos
+                            dispositivos = lista que contiene los intrusos encontrados*/
+                           // discover.contains("TV")==false
+                            if(pairedDevices.contains(device)==false && trusted_device.contains(name)==false
+                                    && dispositivos.contains(device + "->" + name)==false) {
                                 discover.add(device);
                                 dispositivos.add(device + "->" + name);
-                                Log.d("DESCUBRE : nombre_disp" , name);
+                                //Log.d("DESCUBRE : nombre_disp" , name);
+                                fichero(rssi, address, name);
+
                             }
-                            //Log.d("DESCUBIERTO", name);
-                            String address = device.getAddress();
-                            // Log.d("DISPOSITIVO ->" , name);
-                            fichero(rssi, address, name);
                         } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                             Log.d("FINISHED", "Descubriendo otra vez");
                             BA.startDiscovery();
@@ -174,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 };
                 if (isCancelled()) {
                 }
-                ;
+
                 IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
                 registerReceiver(mReceiver, filter);
 
@@ -208,13 +211,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void fichero(int rss , String add , String name){
         try {
-
+            //getCoordenadas();
             //falta añadir 2 dispositivos en el mismo fichero porque ahora solo detecta y escribe 1
             //if(longitud!=null && latitud!=null ){
             //stopGps();
-
             //if(longitud!=null && latitud!=null && cont==0) {
-            //stopGps();
+            stopGps();
             //getCoordenadas();
             File ruta_sd = Environment.getExternalStorageDirectory();
             File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
@@ -224,13 +226,14 @@ public class MainActivity extends AppCompatActivity {
             fout.write("Dispositivo :" + name + "\n Direccion MAC :" + add + "\nIntensidad :" + rss + "dBm"
                     + "\nUbicacion:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
             fout.close();
-
+            cont =2 ;
             //bucle();
             new Bluetooth().execute();
         } catch (Exception ex) {
             Log.e("Ficheros", "Error al escribir fichero en memoria interna");
         }
-    }//if
+
+    }//fichero
 
 
     public void list(View v){
@@ -255,27 +258,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void startGps(){
         Intent Gservice = new Intent(this,LocationService.class);
-        stopService(Gservice);
+        startService(Gservice);
     }
 
 
 
 
     private void stopGps(){
-        Intent Gservice = new Intent(this,LocationService.class);
-        stopService(Gservice);
+        Log.d("STOP","Para el GPS");
+        stopService(new Intent(getBaseContext(), LocationService.class));
+        //unregisterReceiver(gpsReceiver);
     }
 
 
 
     public void getCoordenadas() {
-
-
-        Log.d("GPS", "entra en gps");
-        //LocationService location = new LocationService(getApplicationContext());
-        //Intent service = new Intent(this,LocationService.class);
-        //location.onStart(service , 1 );
-
+        startGps();
+        Log.d("Coordenadas", "entra en getCoordenadas");
         BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -284,8 +283,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d("GPS" , String.valueOf(latitud));
             }
         };
-        IntentFilter intentFilter = new IntentFilter("android.intent.action.GPS");
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.intent.action.GPS");
+        intentFilter.addAction(LOCATION_SERVICE);
         registerReceiver(gpsReceiver,intentFilter);
+        stopGps();
     }
 
 
