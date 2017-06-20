@@ -20,35 +20,25 @@
 
         <Button
             android:id="@+id/video"
-            android:layout_width="85dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Video"
-            android:onClick="grabar"/>
-
-        <Button
-            android:id="@+id/audio"
-            android:layout_width="85dp"
-            android:layout_height="wrap_content"
-            android:text="Grabar audio"
-            android:onClick="record"/>
+            android:onClick="grabar"
+            android:text="Video y Audio" />
 
 
         <Button
+            android:id="@+id/cam"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="camera"
-            android:text="Camara"
-            android:id="@+id/cam"/>
+            android:text="Camara" />
 
         <Button
+            android:id="@+id/lista"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Listar"
             android:onClick="list"
-            android:id="@+id/lista"/>
-
-
-
+            android:text="Listar" />
 
 
     </LinearLayout>

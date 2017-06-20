@@ -49,12 +49,22 @@
             android:text="Stop record" />
 
         <Button
-            android:id="@+id/stoprev"
+            android:id="@+id/startaudio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dip"
-            android:onClick="st_rv"
-            android:text="Stop review" />
+            android:layout_weight="1"
+            android:onClick="start_audio"
+            android:text="Record" />
+
+        <Button
+            android:id="@+id/stopaudio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dip"
+            android:layout_weight="1"
+            android:onClick="stop_audio"
+            android:text="Stopaudio" />
 
     </LinearLayout>
 

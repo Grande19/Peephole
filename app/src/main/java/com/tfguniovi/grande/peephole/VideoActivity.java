@@ -26,6 +26,7 @@ import android.view.ContextThemeWrapper;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import java.io.File;
@@ -35,19 +36,22 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
         MediaPlayer.OnInfoListener , MediaPlayer.OnErrorListener, MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener {
 
     private MediaPlayer mediaPlayer;
-    private MediaRecorder recorder;
-    private String OUTPUT_FILE;
+    private MediaRecorder recorderVideo;
+    private MediaRecorder recorderAudio;
+    private String OUTPUT_FILE , OUTPUT_FILE_AUDIO;
     Button startBtn =null , stopBtn=null ,
             initBtn = null , playBtn=null , stopPlayBtn ;
+    Button startaudio , stopaudio;
     //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
     int i = 0;
     private VideoView videoView = null;
     private SurfaceHolder holder = null;
     private Camera camera = null;
-    private String outputFilename;
+    private String outputFilename ;
 
 
 
+    private static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 2 ;
     private static final int MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT = 1 ;
 
 
@@ -59,13 +63,14 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
 
+        OUTPUT_FILE_AUDIO = Environment.getExternalStorageDirectory()+"/intruso_audio.3gpp";
         OUTPUT_FILE = Environment.getExternalStorageDirectory()+"/intruso_video.mp4";
         startBtn = (Button) findViewById(R.id.empezar);
         stopBtn = (Button) findViewById(R.id.acabar);
-        //initBtn = (Button) findViewById(R.id.ini);
         playBtn = (Button) findViewById(R.id.rep);
         videoView = (VideoView)this.findViewById(R.id.videoView);
-        stopPlayBtn = (Button) findViewById(R.id.stoprev);
+        startaudio = (Button) findViewById(R.id.startaudio);
+        stopaudio = (Button) findViewById(R.id.stopaudio);
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAPTURE_VIDEO_OUTPUT)
@@ -82,6 +87,22 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
 
             }
         }
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.RECORD_AUDIO)) {
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
+
+            }
+        }
     }
 
     @Override
@@ -89,6 +110,15 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT: {
                 // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > i && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_RECORD_AUDIO: {
+                    // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > i  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
@@ -98,55 +128,64 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
             }
         }
     }
-    
 
-    public void start (View v) throws IOException {
-       beginRecording();
+
+    public void start_audio (View v) throws IOException {
+
+       beginAudio();
         //ditchMediaRecorder();
+    }
+
+    public void stop_audio(View v){
+        stopRecordingAudio();
     }
     public void stop(View v){
         stopRecording();
+    }
+
+    public void stopRecordingAudio(){
+        if(recorderAudio!=null)
+            Toast.makeText(this, "Deteniendo grabación de audio", Toast.LENGTH_LONG).show();
+            recorderAudio.stop();
+            startaudio.setEnabled(true);
     }
 
     public void rep(View v){
         playRecording();
     }
 
-    public void st_rv(View v){
-        stopPlayback();
+    public void start (View v) throws IOException {
+        beginRecording();
+
+        //ditchMediaRecorder();
+    }
+    private void beginAudio(){
+        File outFileaudio = new File(OUTPUT_FILE_AUDIO);
+
+        if(outFileaudio.exists())
+            outFileaudio.delete();
+
+        try {
+            recorderAudio = new MediaRecorder();
+            //Grabamos del micro del movil
+            recorderAudio.setAudioSource(MediaRecorder.AudioSource.MIC);
+            recorderAudio.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            recorderAudio.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            recorderAudio.setOutputFile(OUTPUT_FILE_AUDIO);
+            recorderAudio.prepare();
+            Toast.makeText(this, "Grabando audio ", Toast.LENGTH_LONG).show();
+            recorderAudio.start();
+            startaudio.setEnabled(false);
+
+        } catch (Exception e){
+
+        }
+
     }
 
-    /*private void initRecorder() {
-        if (recorder != null) return;
-        outputFilename = Environment.getExternalStorageDirectory()+"/intruso.mp4";
-        //Abre el archivo en la ruta que le especificamos
-        File outFile = new File(outputFilename);
-        if(outFile.exists())
-            outFile.delete();
-
-        try {
-            camera.stopPreview();
-            camera.unlock();
-            recorder = new MediaRecorder();
-            recorder.setCamera(camera);
-            recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-            recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-            recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            recorder.setVideoFrameRate(15);
-            recorder.setVideoSize(176,144);
-            recorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            recorder.setOutputFile(outputFilename);
-            recorder.prepare();
-            initBtn.setEnabled(false);
-        }catch (Exception ex){
-
-        }
-
-    }*/
 
     private  void beginRecording(){
-        if (recorder != null) return;
+        if (recorderVideo != null) return;
         outputFilename = Environment.getExternalStorageDirectory()+"/intruso.mp4";
         //Abre el archivo en la ruta que le especificamos
         File outFile = new File(outputFilename);
@@ -156,26 +195,26 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
         try {
             camera.stopPreview();
             camera.unlock();
-            recorder = new MediaRecorder();
-            recorder.setCamera(camera);
-            recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-            recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-            recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            recorder.setVideoFrameRate(15);
-            recorder.setVideoSize(176,144);
-            recorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            recorder.setOutputFile(outputFilename);
-            recorder.prepare();
-            initBtn.setEnabled(false);
+            recorderVideo = new MediaRecorder();
+            recorderVideo.setCamera(camera);
+            recorderVideo.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+            recorderVideo.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+            recorderVideo.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            recorderVideo.setVideoFrameRate(15);
+            recorderVideo.setVideoSize(176,144);
+            recorderVideo.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+            recorderVideo.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            recorderVideo.setOutputFile(outputFilename);
+            recorderVideo.prepare();
         }catch (Exception ex){
 
         }
 
 
-        recorder.setOnInfoListener(this);
-        recorder.setOnErrorListener(this);
-        recorder.start();
+        recorderVideo.setOnInfoListener(this);
+        recorderVideo.setOnErrorListener(this);
+        Toast.makeText(this, "Grabación de vídeo", Toast.LENGTH_LONG).show();
+        recorderVideo.start();
         startBtn.setEnabled(false);
         stopBtn.setEnabled(true);
 
@@ -189,13 +228,14 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
 
 
     public void stopRecording(){
-        if(recorder!=null)
-            recorder.setOnErrorListener(null);
-            recorder.setOnInfoListener(null);
+        if(recorderVideo!=null)
+            recorderVideo.setOnErrorListener(null);
+            recorderVideo.setOnInfoListener(null);
             try {
-                recorder.stop();
+                Toast.makeText(this, "Vídeo detenido", Toast.LENGTH_LONG).show();
+                recorderVideo.stop();
             }catch (IllegalStateException e){
-                Log.e("ERROR" , "Fallo al parar de grabar");
+                //Log.e("ERROR" , "Fallo al parar de grabar");
             }
             releaseRecorder();
             releaseCamera();
@@ -205,9 +245,9 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
     }
 
     private void releaseRecorder() {
-        if(recorder != null){
-            recorder.release();
-            recorder = null;
+        if(recorderVideo != null){
+            recorderVideo.release();
+            recorderVideo = null;
         }
     }
 
@@ -229,7 +269,6 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
         videoView.setMediaController(mc);
         videoView.setVideoPath(outputFilename);
         videoView.start();
-        stopPlayBtn.setEnabled(false);
 
     }
 
@@ -278,8 +317,7 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
         startBtn.setEnabled(false);
         stopBtn.setEnabled(false);
         playBtn.setEnabled(false);
-        stopPlayBtn.setEnabled(false);
-        //initBtn.setEnabled(false);
+
         if(!initCamera())
             finish();
     }

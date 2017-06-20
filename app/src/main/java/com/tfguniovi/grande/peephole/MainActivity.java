@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         botonDES = (Button) findViewById(R.id.add);
         cam = (Button) findViewById(R.id.cam);
         list = (Button) findViewById(R.id.lista);
-        grabar = (Button) findViewById(R.id.audio);
+        //grabar = (Button) findViewById(R.id.audio);
         video = (Button) findViewById(R.id.video);
 
 
@@ -519,10 +519,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(send);
     }
 
-    public void record(View v){
-        Intent intent = new Intent(this,AudioActivity.class);
-        startActivity(intent);
-    }
 
     public void grabar(View v){
         Intent intent = new Intent(this,VideoActivity.class);

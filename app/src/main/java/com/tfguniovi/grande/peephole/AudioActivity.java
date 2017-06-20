@@ -23,9 +23,10 @@ import java.io.IOException;
 public class AudioActivity extends AppCompatActivity {
 
     private MediaPlayer mediaPlayer;
-    private MediaRecorder recorder;
+    private MediaRecorder recorderVideo;
     private String OUTPUT_FILE;
     Button start , fin ;
+    private MediaRecorder recorderAudio;
     //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
     int i = 0;
 
@@ -95,14 +96,14 @@ public class AudioActivity extends AppCompatActivity {
             outFile.delete();
 
 
-        recorder = new MediaRecorder();
+        recorderVideo = new MediaRecorder();
         //Grabamos del micro del movil
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        recorder.setOutputFile(OUTPUT_FILE);
-        recorder.prepare();
-        recorder.start();
+        recorderVideo.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorderVideo.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        recorderVideo.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        recorderVideo.setOutputFile(OUTPUT_FILE);
+        recorderVideo.prepare();
+        recorderVideo.start();
 }
 
     public void stop (View v){
@@ -110,8 +111,8 @@ public class AudioActivity extends AppCompatActivity {
     }
 
     public void stopRecording(){
-        if(recorder!=null)
-            recorder.stop();
+        if(recorderVideo!=null)
+            recorderVideo.stop();
     }
 
 
