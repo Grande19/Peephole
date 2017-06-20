@@ -12,9 +12,6 @@
     tools:context="com.tfguniovi.grande.peephole.MainActivity"
     android:weightSum="1">
 
-
-
-
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="fill_parent"
@@ -22,8 +19,15 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/video"
+            android:layout_width="85dp"
+            android:layout_height="wrap_content"
+            android:text="Video"
+            android:onClick="grabar"/>
+
+        <Button
             android:id="@+id/audio"
-            android:layout_width="140dp"
+            android:layout_width="85dp"
             android:layout_height="wrap_content"
             android:text="Grabar audio"
             android:onClick="record"/>

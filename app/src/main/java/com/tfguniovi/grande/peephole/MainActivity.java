@@ -38,7 +38,7 @@ import javax.mail.internet.InternetAddress;
 
 
 public class MainActivity extends AppCompatActivity {
-    private Button    botonDES , botonLocal , cam , list , grabar;
+    private Button    botonDES , botonLocal , cam , list , grabar , video;
     private final static int REQUEST_ENABLE_BT = 1;
     ListView lv, ls;
     private Set<BluetoothDevice> pairedDevices;
@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
         cam = (Button) findViewById(R.id.cam);
         list = (Button) findViewById(R.id.lista);
         grabar = (Button) findViewById(R.id.audio);
+        video = (Button) findViewById(R.id.video);
 
 
         //encendiendo el bluetooth nada más acceder a la app
@@ -520,6 +521,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void record(View v){
         Intent intent = new Intent(this,AudioActivity.class);
+        startActivity(intent);
+    }
+
+    public void grabar(View v){
+        Intent intent = new Intent(this,VideoActivity.class);
         startActivity(intent);
     }
 
