@@ -525,8 +525,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void enviar(View v){
         try {
-
-
+            running = false;
             getTrustedDevice();
             Intent send = new Intent(this, MailActivity.class);
             send.putExtra("correo1", dir1);

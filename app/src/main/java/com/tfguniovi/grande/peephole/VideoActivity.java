@@ -186,7 +186,7 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
 
     private  void beginRecording(){
         if (recorderVideo != null) return;
-        outputFilename = Environment.getExternalStorageDirectory()+"/intruso.mp4";
+        outputFilename = Environment.getExternalStorageDirectory()+"/intruso.3ggp";
         //Abre el archivo en la ruta que le especificamos
         File outFile = new File(outputFilename);
         if(outFile.exists())
