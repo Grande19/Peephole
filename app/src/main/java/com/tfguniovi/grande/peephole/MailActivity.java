@@ -4,10 +4,16 @@ package com.tfguniovi.grande.peephole;
  * Alvaro Grande
  */
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.ParcelUuid;
+import android.os.Process;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -40,6 +46,8 @@ import android.widget.Toast;
 
 public class MailActivity extends AppCompatActivity {
 
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE = 1;
+
     Session session = null;
     ProgressDialog pdialog = null;
     Context context = null;
@@ -57,67 +65,117 @@ public class MailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_mail);
 
         context = this;
+        if(isNetwork()==false){
+            Toast.makeText(this, "NO TIENES CONEXIÓN A INTERNET", Toast.LENGTH_LONG).show();
+        }
 
         //El usuario debe introducir los correos a los que quiere notificar
 
         //email1 = (EditText) findViewById(R.id.email1);
         //sub = (EditText) findViewById(R.id.et_sub);
         //email2 = (EditText) findViewById(R.id.email2);
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_NETWORK_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_NETWORK_STATE)) {
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE);
+
+            }
+        }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE: {
+                //Si la petición es cancelada, el resultado estará vacío.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
+
+                } else {
+                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
+                }
+                return;
+            }
+        }}
+
+    public boolean isNetwork(){
+        try {
+            java.lang.Process p = Runtime.getRuntime().exec("ping -c 1 www.google.es");
+            int val=p.waitFor();
+            boolean reachable = (val == 0);
+            return reachable;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     //CUANDO PULSAMOS PARA ENVIAR EL MAIL EMPIEZA AQUI , método onClick()
     //quiero que se haga autómaticamente después de cierto tiempo descubriendo dispositivos
     public void correo(View v) {
         //rec = email1.getText().toString();
         //extra = email2.getText().toString();
-        Bundle bundle = getIntent().getExtras();
-        e1 = bundle.getString("correo1");
+        if (isNetwork()==true) {
+            Bundle bundle = getIntent().getExtras();
+            e1 = bundle.getString("correo1");
 
-        if(e1==null){
-            e1 = "peepholeuniovi@gmail.com";
-        }
-        e2 = bundle.getString("correo2");
-
-        if(e2==null){
-            e2 = "peepholeuniovi@gmail.com";
-        }
-        e3 = bundle.getString("correo3");
-        if(e3==null){
-           e3 = "peepholeuniovi@gmail.com";
-        }
-        pol = "policia@policia.com";
-
-
-
-        subject = "Alerta intruso"; //Poner de asunto algo significativo !
-        textMessage = "Hemos detectado los siguientes dispositivos sospechosos en su casa , adjuntamos información";
-
-        //Conectamos con los servicios de gmail
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.socketFactory.port", "465");
-        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.port", "465");
-
-        session = Session.getDefaultInstance(props, new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-
-                //Registro del correo en servidor Gmail
-                //ACORDARSE DE METER PASSWORD CUANDO QUIERA MANDAR CORREO!!!!!!!!!!!!!!!!
-                //Aplicación creada para que envie correos a los usuarios
-                return new PasswordAuthentication("peepholeuniovi@gmail.com", "tfg_2017");
+            if (e1 == null) {
+                e1 = "peepholeuniovi@gmail.com";
             }
-        });
+            e2 = bundle.getString("correo2");
 
-        pdialog = ProgressDialog.show(context, "", "Sending Mail...", true);
+            if (e2 == null) {
+                e2 = "peepholeuniovi@gmail.com";
+            }
+            e3 = bundle.getString("correo3");
+            if (e3 == null) {
+                e3 = "peepholeuniovi@gmail.com";
+            }
+            pol = "policia@policia.com";
 
-        RetreiveFeedTask task = new RetreiveFeedTask(); //crea una tarea asíncrona
-        task.execute(); //ejecuta la tarea asíncrona
 
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-    }
+            subject = "Alerta intruso"; //Poner de asunto algo significativo !
+            textMessage = "Hemos detectado los siguientes dispositivos sospechosos en su casa , adjuntamos información";
+
+            //Conectamos con los servicios de gmail
+            Properties props = new Properties();
+            props.put("mail.smtp.host", "smtp.gmail.com");
+            props.put("mail.smtp.socketFactory.port", "465");
+            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.port", "465");
+
+            session = Session.getDefaultInstance(props, new Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+
+                    //Registro del correo en servidor Gmail
+                    //ACORDARSE DE METER PASSWORD CUANDO QUIERA MANDAR CORREO!!!!!!!!!!!!!!!!
+                    //Aplicación creada para que envie correos a los usuarios
+                    return new PasswordAuthentication("peepholeuniovi@gmail.com", "tfg_2017");
+                }
+            });
+
+            pdialog = ProgressDialog.show(context, "", "Sending Mail...", true);
+
+            RetreiveFeedTask task = new RetreiveFeedTask(); //crea una tarea asíncrona
+            task.execute(); //ejecuta la tarea asíncrona
+
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+
+        }//if
+        }//correo
 
     class RetreiveFeedTask extends AsyncTask<String, Void, String> {
         //doInbackground recibe un string como parametro de entrada

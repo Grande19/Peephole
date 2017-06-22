@@ -403,7 +403,7 @@ public class MainActivity extends AppCompatActivity {
             OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
             //fout = new OutputStreamWriter(openFileOutput("intruso.txt", Context.MODE_APPEND));
             Log.d("Ficheros", "Escribiendo intruso.txt");
-            fout.write("Intruso detectado[hora/día/mes]"+"["+hora+":"+ min + "/"+dia+"/"+month +
+            fout.write("Intruso detectado[hora/día/mes]"+"["+hora+":"+ min + "/"+dia+"/"+month
                     +"\n[MAC->NOMBRE]:" + dispositivos
                     + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
             fout.close();
@@ -475,20 +475,28 @@ public class MainActivity extends AppCompatActivity {
 
     public void getTrustedDevice() {
 
-            Bundle bundle = getIntent().getExtras();
-            usu1 = bundle.getString("dispo1");
-            trusted_device.add(usu1);
-            usu2 = bundle.getString("dispo2");
-            trusted_device.add(usu2);
-            usu3 = bundle.getString("dispo3");
-            trusted_device.add(usu3);
-            dir1 = bundle.getString("email1");
-            //emails.add(email1);
-            dir2 = bundle.getString("email2");
-            //emails.add(email2);
-            dir3 = bundle.getString("email2");
-            //emails.add(email3);
-            Log.d("TRUSTED_DEVICES", usu1 + usu2 + usu3 + dir1 + dir2);
+            try {
+                Bundle bundle = getIntent().getExtras();
+                usu1 = bundle.getString("dispo1");
+                trusted_device.add(usu1);
+                usu2 = bundle.getString("dispo2");
+                trusted_device.add(usu2);
+                usu3 = bundle.getString("dispo3");
+                trusted_device.add(usu3);
+                dir1 = bundle.getString("email1");
+                //emails.add(email1);
+                dir2 = bundle.getString("email2");
+                //emails.add(email2);
+                dir3 = bundle.getString("email2");
+                //emails.add(email3);
+                Log.d("TRUSTED_DEVICES", usu1 + usu2 + usu3 + dir1 + dir2);
+
+            } catch (Exception e){
+                e.printStackTrace();
+                Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+
+            }
+
 
     }
 
@@ -516,12 +524,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void enviar(View v){
-        getTrustedDevice();
-        Intent send = new Intent(this,MailActivity.class);
-        send.putExtra("correo1" , dir1);
-        send.putExtra("correo2", dir2);
-        send.putExtra("correo3" , dir3);
-        startActivity(send);
+        try {
+
+
+            getTrustedDevice();
+            Intent send = new Intent(this, MailActivity.class);
+            send.putExtra("correo1", dir1);
+            send.putExtra("correo2", dir2);
+            send.putExtra("correo3", dir3);
+            startActivity(send);
+        }catch (Exception e){
+            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+        }
     }
 
 
