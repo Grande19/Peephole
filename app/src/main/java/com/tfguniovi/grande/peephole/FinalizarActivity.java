@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,20 +20,27 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class FinalizarActivity extends AppCompatActivity {
     private BroadcastReceiver dispReciever;
     private ArrayList dispositivos;
-    ListView lv;
+    TextView lv;
+    BufferedReader lector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finalizar);
-        lv = (ListView) findViewById(R.id.dispo);
+        lv = (TextView) findViewById(R.id.dispo);
+        leer();
         /*
         try{
         Bundle bundle = getIntent().getExtras();
@@ -44,6 +52,33 @@ public class FinalizarActivity extends AppCompatActivity {
 
     }^*/
     }
+
+
+    public void leer(){
+        try  {
+            File path = Environment.getExternalStorageDirectory();
+            File fichero = new File(path.getAbsolutePath(),"intruso.txt");
+            InputStreamReader flujo = new InputStreamReader(new FileInputStream(fichero));
+            lector = new BufferedReader(flujo);
+            String texto = lector.readLine();
+            while (texto!=null) {
+                lv.append(texto);
+                texto=lector.readLine();
+            }
+        } catch (Exception ex){
+            Toast.makeText(this,"Imposible acceder al archivo comprobar memoria interna",Toast.LENGTH_LONG).show();
+        }
+        finally {
+            try {
+                if (lector != null) {
+                    lector.close();
+                }
+            } catch (Exception ex) {
+
+            }
+        }
+
+        }
 
 
 

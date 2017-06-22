@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -34,11 +35,24 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Properties;
 import java.util.Set;
 import java.io.OutputStreamWriter;
 import java.util.TimeZone;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+import javax.mail.Authenticator;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -60,12 +74,20 @@ public class MainActivity extends AppCompatActivity {
     public boolean get = false ;
     boolean running = true;
     public int cont=1;
+    Session session = null;
+    String e3 , pol;
+    String rec, subject, textMessage;
+    BodyPart adjunto_texto;
+    BodyPart adjunto_audio;
+    String path = Environment.getExternalStorageDirectory()+"/intruso.txt";
+    String path1 = Environment.getExternalStorageDirectory()+"/intruso_audio.3gpp";
     //Solicitud de permisos
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH = 2 ;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 3;
     private static final int MY_PERMISSIONS_REQUEST_INTERNET = 4 ;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN = 5 ;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE = 6;
 
 
 
@@ -101,6 +123,22 @@ public class MainActivity extends AppCompatActivity {
          * Solicitud de permisos en caso de que estemos con un SO Android superior a 6.0
          */
 
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_NETWORK_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_NETWORK_STATE)) {
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE);
+
+            }
+        }
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -178,7 +216,9 @@ public class MainActivity extends AppCompatActivity {
                             MY_PERMISSIONS_REQUEST_INTERNET);
 
                 }
+
             }
+
 
 
 
@@ -267,6 +307,17 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return;
             }
+            case MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE: {
+                //Si la petición es cancelada, el resultado estará vacío.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
+
+                } else {
+                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
+                }
+                return;
+            }
 
                 // A continuación, se expondrían otras posibilidades de petición de permisos.
             }
@@ -276,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
     public void comenzar(View v){
             //startGps();
             getCoordenadas();
-            new Bluetooth().execute();
+        new Bluetooth().execute();
 
     }
 
@@ -431,7 +482,7 @@ public class MainActivity extends AppCompatActivity {
         stopGps();
         //Bluetooth.onCancelled();
         Intent intent = new Intent(this , FinalizarActivity.class);
-        intent.putCharSequenceArrayListExtra("lista",dispostivos_fin);
+        //intent.putCharSequenceArrayListExtra("lista",dispostivos_fin);
         startActivity(intent);
         //descub.dismiss();
         //finish();
@@ -524,17 +575,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void enviar(View v){
-        try {
-            running = false;
-            getTrustedDevice();
-            Intent send = new Intent(this, MailActivity.class);
-            send.putExtra("correo1", dir1);
-            send.putExtra("correo2", dir2);
-            send.putExtra("correo3", dir3);
-            startActivity(send);
-        }catch (Exception e){
-            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
-        }
+            email();
     }
 
 
@@ -543,5 +584,132 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
+    /***
+     * Clase MailActivity para enviar correos de alerta
+     */
+
+    public void email() {
+        //rec = email1.getText().toString();
+        //extra = email2.getText().toString();
+        //if (isNetwork()==true) {
+
+
+        if (dir1 == null) {
+            dir1 = "peepholeuniovi@gmail.com";
+        }
+
+        if (dir2 == null) {
+            dir2 = "peepholeuniovi@gmail.com";
+        }
+        if (dir3 == null) {
+            dir3 = "peepholeuniovi@gmail.com";
+        }
+        pol = "policia@policia.com";
+
+        adjunto_audio = new MimeBodyPart();
+        adjunto_texto = new MimeBodyPart();
+
+
+        try {
+            adjunto_texto.setDataHandler(new DataHandler(new FileDataSource(path)));
+            adjunto_texto.setFileName("intruso.txt");
+            adjunto_audio.setDataHandler(new DataHandler(new FileDataSource(path1)));
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+
+
+        subject = "Alerta intruso"; //Poner de asunto algo significativo !
+        textMessage = "Hemos detectado los siguientes dispositivos sospechosos en su casa , adjuntamos información";
+
+        //Conectamos con los servicios de gmail
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.socketFactory.port", "465");
+        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.port", "465");
+
+        session = Session.getDefaultInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+
+                //Registro del correo en servidor Gmail
+                //ACORDARSE DE METER PASSWORD CUANDO QUIERA MANDAR CORREO!!!!!!!!!!!!!!!!
+                //Aplicación creada para que envie correos a los usuarios
+                return new PasswordAuthentication("peepholeuniovi@gmail.com", "tfg_2017");
+            }
+        });
+
+        //pdialog = ProgressDialog.show(context, "", "Sending Mail...", true);
+
+        //MainActivity.RetreiveFeedTask task = new MainActivity.RetreiveFeedTask(); //crea una tarea asíncrona
+        //task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);//ejecuta la tarea asíncrona
+
+        new RetreiveFeedTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        //Intent intent = new Intent(this, MainActivity.class);
+        //startActivity(intent);
+
+        //}//if
+    }//correo
+
+    class RetreiveFeedTask extends AsyncTask<String, Void, String> {
+        //doInbackground recibe un string como parametro de entrada
+        //publishProgress y onProgressUpdate reciben vacío
+        //doInBackground devuelve un String que lo recibe onPostexecute
+
+
+        @Override
+        //AsyckTask para hacer operaciones en segundo plano (background)
+        protected String doInBackground(String... params) {
+
+            try{
+                BodyPart texto=new MimeBodyPart();
+                texto.setText(textMessage);
+                File out = new File(path);
+                File out2 = new File(path1);
+                MimeMultipart multiParte = new MimeMultipart();
+                if(out.exists()==true) {
+                    multiParte.addBodyPart(adjunto_texto);
+                }
+                if(out2.exists()==true) {
+                    adjunto_audio.setFileName("intruso_audio.3gpp");
+                    Log.d("NO","existe");
+                    multiParte.addBodyPart(adjunto_audio);
+                }
+
+                Message message = new MimeMessage(session);
+                message.setFrom(new InternetAddress("peepholeuniovi@gmail.com", "[Peephole]"));
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(dir1));
+                message.addRecipient(Message.RecipientType.TO, new InternetAddress(dir2));
+                message.addRecipient(Message.RecipientType.CC , new InternetAddress(dir3));
+                message.addRecipient(Message.RecipientType.CC , new InternetAddress(pol));
+
+                // message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(extra));
+                message.setSubject(subject);
+                multiParte.addBodyPart(texto);
+                message.setContent(multiParte);
+                Transport.send(message);
+
+
+            } catch(MessagingException e) {
+                e.printStackTrace();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+           // pdialog.dismiss();
+            //email1.setText("");
+            //msg.setText("");
+            //sub.setText("");
+
+
+            Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
+        }
+    }
 
 }//MainActivity

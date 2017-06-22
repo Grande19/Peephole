@@ -34,19 +34,21 @@
         app:layout_anchor="@+id/include"
         app:layout_anchorGravity="bottom|right" />
 
-    <include
-        android:id="@+id/include"
-        layout="@layout/content_finalizar2" />
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:text="TextView" />
 
-    <ListView
+
+    <TextView
         android:id="@+id/dispo"
         android:layout_width="match_parent"
-        android:layout_height="514dp" />
+        android:layout_height="275dp"
+        android:layout_marginTop="150dp"/>
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/content_finalizar2" />
 
 </android.support.design.widget.CoordinatorLayout>
