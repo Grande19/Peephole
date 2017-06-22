@@ -20,6 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -31,8 +32,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Set;
 import java.io.OutputStreamWriter;
+import java.util.TimeZone;
 
 import javax.mail.internet.InternetAddress;
 
@@ -45,21 +49,16 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothDevice device;
     private BluetoothAdapter BA;
     private BroadcastReceiver mReciever , gReciever , gpsReceiver , usuReceiver , disReceiver;
-    final ArrayList rssi_list = new ArrayList();
     private ArrayList dispositivos = new ArrayList();
     private ArrayList dispostivos_fin = new ArrayList();
     public ArrayList trusted_device = new ArrayList();
-    public ArrayList emails = new ArrayList();
     public ArrayList discover = new ArrayList();
     public Double longitud , latitud;
     public String dir1 , dir2 , dir3 , usu1 , usu2 , usu3;
-    public boolean localizacion =false;
     File ruta_sd = Environment.getExternalStorageDirectory();
-    File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
     public boolean finalizar = false;
     public boolean get = false ;
     boolean running = true;
-    boolean coordenadas = false;
     public int cont=1;
     //Solicitud de permisos
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
@@ -392,6 +391,11 @@ public class MainActivity extends AppCompatActivity {
             //if(longitud!=null && latitud!=null ){
             //stopGps();
             //if(longitud!=null && latitud!=null && cont==0) {
+            Calendar calendarNow = new GregorianCalendar(TimeZone.getTimeZone("Europe/Madrid"));
+            int dia=calendarNow.get(Calendar.DAY_OF_MONTH);
+            int month = calendarNow.get(Calendar.MONTH)+1;
+            int min = calendarNow.get(Calendar.MINUTE);
+            int hora = calendarNow.get(Calendar.HOUR_OF_DAY);
             stopGps();
             //getCoordenadas();
             File ruta_sd = Environment.getExternalStorageDirectory();
@@ -399,7 +403,8 @@ public class MainActivity extends AppCompatActivity {
             OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
             //fout = new OutputStreamWriter(openFileOutput("intruso.txt", Context.MODE_APPEND));
             Log.d("Ficheros", "Escribiendo intruso.txt");
-            fout.write("[MAC->NOMBRE]:" + dispositivos
+            fout.write("Intruso detectado[hora/día/mes]"+"["+hora+":"+ min + "/"+dia+"/"+month +
+                    +"\n[MAC->NOMBRE]:" + dispositivos
                     + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
             fout.close();
             cont =2 ;
