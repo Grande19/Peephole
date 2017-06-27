@@ -3,6 +3,7 @@
 package com.tfguniovi.grande.peephole;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.MediaPlayer;
@@ -58,52 +59,60 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
 
     //Lugar donde se almacenará el audio
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
 
-        OUTPUT_FILE_AUDIO = Environment.getExternalStorageDirectory()+"/intruso_audio.3gpp";
-        OUTPUT_FILE = Environment.getExternalStorageDirectory()+"/intruso_video.mp4";
+        OUTPUT_FILE_AUDIO = Environment.getExternalStorageDirectory() + "/intruso_audio.3gpp";
+        OUTPUT_FILE = Environment.getExternalStorageDirectory() + "/intruso_video.mp4";
         startBtn = (Button) findViewById(R.id.empezar);
         stopBtn = (Button) findViewById(R.id.acabar);
         playBtn = (Button) findViewById(R.id.rep);
-        videoView = (VideoView)this.findViewById(R.id.videoView);
+        videoView = (VideoView) this.findViewById(R.id.videoView);
         startaudio = (Button) findViewById(R.id.startaudio);
         stopaudio = (Button) findViewById(R.id.stopaudio);
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.CAPTURE_VIDEO_OUTPUT)
-                != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.CAPTURE_VIDEO_OUTPUT)
+                    != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.CAPTURE_VIDEO_OUTPUT)) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.CAPTURE_VIDEO_OUTPUT)) {
 
-            } else {
+                } else {
 
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.RECORD_AUDIO},
-                        MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT);
+                    if(ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            Manifest.permission.CAPTURE_VIDEO_OUTPUT)){
+                        Toast.makeText(this, "El permiso es necesario para utilizar la cámara.",
+                                Toast.LENGTH_SHORT).show();
+                    }
 
+
+                }
+                requestPermissions(new String[]{Manifest.permission.CAPTURE_AUDIO_OUTPUT}, MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT);
+
+            }
+
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.RECORD_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.RECORD_AUDIO)) {
+
+                } else {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.RECORD_AUDIO},
+                            MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
+
+                }
             }
         }
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.RECORD_AUDIO)) {
-
-            } else {
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.RECORD_AUDIO},
-                        MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
-
-            }
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
@@ -347,4 +356,6 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
     public void onError(MediaRecorder mr, int what, int extra) {
 
     }
+
+
 }

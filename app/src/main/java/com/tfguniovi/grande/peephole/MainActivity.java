@@ -4,34 +4,35 @@ package com.tfguniovi.grande.peephole;
  * Alvaro Grande
  */
 
-import android.Manifest;
-import android.app.ProgressDialog;
+import android.app.LocalActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.format.Time;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TabHost;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -64,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter BA;
     private BroadcastReceiver mReciever , gReciever , gpsReceiver , usuReceiver , disReceiver;
     private ArrayList dispositivos = new ArrayList();
-    private ArrayList dispostivos_fin = new ArrayList();
     public ArrayList trusted_device = new ArrayList();
     public ArrayList discover = new ArrayList();
+    public ArrayList dispostivos_fin = new ArrayList();
     public Double longitud , latitud;
     public String dir1 , dir2 , dir3 , usu1 , usu2 , usu3;
     File ruta_sd = Environment.getExternalStorageDirectory();
@@ -75,31 +76,29 @@ public class MainActivity extends AppCompatActivity {
     boolean running = true;
     public int cont=1;
     Session session = null;
-    String e3 , pol;
-    String rec, subject, textMessage;
+    String  pol;
+    String  subject, textMessage;
     BodyPart adjunto_texto;
     BodyPart adjunto_audio;
     String path = Environment.getExternalStorageDirectory()+"/intruso.txt";
     String path1 = Environment.getExternalStorageDirectory()+"/intruso_audio.3gpp";
     //Solicitud de permisos
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA=8;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH = 2 ;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 3;
     private static final int MY_PERMISSIONS_REQUEST_INTERNET = 4 ;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN = 5 ;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE = 6;
+    private static  final int MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT=7;
 
 
+    /***
+     * Creacion de la Pantalla principal
+     * @param savedInstanceState
+     */
 
-    int i = 0;
-    //File f;
-    //public LocationService location = new LocationService(getApplicationContext());
-
-
-
-
-
-
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -114,6 +113,58 @@ public class MainActivity extends AppCompatActivity {
         list = (Button) findViewById(R.id.lista);
         //grabar = (Button) findViewById(R.id.audio);
         video = (Button) findViewById(R.id.video);
+        BottomNavigationView bottomNavigationView=(BottomNavigationView) findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                switch (item.getItemId())
+                {
+                    case R.id.acction_add:
+                        Intent i = new Intent(MainActivity.this,RegistroActivity.class);
+                        startActivity(i);
+                        break;
+                    case R.id.mail:
+                        Toast.makeText(MainActivity.this, "Entrando en mail", Toast.LENGTH_LONG).show();
+                        break;
+                    case R.id.bluetooth:
+                        Toast.makeText(MainActivity.this, "Entrando en bluetooth", Toast.LENGTH_LONG).show();
+                        break;
+                }
+
+
+            }
+        });
+
+
+
+
+        if (!BA.isEnabled()) {
+            Intent ONintent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(ONintent, REQUEST_ENABLE_BT);
+            Toast.makeText(this, "Turning on Bluetooth", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
+        }
+
+
+        try{
+            getTrustedDevice();
+        }
+        catch (Exception ex){
+            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+        }
+
+    }//OnCreate
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_audio, menu);
+        return true;
+    }
+
 
 
         //encendiendo el bluetooth nada más acceder a la app
@@ -122,7 +173,62 @@ public class MainActivity extends AppCompatActivity {
         /***
          * Solicitud de permisos en caso de que estemos con un SO Android superior a 6.0
          */
+       /* int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permissionCheck2 = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
 
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+            }
+        }
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.CAMERA)) {
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CAMERA},
+                        MY_PERMISSIONS_REQUEST_CAMERA);
+
+            }
+        }
+
+
+        /*if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAPTURE_VIDEO_OUTPUT)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.CAPTURE_VIDEO_OUTPUT)) {
+
+            } else {
+
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.CAPTURE_VIDEO_OUTPUT)){
+                    Toast.makeText(this, "El permiso es necesario para utilizar la cámara.",
+                            Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+            requestPermissions(new String[]{Manifest.permission.CAPTURE_AUDIO_OUTPUT}, MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT);
+
+        }
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_NETWORK_STATE)
@@ -218,27 +324,11 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
+        */
 
 
 
 
-
-
-        if (!BA.isEnabled()) {
-            Intent ONintent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(ONintent, REQUEST_ENABLE_BT);
-            Toast.makeText(this, "Turning on Bluetooth", Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
-        }
-
-
-        try{
-            getTrustedDevice();
-        }
-        catch (Exception ex){
-            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
-        }
 
 
 
@@ -246,9 +336,9 @@ public class MainActivity extends AppCompatActivity {
         //startGps();
 
         //this.startActivity();
-    }
 
-    @Override
+
+    /*@Override
     public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
@@ -321,13 +411,15 @@ public class MainActivity extends AppCompatActivity {
 
                 // A continuación, se expondrían otras posibilidades de petición de permisos.
             }
-        }
+        }*/
+
 
 
     public void comenzar(View v){
-            //startGps();
-            getCoordenadas();
+            startGps();
+           getCoordenadas();
         new Bluetooth().execute();
+
 
     }
 
@@ -387,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
                                 discover.add(device);
                                 dispositivos.add(device + "->" + name);
                                 //Log.d("DESCUBRE : nombre_disp" , name);
-                                fichero(rssi, address, name);
+                                fichero();
 
                             }
                         } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
@@ -435,7 +527,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void fichero(int rss , String add , String name){
+
+
+    public void fichero(){
         try {
             //getCoordenadas();
             //falta añadir 2 dispositivos en el mismo fichero porque ahora solo detecta y escribe 1

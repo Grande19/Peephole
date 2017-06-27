@@ -1,119 +1,80 @@
-package com.tfguniovi.grande.peephole;
+/*package com.tfguniovi.grande.peephole;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
-import android.media.MediaRecorder;
+import android.app.LocalActivityManager;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.StrictMode;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.content.res.Resources;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTabHost;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.ContextThemeWrapper;
-import android.view.View;
-import android.widget.Button;
-
-import java.io.File;
-import java.io.IOException;
+import android.util.Log;
+import android.view.Menu;
+import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
 
 public class AudioActivity extends AppCompatActivity {
 
-    private MediaPlayer mediaPlayer;
-    private MediaRecorder recorderVideo;
-    private String OUTPUT_FILE;
-    Button start , fin ;
-    private MediaRecorder recorderAudio;
-    //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
-    int i = 0;
+    //Log
+    private final String TAG = getClass().getSimpleName();
 
 
-    private static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 1 ;
+    private Adaptador_ViewPagerPrincipal Adaptador_ViewPagerPrincipal;
+    private ViewPager ViewPager;
 
-
-
-    //Lugar donde se almacenará el audio
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_audio);
+        setContentView(R.layout.tab_menu);
 
-        OUTPUT_FILE = Environment.getExternalStorageDirectory()+"/intruso.3gpp";
-        start = (Button) findViewById(R.id.empezar);
-        fin = (Button) findViewById(R.id.acabar);
+        // Iniciamos la barra de herramientas.
+        Toolbar toolbar = (Toolbar) findViewById(R.id.ToolbarPrincipal);
+        setSupportActionBar(toolbar);
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
+        final AppBarLayout appbar = (AppBarLayout) findViewById(R.id.AppbarPrincipal);
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.RECORD_AUDIO)) {
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle("");
 
-            } else {
 
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.RECORD_AUDIO},
-                        MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
+        // Iniciamos la barra de tabs
+        final TabLayout tabLayout = (TabLayout) findViewById(R.id.TabLayoutPrincipal);
 
-            }
-        }
-    }
+        // Añadimos las 3 tabs de las secciones.
+        // Le damos modo "fixed" para que todas las tabs tengan el mismo tamaño. Tambien le asignamos una gravedad centrada.
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_RECORD_AUDIO: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > i  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
 
-                } else {
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
 
-                }
-                return;
-            }
-        }
-    }
+        tabLayout.addTab(tabLayout.newTab());
+        tabLayout.addTab(tabLayout.newTab());
+        tabLayout.addTab(tabLayout.newTab());
 
-    public void start (View v) throws IOException {
-        beginRecording();
-        permisos();
-        //ditchMediaRecorder();
-    }
-    public void permisos(){
+
+        // Iniciamos el viewPager.
+        ViewPager = (ViewPager) findViewById(R.id.ViewPagerPrincipal);
+        // Creamos el adaptador, al cual le pasamos por parámetro el gestor de Fragmentos y muy importante, el nº de tabs o secciones que hemos creado.
+        Adaptador_ViewPagerPrincipal = new Adaptador_ViewPagerPrincipal(getSupportFragmentManager(), tabLayout.getTabCount(), this);
+        // Y los vinculamos.
+        ViewPager.setAdapter(Adaptador_ViewPagerPrincipal);
+
+        // Y por último, vinculamos el viewpager con el control de tabs para sincronizar ambos.
+        tabLayout.setupWithViewPager(ViewPager);
 
     }
 
-
-    private void beginRecording() throws IOException {
-        //ditchMediaRecorder();
-        File outFile = new File (OUTPUT_FILE);
-
-        if (outFile.exists())
-            outFile.delete();
-
-
-        recorderVideo = new MediaRecorder();
-        //Grabamos del micro del movil
-        recorderVideo.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorderVideo.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorderVideo.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        recorderVideo.setOutputFile(OUTPUT_FILE);
-        recorderVideo.prepare();
-        recorderVideo.start();
 }
 
-    public void stop (View v){
-        stopRecording();
-    }
-
-    public void stopRecording(){
-        if(recorderVideo!=null)
-            recorderVideo.stop();
-    }
 
 
-}
+
+
+
+
+
+*/

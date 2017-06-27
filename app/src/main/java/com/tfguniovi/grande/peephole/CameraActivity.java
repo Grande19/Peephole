@@ -23,6 +23,7 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.view.SurfaceView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tfguniovi.grande.peephole.R;
 
@@ -38,7 +39,12 @@ public class CameraActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         textTimeLeft=(TextView)findViewById(R.id.textTimeLeft); // make time left object
-        camera = Camera.open();
+
+        try {
+            camera = Camera.open();
+        }catch (Exception ex){
+            Toast.makeText(this,"No tienes los permisos necesarios revisar configuración",Toast.LENGTH_LONG).show();
+        }
         SurfaceView view = new SurfaceView(this);
 
         try {
@@ -53,7 +59,7 @@ public class CameraActivity extends Activity{
     Camera.PictureCallback jpegCallBack=new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
             // set file destination and file name
-            boolean write = Comprobar();
+            boolean write = comprobar();
             if (write == false){
                 Log.d("SD" , "Read Only , escribo en memoria interna");
             }
@@ -75,7 +81,7 @@ public class CameraActivity extends Activity{
         }
     };
 
-    public boolean Comprobar() {
+    public boolean comprobar() {
         boolean sdDisponible = false;
         boolean sdAccesoEscritura = false;
 

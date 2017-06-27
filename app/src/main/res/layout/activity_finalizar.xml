@@ -19,7 +19,6 @@
             android:text="Resumen de vigilancia"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColorLink="@drawable/common_plus_signin_btn_icon_dark"
             android:textSize="30sp"
             android:visibility="visible" />
     </android.support.design.widget.AppBarLayout>

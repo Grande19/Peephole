@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/acction_add"
+        android:enabled="true"
+        android:icon="@drawable/usuarios"
+        android:title="Usuarios"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/mail"
+        android:enabled="true"
+        android:icon="@drawable/mail"
+        android:title="Mail"
+        app:showAsAction="ifRoom" />
+
+
+    <item
+        android:id="@+id/bluetooth"
+        android:enabled="true"
+        android:icon="@drawable/bluetooth"
+        android:title="Bluetooth"
+        app:showAsAction="ifRoom" />
+
+
+
+</menu>
