@@ -74,7 +74,7 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
         startaudio = (Button) findViewById(R.id.startaudio);
         stopaudio = (Button) findViewById(R.id.stopaudio);
 
-            if (ContextCompat.checkSelfPermission(this,
+      /*      if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.CAPTURE_VIDEO_OUTPUT)
                     != PackageManager.PERMISSION_GRANTED) {
 
@@ -135,7 +135,7 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
                 }
                 return;
             }
-        }
+        }*/
     }
 
 

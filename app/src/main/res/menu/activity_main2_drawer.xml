@@ -29,8 +29,12 @@
         <menu>
             <item
                 android:id="@+id/acerdade"
-                android:icon="@drawable/ic_acercade"
+                android:icon="@drawable/web_hi_res_512"
                 android:title="Acerca de" />
+            <item
+                android:id="@+id/email"
+                android:icon="@mipmap/acerca"
+                android:title="Enviar comentario" />
         </menu>
     </item>
 

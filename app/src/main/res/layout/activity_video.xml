@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_video"
     android:orientation = "vertical"
@@ -12,13 +13,6 @@
     tools:context="com.tfguniovi.grande.peephole.VideoActivity"
     android:weightSum="1">
 
-    <TextView
-        android:id="@+id/txtIntro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Grabación de video"
-        android:textSize="18sp"
-        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -27,44 +21,49 @@
 
         <Button
             android:id="@+id/empezar"
-            android:layout_width="wrap_content"
+            android:layout_width="55dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dip"
-            android:onClick="start"
-            android:text="Grabar" />
+            android:background="@color/common_google_signin_btn_text_dark_default"
+            android:drawableRight="@mipmap/video"
+            android:onClick="start" />
 
         <Button
             android:id="@+id/rep"
-            android:layout_width="wrap_content"
+            android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dip"
-            android:onClick="rep"
-            android:text="Repetir" />
+            android:background="@color/common_google_signin_btn_text_dark_default"
+            android:drawableRight="@mipmap/repetir"
+            android:onClick="rep" />
+
         <Button
             android:id="@+id/acabar"
-            android:layout_width="wrap_content"
+            android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dip"
             android:onClick="stop"
-            android:text="Stop record" />
+            android:background="@color/common_google_signin_btn_text_dark_default"
+            android:drawableRight="@mipmap/stop_video"/>
 
         <Button
             android:id="@+id/startaudio"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dip"
-            android:layout_weight="1"
             android:onClick="start_audio"
-            android:text="Record" />
+
+            android:background="@color/common_google_signin_btn_text_dark_default"
+            android:drawableRight="@mipmap/micro"/>
 
         <Button
             android:id="@+id/stopaudio"
-            android:layout_width="wrap_content"
+            android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dip"
-            android:layout_weight="1"
             android:onClick="stop_audio"
-            android:text="Stopaudio" />
+            android:drawableRight="@mipmap/stop"
+            android:background="@color/common_google_signin_btn_text_dark_default"/>
 
     </LinearLayout>
 

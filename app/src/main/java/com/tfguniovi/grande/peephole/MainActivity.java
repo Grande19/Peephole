@@ -197,29 +197,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            VideoFragment videoFragment = new VideoFragment();
+            item.setChecked(true);
+            /*VideoFragment videoFragment = new VideoFragment();
             FragmentManager managervideo = getSupportFragmentManager();
             managervideo.beginTransaction().replace(R.id.relativelayout_for_fragment,videoFragment,
-                    videoFragment.getTag()).commit();
+                    videoFragment.getTag()).commit();*/
+            Intent i = new Intent(this,VideoActivity.class);
+            startActivity(i);
             //replace(lo que quieres remplazar,lo que añades)
             // Handle the camera action
         } else if (id == R.id.registro) {
+            item.setChecked(true);
             RegistroFragment registroFragment = RegistroFragment.newInstance("dire1","dire2","dire3","dis1","dis2","dis3");
             FragmentManager maganerregistro = getSupportFragmentManager();
             maganerregistro.beginTransaction().replace(R.id.relativelayout_for_fragment,registroFragment,
                     registroFragment.getTag()).commit();
 
         } else if (id == R.id.permisos) {
+            item.setChecked(true);
 
         } else if (id == R.id.nav_manage) {
+            item.setChecked(true);
 
         } else if (id == R.id.acerdade) {
+            item.setChecked(true);
             AcercadeFragment acercadeFragment = new AcercadeFragment();
             FragmentManager manageracercade = getSupportFragmentManager();
             manageracercade.beginTransaction().replace(R.id.relativelayout_for_fragment,acercadeFragment,
                     acercadeFragment.getTag()).commit();
 
         } else if (id == R.id.intrusos) {
+           item.setChecked(true);
             //IntrusosFragment intrusosFragment = IntrusosFragment.newInstance(dispositivos);
             
 

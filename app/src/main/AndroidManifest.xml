@@ -63,9 +63,10 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".VideoActivity"
-            android:label="@string/title_activity_video"
+            android:label="Peephole"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".MainActivity"/>
     </application>
 
 </manifest>
