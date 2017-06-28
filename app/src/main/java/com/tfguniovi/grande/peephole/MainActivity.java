@@ -4,20 +4,22 @@ package com.tfguniovi.grande.peephole;
  * Alvaro Grande
  */
 
-import android.app.LocalActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -28,7 +30,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TabHost;
 import android.widget.Toast;
 
 import java.io.File;
@@ -56,7 +57,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,RegistroFragment.OnFragmentInteractionListener {
     private Button    botonDES , botonLocal , cam , list , grabar , video;
     private final static int REQUEST_ENABLE_BT = 1;
     ListView lv, ls;
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     String path = Environment.getExternalStorageDirectory()+"/intruso.txt";
     String path1 = Environment.getExternalStorageDirectory()+"/intruso_audio.3gpp";
     //Solicitud de permisos
+
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final int MY_PERMISSIONS_REQUEST_CAMERA=8;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH = 2 ;
@@ -107,34 +109,31 @@ public class MainActivity extends AppCompatActivity {
 
         BA = BluetoothAdapter.getDefaultAdapter();
         //lv = (ListView) findViewById(R.id.lvDispositivos);
-        ls = (ListView) findViewById(R.id.DispositivosRSSI);
+        //ls = (ListView) findViewById(R.id.DispositivosRSSI);
         botonDES = (Button) findViewById(R.id.add);
         cam = (Button) findViewById(R.id.cam);
         list = (Button) findViewById(R.id.lista);
         //grabar = (Button) findViewById(R.id.audio);
         video = (Button) findViewById(R.id.video);
-        BottomNavigationView bottomNavigationView=(BottomNavigationView) findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+        Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar1);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onNavigationItemReselected(@NonNull MenuItem item) {
-                switch (item.getItemId())
-                {
-                    case R.id.acction_add:
-                        Intent i = new Intent(MainActivity.this,RegistroActivity.class);
-                        startActivity(i);
-                        break;
-                    case R.id.mail:
-                        Toast.makeText(MainActivity.this, "Entrando en mail", Toast.LENGTH_LONG).show();
-                        break;
-                    case R.id.bluetooth:
-                        Toast.makeText(MainActivity.this, "Entrando en bluetooth", Toast.LENGTH_LONG).show();
-                        break;
-                }
-
-
+            public void onClick(View view) {
+                comenzar();
             }
         });
 
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer,toolbar1, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
 
 
@@ -147,281 +146,131 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        try{
-            getTrustedDevice();
-        }
-        catch (Exception ex){
-            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
-        }
+
 
     }//OnCreate
 
+    /**
+     * Creación del NavigationDraver
+     * @param
+     * @return
+     */
 
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_audio, menu);
+        getMenuInflater().inflate(R.menu.main2, menu);
+        //getMenuInflater().inflate(R.menu.menu_audio, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            VideoFragment videoFragment = new VideoFragment();
+            FragmentManager managervideo = getSupportFragmentManager();
+            managervideo.beginTransaction().replace(R.id.relativelayout_for_fragment,videoFragment,
+                    videoFragment.getTag()).commit();
+            //replace(lo que quieres remplazar,lo que añades)
+            // Handle the camera action
+        } else if (id == R.id.registro) {
+            RegistroFragment registroFragment = RegistroFragment.newInstance("dire1","dire2","dire3","dis1","dis2","dis3");
+            FragmentManager maganerregistro = getSupportFragmentManager();
+            maganerregistro.beginTransaction().replace(R.id.relativelayout_for_fragment,registroFragment,
+                    registroFragment.getTag()).commit();
+
+        } else if (id == R.id.permisos) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.acerdade) {
+            AcercadeFragment acercadeFragment = new AcercadeFragment();
+            FragmentManager manageracercade = getSupportFragmentManager();
+            manageracercade.beginTransaction().replace(R.id.relativelayout_for_fragment,acercadeFragment,
+                    acercadeFragment.getTag()).commit();
+
+        } else if (id == R.id.intrusos) {
+            //IntrusosFragment intrusosFragment = IntrusosFragment.newInstance(dispositivos);
+            
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
 
+    public void comenzar(){
+           try{
+               startGps();
+               getCoordenadas();
+               new Bluetooth().execute();
+           }
+           catch (Exception ex){
+               Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+           }
 
-        //encendiendo el bluetooth nada más acceder a la app
-        //final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, rssi_list);
-        //ls.setAdapter(adapter);
-        /***
-         * Solicitud de permisos en caso de que estemos con un SO Android superior a 6.0
-         */
-       /* int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int permissionCheck2 = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-            } else {
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-
-            }
-        }
-
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.CAMERA)) {
-
-            } else {
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.CAMERA},
-                        MY_PERMISSIONS_REQUEST_CAMERA);
-
-            }
-        }
-
-
-        /*if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.CAPTURE_VIDEO_OUTPUT)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.CAPTURE_VIDEO_OUTPUT)) {
-
-            } else {
-
-                if(ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.CAPTURE_VIDEO_OUTPUT)){
-                    Toast.makeText(this, "El permiso es necesario para utilizar la cámara.",
-                            Toast.LENGTH_SHORT).show();
-                }
-
-
-            }
-            requestPermissions(new String[]{Manifest.permission.CAPTURE_AUDIO_OUTPUT}, MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT);
-
-        }
-
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_NETWORK_STATE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_NETWORK_STATE)) {
-
-            } else {
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE);
-
-            }
-        }
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-                } else {
-
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-
-                }
-            }
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.BLUETOOTH)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.BLUETOOTH)) {
-
-                } else {
-
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.BLUETOOTH},
-                            MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH);
-
-                }
-            }
-
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.BLUETOOTH_ADMIN)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.BLUETOOTH_ADMIN)) {
-
-                } else {
-
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.BLUETOOTH_ADMIN},
-                            MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN);
-
-                }
-            }
-
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                } else {
-
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-
-                }
-            }
-
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.INTERNET)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.INTERNET)) {
-
-                } else {
-
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.INTERNET},
-                            MY_PERMISSIONS_REQUEST_INTERNET);
-
-                }
-
-            }
-        */
-
-
-
-
-
-
-
-        //Se inicia el LocationService
-        //startGps();
-
-        //this.startActivity();
-
-
-    /*@Override
-    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
-                //Si la petición es cancelada, el resultado estará vacío.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
-
-                } else {
-                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
-                }
-                return;
-            }
-            case MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH:
-            {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
-
-                } else {
-                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
-                }
-                return;
-        }
-            case MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN:
-            {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
-
-                } else {
-                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
-                }
-                return;
-            }
-
-            case MY_PERMISSIONS_REQUEST_INTERNET:
-            {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
-
-                } else {
-                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
-                }
-                return;
-            }
-            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
-            {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
-
-                } else {
-                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
-                }
-                return;
-            }
-            case MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE: {
-                //Si la petición es cancelada, el resultado estará vacío.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Permiso aceptado, se podría acceder a los contactos del dispositivo.
-
-                } else {
-                    //Permiso denegado. Desactivar la funcionalidad que dependía de dicho permiso.
-                }
-                return;
-            }
-
-                // A continuación, se expondrían otras posibilidades de petición de permisos.
-            }
-        }*/
-
-
-
-    public void comenzar(View v){
-            startGps();
-           getCoordenadas();
-        new Bluetooth().execute();
 
 
     }
+
+    @Override
+    public void onFragmentInteraction(String dire1, String dire2, String dire3, String dis1, String dis2, String dis3) {
+
+        try {
+
+            usu1 = dire1;
+            trusted_device.add(usu1);
+            usu2 = dire2;
+            trusted_device.add(usu2);
+            usu3 = dire3;
+            trusted_device.add(usu3);
+            dir1 = dis2;
+            dir2 = dis1;
+            dir3 = dis3;
+            Log.d("TRUSTED_DEVICES", usu1 + usu2 + usu3 + dir1 + dir2);
+
+
+        } catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+
+        }
+
+    }
+
 
     /*public void bucle(){
        new Bluetooth().execute();
@@ -433,13 +282,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList doInBackground(Void... params) {
-
-            if (get == false){
-                getTrustedDevice();
-                get = true;
-            }
-
-
 
 
             while (running) {
@@ -521,13 +363,6 @@ public class MainActivity extends AppCompatActivity {
     } //Fin de AsynTask
 
 
-    public void confianza(View v){
-        Intent intent = new Intent(this,RegistroActivity.class);
-        startActivity(intent);
-    }
-
-
-
 
     public void fichero(){
         try {
@@ -562,12 +397,12 @@ public class MainActivity extends AppCompatActivity {
     }//fichero
 
 
-    public void list(View v){
+   /*public void list(View v){
         dispostivos_fin = dispositivos;
         final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, dispositivos);
         ls.setAdapter(adapter);
 
-    }
+    }*/
 
     public void fin (View view){
         finalizar = true ;
@@ -609,40 +444,16 @@ public class MainActivity extends AppCompatActivity {
         Log.d("GPS" , String.valueOf(latitud));
             }
         };
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("android.intent.action.GPS");
-        intentFilter.addAction(LOCATION_SERVICE);
-        registerReceiver(gpsReceiver,intentFilter);
-        stopGps();
-    }
+        try {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction("android.intent.action.GPS");
+            intentFilter.addAction(LOCATION_SERVICE);
+            registerReceiver(gpsReceiver, intentFilter);
+            stopGps();
+        }
+        catch (Exception ex){
 
-
-
-    public void getTrustedDevice() {
-
-            try {
-                Bundle bundle = getIntent().getExtras();
-                usu1 = bundle.getString("dispo1");
-                trusted_device.add(usu1);
-                usu2 = bundle.getString("dispo2");
-                trusted_device.add(usu2);
-                usu3 = bundle.getString("dispo3");
-                trusted_device.add(usu3);
-                dir1 = bundle.getString("email1");
-                //emails.add(email1);
-                dir2 = bundle.getString("email2");
-                //emails.add(email2);
-                dir3 = bundle.getString("email2");
-                //emails.add(email3);
-                Log.d("TRUSTED_DEVICES", usu1 + usu2 + usu3 + dir1 + dir2);
-
-            } catch (Exception e){
-                e.printStackTrace();
-                Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
-
-            }
-
-
+        }
     }
 
 
