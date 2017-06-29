@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativelayout_for_fragment"
+    android:id="@+id/cmain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -12,30 +12,18 @@
     tools:layout_editor_absoluteX="0dp">
 
 
-
-
-        <Button
-            android:id="@+id/video"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="grabar"
-            android:text="Video y Audio"
-            android:layout_above="@+id/email"
-            android:layout_centerHorizontal="true" />
-
-
-        <Button
+    <Button
             android:id="@+id/cam"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="camera"
-            android:text="Camara"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="21dp"
-            android:layout_marginStart="21dp"
-            android:layout_marginBottom="11dp" />
+        android:text="camara"
+        android:layout_alignBottom="@+id/end"
+        android:layout_alignRight="@+id/email"
+        android:layout_alignEnd="@+id/email"
+        android:layout_marginRight="64dp"
+        android:layout_marginEnd="64dp"
+        android:layout_marginBottom="31dp" />
 
         <Button
             android:id="@+id/lista"
@@ -43,10 +31,11 @@
             android:layout_height="wrap_content"
             android:onClick="list"
             android:text="Listar"
-            android:layout_alignBaseline="@+id/video"
-            android:layout_alignBottom="@+id/video"
-            android:layout_alignLeft="@+id/cam"
-            android:layout_alignStart="@+id/cam" />
+            android:layout_above="@+id/cam"
+            android:layout_alignRight="@+id/end"
+            android:layout_alignEnd="@+id/end"
+            android:layout_marginRight="34dp"
+            android:layout_marginEnd="34dp" />
 
 
 
@@ -58,33 +47,39 @@
             android:layout_weight="1"
             android:onClick="enviar"
             android:text="Email"
-            android:layout_alignBaseline="@+id/cam"
-            android:layout_alignBottom="@+id/cam"
-            android:layout_alignLeft="@+id/video"
-            android:layout_alignStart="@+id/video" />
+            android:layout_marginBottom="110dp"
+            android:layout_above="@+id/lista"
+            android:layout_toLeftOf="@+id/lista"
+            android:layout_toStartOf="@+id/lista" />
 
 
     <Button
             android:id="@+id/end"
-            android:layout_width="127dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="fin"
-            android:text="Finalizar"
-            android:textAlignment="center"
-            android:textStyle="bold"
-        android:layout_alignBaseline="@+id/email"
-        android:layout_alignBottom="@+id/email"
-        android:layout_toRightOf="@+id/video"
-        android:layout_toEndOf="@+id/video" />
+            android:background="@color/common_google_signin_btn_text_dark_default"
+            android:drawableRight="@mipmap/ic_launcher"
+        android:layout_width="59dp"
+        android:layout_height="54dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="11dp"
+        android:layout_marginEnd="11dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
-
-
-
-
-
-
-
+    <Button
+        android:id="@+id/comenzar"
+        android:layout_weight="1"
+        android:onClick="discover"
+        android:background="@color/common_google_signin_btn_text_dark_default"
+        android:drawableRight="@mipmap/backcircle"
+        android:layout_width="59dp"
+        android:layout_height="54dp"
+        android:layout_alignBaseline="@+id/end"
+        android:layout_alignBottom="@+id/end"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

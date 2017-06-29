@@ -58,14 +58,14 @@ import javax.mail.internet.MimeMultipart;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,RegistroFragment.OnFragmentInteractionListener {
-    private Button    botonDES , botonLocal , cam , list , grabar , video;
+    private Button    botonDES , botonLocal , cam , list ;
     private final static int REQUEST_ENABLE_BT = 1;
     ListView lv, ls;
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice device;
     private BluetoothAdapter BA;
     private BroadcastReceiver mReciever , gReciever , gpsReceiver , usuReceiver , disReceiver;
-    private ArrayList dispositivos = new ArrayList();
+    public ArrayList dispositivos = new ArrayList();
     public ArrayList trusted_device = new ArrayList();
     public ArrayList discover = new ArrayList();
     public ArrayList dispostivos_fin = new ArrayList();
@@ -113,18 +113,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         botonDES = (Button) findViewById(R.id.add);
         cam = (Button) findViewById(R.id.cam);
         list = (Button) findViewById(R.id.lista);
-        //grabar = (Button) findViewById(R.id.audio);
-        video = (Button) findViewById(R.id.video);
         Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar1);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                comenzar();
-            }
-        });
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -198,19 +191,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_camera) {
             item.setChecked(true);
-            /*VideoFragment videoFragment = new VideoFragment();
-            FragmentManager managervideo = getSupportFragmentManager();
-            managervideo.beginTransaction().replace(R.id.relativelayout_for_fragment,videoFragment,
-                    videoFragment.getTag()).commit();*/
             Intent i = new Intent(this,VideoActivity.class);
             startActivity(i);
             //replace(lo que quieres remplazar,lo que añades)
             // Handle the camera action
         } else if (id == R.id.registro) {
             item.setChecked(true);
+            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
             RegistroFragment registroFragment = RegistroFragment.newInstance("dire1","dire2","dire3","dis1","dis2","dis3");
             FragmentManager maganerregistro = getSupportFragmentManager();
-            maganerregistro.beginTransaction().replace(R.id.relativelayout_for_fragment,registroFragment,
+            maganerregistro.beginTransaction().replace(R.id.cmain,registroFragment,
                     registroFragment.getTag()).commit();
 
         } else if (id == R.id.permisos) {
@@ -223,12 +213,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             item.setChecked(true);
             AcercadeFragment acercadeFragment = new AcercadeFragment();
             FragmentManager manageracercade = getSupportFragmentManager();
-            manageracercade.beginTransaction().replace(R.id.relativelayout_for_fragment,acercadeFragment,
+            manageracercade.beginTransaction().replace(R.id.cmain,acercadeFragment,
                     acercadeFragment.getTag()).commit();
 
         } else if (id == R.id.intrusos) {
            item.setChecked(true);
-            //IntrusosFragment intrusosFragment = IntrusosFragment.newInstance(dispositivos);
+            //Bundle bundle = new Bundle();
+            //bundle.putCharSequenceArrayList("lista",dispositivos);
+            IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos);
+           // intrusosFragment.setArguments(bundle);
+            FragmentManager managerintruso = getSupportFragmentManager();
+            managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
+            intrusosFragment.getTag()).commit();
             
 
         }
@@ -239,17 +235,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    public void comenzar(){
-           try{
-               startGps();
-               getCoordenadas();
-               new Bluetooth().execute();
-           }
-           catch (Exception ex){
-               Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
-           }
-
-
+    public void discover(View view) {
+        try {
+            startGps();
+            getCoordenadas();
+            if (dir1 != null && dir1 != "") {
+                new Bluetooth().execute();
+            } else {
+                Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception ex) {
+            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+        }
 
 
     }
@@ -280,10 +277,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    /*public void bucle(){
-       new Bluetooth().execute();
-       new Bluetooth().cancel(finalizar);
-    }*/
+
 //Clase para ejecutar la tarea de descubrimiento de Bluetooth en segundo plano
     class Bluetooth extends AsyncTask<Void , Void , ArrayList >{
 
@@ -364,13 +358,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onCancelled(){
             Log.d("FIN" , "Acaba");
             running = false;
-            // unregisterReceiver(mReciever);
+
 
         }
 
     } //Fin de AsynTask
 
 
+
+    public ArrayList dispositivos(){
+        dispostivos_fin=dispositivos;
+
+        return dispostivos_fin;
+    }
 
     public void fichero(){
         try {

@@ -105,6 +105,7 @@ public class RegistroFragment extends Fragment {
                     e3 = dire3.getText().toString();
                     Log.d("SHOW" , d1);
                     if (d1!="" && d2!=""  && d3!=""  && e1!=""  && e2!=""  && e3!=""){
+                        Toast.makeText(RegistroFragment.this.getActivity(), "Registrado,puede empezar el descubrimiento", Toast.LENGTH_LONG).show();
                         onButtonPressed(d1,d2,d3,e1,e2,e3);
                     }
                     else {
@@ -148,11 +149,11 @@ public class RegistroFragment extends Fragment {
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(String dir1,String dir2, String dir3 , String dis1 , String dis2,
-    String dis3) {
+                               String dis3) {
 
-            mListener.onFragmentInteraction(dir1,dir2,dir3,dis1,dis2,dis3);
+        mListener.onFragmentInteraction(dir1,dir2,dir3,dis1,dis2,dis3);
 
-        }
+    }
 
 
     @Override
@@ -171,7 +172,6 @@ public class RegistroFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

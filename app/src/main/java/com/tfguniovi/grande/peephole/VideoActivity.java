@@ -4,6 +4,7 @@ package com.tfguniovi.grande.peephole;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.MediaPlayer;
@@ -41,7 +42,7 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
     private MediaRecorder recorderAudio;
     private String OUTPUT_FILE , OUTPUT_FILE_AUDIO;
     Button startBtn =null , stopBtn=null ,
-            initBtn = null , playBtn=null , stopPlayBtn ;
+            initBtn = null , playBtn=null , stopPlayBtn , back ;
     Button startaudio , stopaudio;
     //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
     int i = 0;
@@ -143,6 +144,11 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
 
        beginAudio();
         //ditchMediaRecorder();
+    }
+
+    public void volver(View v){
+        Intent i = new Intent(this,MainActivity.class);
+        startActivity(i);
     }
 
     public void stop_audio(View v){

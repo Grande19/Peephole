@@ -8,6 +8,16 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:text="Lista de dispositivos descubiertos"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="@color/md_amber_900"
+        android:textSize="18sp" />
+
+
+    <ListView
+        android:layout_marginTop="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/dispostivos_lista"></ListView>
 
 </FrameLayout>
