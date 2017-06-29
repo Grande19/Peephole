@@ -18,39 +18,24 @@
             android:layout_height="wrap_content"
             android:onClick="camera"
         android:text="camara"
-        android:layout_alignBottom="@+id/end"
-        android:layout_alignRight="@+id/email"
-        android:layout_alignEnd="@+id/email"
-        android:layout_marginRight="64dp"
-        android:layout_marginEnd="64dp"
-        android:layout_marginBottom="31dp" />
-
-        <Button
-            android:id="@+id/lista"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="list"
-            android:text="Listar"
-            android:layout_above="@+id/cam"
-            android:layout_alignRight="@+id/end"
-            android:layout_alignEnd="@+id/end"
-            android:layout_marginRight="34dp"
-            android:layout_marginEnd="34dp" />
+        android:layout_marginBottom="22dp"
+        android:layout_marginLeft="13dp"
+        android:layout_marginStart="13dp"
+        android:layout_alignBottom="@+id/email"
+        android:layout_toRightOf="@+id/comenzar"
+        android:layout_toEndOf="@+id/comenzar" />
 
 
-
-
-        <Button
+    <Button
             android:id="@+id/email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="enviar"
             android:text="Email"
-            android:layout_marginBottom="110dp"
-            android:layout_above="@+id/lista"
-            android:layout_toLeftOf="@+id/lista"
-            android:layout_toStartOf="@+id/lista" />
+        android:layout_alignTop="@+id/end"
+        android:layout_toLeftOf="@+id/end"
+        android:layout_toStartOf="@+id/end" />
 
 
     <Button

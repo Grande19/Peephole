@@ -17,7 +17,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="0.06"
-        android:text="Regisgro de correos y de dispositivos de confiaza"
+        android:fontFamily="sans-serif-smallcaps"
+        android:text="Dispositivos de confianza"
+        android:textColor="@color/md_amber_900"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <EditText
@@ -43,6 +46,18 @@
         android:ems="10"
         android:inputType="text"
         android:hint="Dispositivo de confianza" />
+
+
+    <TextView
+        android:id="@+id/coreos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.06"
+        android:fontFamily="sans-serif-smallcaps"
+        android:text="Registro de correos "
+        android:textColor="@color/md_amber_900"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/email1"

@@ -60,7 +60,6 @@ import javax.mail.internet.MimeMultipart;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,RegistroFragment.OnFragmentInteractionListener {
     private Button    botonDES , botonLocal , cam , list ;
     private final static int REQUEST_ENABLE_BT = 1;
-    ListView lv, ls;
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice device;
     private BluetoothAdapter BA;
@@ -112,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //ls = (ListView) findViewById(R.id.DispositivosRSSI);
         botonDES = (Button) findViewById(R.id.add);
         cam = (Button) findViewById(R.id.cam);
-        list = (Button) findViewById(R.id.lista);
         Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar1);
 
@@ -218,8 +216,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         } else if (id == R.id.intrusos) {
            item.setChecked(true);
-            //Bundle bundle = new Bundle();
-            //bundle.putCharSequenceArrayList("lista",dispositivos);
+            Bundle arguments = new Bundle();
+            arguments.putCharSequenceArrayList("id", dispositivos);
             IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos);
            // intrusosFragment.setArguments(bundle);
             FragmentManager managerintruso = getSupportFragmentManager();
@@ -405,12 +403,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }//fichero
 
 
-   /*public void list(View v){
-        dispostivos_fin = dispositivos;
-        final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, dispositivos);
-        ls.setAdapter(adapter);
-
-    }*/
 
     public void fin (View view){
         finalizar = true ;

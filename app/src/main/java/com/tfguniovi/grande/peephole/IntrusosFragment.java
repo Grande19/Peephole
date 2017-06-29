@@ -45,7 +45,9 @@ public class IntrusosFragment extends Fragment {
      * @return A new instance of fragment IntrusosFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static IntrusosFragment newInstance(ArrayList<CharSequence> param1) {
+    public static IntrusosFragment newInstance(ArrayList param1) {
+
+
         IntrusosFragment fragment = new IntrusosFragment();
         Bundle args = new Bundle();
         args.putCharSequenceArrayList(ARG_PARAM1, param1);
@@ -57,7 +59,7 @@ public class IntrusosFragment extends Fragment {
     public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
 
-        lista = (ListView) getView().findViewById(R.id.dispostivos_lista);
+
     }
 
 
@@ -65,9 +67,9 @@ public class IntrusosFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getStringArrayList("lista");
+            mParam1 = getArguments().getStringArrayList(ARG_PARAM1);
 
-    
+
 
             //final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, mParam1);
             //lista.setAdapter(adapter);
@@ -75,30 +77,42 @@ public class IntrusosFragment extends Fragment {
 
 
 
-
+            listadispositivos = mParam1;
 
         }
+    }
+
+    @Override public void onViewCreated(View v,Bundle savedInstanceState){
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        super.onCreateView(inflater, container, savedInstanceState);
+        View v =  inflater.inflate(R.layout.fragment_intrusos, container, false);
+        if(v != null){
+            lista = (ListView) v.findViewById(R.id.dispostivos_lista);
+            if(listadispositivos.isEmpty()==true){
+                Toast.makeText(IntrusosFragment.this.getActivity(), "No hay dispositivos registrados", Toast.LENGTH_LONG).show();}
+            else {
+                try {
 
-       /* if(listadispositivos.isEmpty()==true){
-            Toast.makeText(IntrusosFragment.this.getActivity(), "No hay dispositivos registrados", Toast.LENGTH_LONG).show();}
-        else {
-            try {
-                lista.setAdapter(new ArrayAdapter<String>(getView().getContext(),
-                        android.R.layout.simple_list_item_1, listadispositivos));
-                ArrayAdapter adapter = new ArrayAdapter(getView().getContext(),android.R.layout.simple_expandable_list_item_1,listadispositivos);
-                lista.setAdapter(adapter);
+                    ArrayAdapter adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_expandable_list_item_1,listadispositivos);
+                    lista.setAdapter(adapter);
+                    Log.d("LISTA", "Escribelista");
+                }
+                catch (Exception ex){
+                    Log.d("LISTA","aaaa");
+                }
             }
-            catch (Exception ex){
-                Log.d("LISTA","aaaa");
-            }
-        }*/
-        return inflater.inflate(R.layout.fragment_intrusos, container, false);
+
+        }
+
+
+        return v;
 
 
     }
