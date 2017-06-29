@@ -204,8 +204,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.permisos) {
             item.setChecked(true);
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.tools) {
             item.setChecked(true);
+            /*Intent i1 = new Intent(this,ConfiguracionActivity.class);
+            startActivity(i1);*/
+
 
         } else if (id == R.id.acerdade) {
             item.setChecked(true);

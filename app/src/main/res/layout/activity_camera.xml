@@ -24,4 +24,13 @@
         android:text=""
         />
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tiempo para hacer la foto"
+        android:id="@+id/segundos"
+        android:inputType="number"/>
+
+
+
 </LinearLayout>

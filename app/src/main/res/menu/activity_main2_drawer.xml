@@ -15,9 +15,9 @@
             android:icon="@drawable/ic_permisos"
             android:title="Permisos" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/tools"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:title="Congiguración" />
 
         <item
             android:id="@+id/intrusos"

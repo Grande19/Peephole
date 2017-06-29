@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.pruebas.grande.bluetoothfime.com.tfguniovi.grande.bluetoothfime.DatosActivity"
-    tools:showIn="@layout/activity_datos">
+    tools:context="com.tfguniovi.grande.peephole.ConfiguracionActivity"
+    tools:showIn="@layout/activity_configuracion">
 
 </android.support.constraint.ConstraintLayout>
