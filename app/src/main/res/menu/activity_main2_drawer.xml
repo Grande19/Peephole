@@ -12,7 +12,7 @@
             android:title="Registro de usuarios" />
         <item
             android:id="@+id/permisos"
-            android:icon="@drawable/ic_launcher"
+            android:icon="@drawable/ic_permisos"
             android:title="Permisos" />
         <item
             android:id="@+id/nav_manage"
@@ -21,7 +21,7 @@
 
         <item
             android:id="@+id/intrusos"
-            android:icon="@drawable/intruso"
+            android:icon="@drawable/ic_intruso"
             android:title="Intrusos" />
     </group>
 
@@ -29,11 +29,11 @@
         <menu>
             <item
                 android:id="@+id/acerdade"
-                android:icon="@drawable/ic_acercade"
+                android:icon="@drawable/ic_info_vector"
                 android:title="Acerca de" />
             <item
                 android:id="@+id/email"
-                android:icon="@mipmap/acerca"
+                android:icon="@drawable/ic_mail"
                 android:title="Enviar comentario" />
         </menu>
     </item>

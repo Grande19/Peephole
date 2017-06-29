@@ -6,22 +6,8 @@
     android:layout_height="match_parent"
     tools:context="com.tfguniovi.grande.peephole.FinalizarActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
 
-        <TextView
-            android:id="@+id/resume"
-            android:layout_width="356dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="Resumen de vigilancia"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="30sp"
-            android:visibility="visible" />
-    </android.support.design.widget.AppBarLayout>
+
 
     <Button
         android:id="@+id/fin"
