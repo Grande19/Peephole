@@ -7,12 +7,24 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        app:srcCompat="@mipmap/epigijon"
+        android:layout_alignTop="@+id/imageView3"
+        android:layout_toRightOf="@+id/imageView3"
+        android:layout_toEndOf="@+id/imageView3" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
         app:srcCompat="@mipmap/iapp"
-        android:layout_centerVertical="true"
+        android:layout_marginTop="36dp"
+        android:layout_below="@+id/editText3"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="35dp"
+        android:layout_marginStart="35dp" />
 
     <TextView
         android:id="@+id/editText"
@@ -29,7 +41,7 @@
         android:inputType="textPersonName"
         android:text="Servicio desarollado por Peephole Surveillance."
         android:textColor="@color/common_google_signin_btn_text_dark_default"
-        android:textSize="14sp" />
+        android:textSize="13sp" />
 
     <TextView
         android:id="@+id/editText1"
@@ -45,7 +57,8 @@
         android:fontFamily="sans-serif-smallcaps"
         android:inputType="textPersonName"
         android:text="Está utilizando la versión gratuita de vigilancia."
-        android:textColor="@color/common_google_signin_btn_text_dark_default" />
+        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        android:textSize="13sp" />
 
 
     <TextView
@@ -60,7 +73,8 @@
         android:fontFamily="sans-serif-smallcaps"
         android:inputType="textPersonName"
         android:text="Esta versión ha sido desarrollada en colaboración con"
-        android:textColor="@color/common_google_signin_btn_text_dark_default" />
+        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        android:textSize="13sp" />
 
     <TextView
         android:id="@+id/editText3"
@@ -74,35 +88,34 @@
         android:fontFamily="sans-serif-smallcaps"
         android:inputType="textPersonName"
         android:text="la Universidad de Oviendo y el Cuerpo Nacional de Policia"
-        android:textColor="@color/common_google_signin_btn_text_dark_default" />
+        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        android:textSize="13sp" />
 
     <TextView
         android:id="@+id/editText4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="110dp"
-        android:background="@color/colorPrimary"
+
         android:ems="10"
         android:fontFamily="cursive"
         android:inputType="textPersonName"
         android:text="peephole@peephole.com"
-        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="30sp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_marginTop="46dp"
+        android:layout_below="@+id/imageView2"
+        android:layout_alignLeft="@+id/imageView3"
+        android:layout_alignStart="@+id/imageView3" />
 
     <TextView
         android:id="@+id/editText5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
         android:ems="10"
         android:fontFamily="cursive"
         android:inputType="textPersonName"
         android:text="+34 902 34 35 36"
-        android:textAppearance="@style/TextAppearance.AppCompat.Button"
-        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="24sp"
         android:layout_marginTop="36dp"
         android:layout_alignTop="@+id/editText4"

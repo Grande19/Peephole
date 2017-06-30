@@ -184,6 +184,8 @@ public class RegistroFragment extends Fragment {
      */
     //Despues de hacer algo, pasa los datos fuera(al main por ejemplo para que empiece a registrar usuarios)
     public interface OnFragmentInteractionListener {
+
+
         // TODO: Update argument type and name
         void onFragmentInteraction(String data, String dir2, String dir3, String dis1, String dis2, String dis3);
     }

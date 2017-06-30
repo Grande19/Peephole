@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -57,7 +58,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,RegistroFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        RegistroFragment.OnFragmentInteractionListener,ConfigurationFragment.OnFragmentInteractionListener {
     private Button    botonDES , botonLocal , cam , list ;
     private final static int REQUEST_ENABLE_BT = 1;
     private Set<BluetoothDevice> pairedDevices;
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean get = false ;
     boolean running = true;
     public int cont=1;
+    int segundos,num_intrusos;
     Session session = null;
     String  pol;
     String  subject, textMessage;
@@ -208,6 +211,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             item.setChecked(true);
             /*Intent i1 = new Intent(this,ConfiguracionActivity.class);
             startActivity(i1);*/
+            Toast.makeText(this, "Parametros de configuración para el " +
+                    "+\nel envio de correo", Toast.LENGTH_LONG).show();
+            ConfigurationFragment configurationFragment = ConfigurationFragment.newInstance("intervalo","numerointrusos");
+            FragmentManager managerconfiguration = getSupportFragmentManager();
+            managerconfiguration.beginTransaction().replace(R.id.cmain,configurationFragment,
+                    configurationFragment.getTag()).commit();
 
 
         } else if (id == R.id.acerdade) {
@@ -252,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+
     @Override
     public void onFragmentInteraction(String dire1, String dire2, String dire3, String dis1, String dis2, String dis3) {
 
@@ -279,7 +289,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
-//Clase para ejecutar la tarea de descubrimiento de Bluetooth en segundo plano
+    @Override
+    public void onFragmentInteractionConfiguration(String intervalosec, String numintrusos) {
+        segundos = Integer.parseInt(intervalosec)*60*1000; //se pasa de minutos a milisegundos que es con lo que trabaja java
+        num_intrusos = Integer.parseInt(numintrusos);
+        Toast.makeText(this, "Segundos + intrusos" + segundos + "" + num_intrusos, Toast.LENGTH_LONG).show();
+    }
+
+
+    //Clase para ejecutar la tarea de descubrimiento de Bluetooth en segundo plano
     class Bluetooth extends AsyncTask<Void , Void , ArrayList >{
 
 

@@ -7,18 +7,19 @@
     <!-- TODO: Update blank fragment layout -->
 
     <Switch
-        android:id="@+id/switch2"
+        android:id="@+id/intervalo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:text="Intervalo de tiempo"
         android:textSize="18sp"
-        android:layout_below="@+id/textView4"
+        android:checked="false"
+        android:layout_below="@+id/tiempo"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="15dp" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/tiempo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -29,39 +30,52 @@
         android:textSize="24sp" />
 
     <EditText
-        android:id="@+id/editText6"
+        android:id="@+id/intervalosec"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="69dp"
-        android:layout_marginStart="69dp"
-        android:layout_marginTop="52dp"
         android:ems="10"
         android:inputType="number"
-        tools:text="Introduce el intervalo(s)"
-        android:layout_below="@+id/switch2"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:text="Minutos"
+        android:layout_below="@+id/intervalo"
+        android:layout_alignLeft="@+id/n_intrusos"
+        android:layout_alignStart="@+id/n_intrusos"
+        android:layout_marginTop="40dp" />
 
     <Switch
-        android:id="@+id/switch3"
+        android:id="@+id/numintrusos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="En función del nº de intrusos"
+        android:textSize="18sp"
+        android:layout_above="@+id/n_intrusos"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/editText6"
-        android:layout_marginTop="36dp"
-        android:text="En función del nº de intrusos"
-        android:textSize="18sp" />
+        android:layout_marginBottom="38dp" />
 
     <EditText
-        android:id="@+id/editText7"
+        android:id="@+id/n_intrusos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="37dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Name"
-        android:layout_below="@+id/switch3"
-        android:layout_alignLeft="@+id/editText6"
-        android:layout_alignStart="@+id/editText6" />
+        android:text="Número"
+        android:layout_marginBottom="145dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/enviar"
+
+        android:layout_width="59dp"
+        android:layout_height="54dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="11dp"
+        android:layout_marginEnd="11dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/numintrusos"
+        android:layout_marginTop="48dp"
+
+        android:background="@color/common_google_signin_btn_text_dark_default"
+        android:drawableRight="@mipmap/configuracion"/>
 </RelativeLayout>

@@ -28,7 +28,7 @@
         android:icon="@mipmap/iapp"
         android:label="Peephole"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppThemeRedLight">
         <activity
             android:name=".MainActivity"
             android:label="Peephole"

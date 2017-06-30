@@ -3,10 +3,17 @@ package com.tfguniovi.grande.peephole;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.Switch;
+import android.widget.Toast;
 
 
 /**
@@ -26,8 +33,11 @@ public class ConfigurationFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private Switch intrusos,intervalo;
+    public EditText nintrusos,secintervalo;
     private OnFragmentInteractionListener mListener;
+    private Button send;
+    String segundos,numintrusos;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -57,22 +67,115 @@ public class ConfigurationFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+
+
         }
     }
+    @Override
+    public void onActivityCreated(Bundle state) {
+        super.onActivityCreated(state);
+
+        intrusos = (Switch) getView().findViewById(R.id.numintrusos);
+        intervalo = (Switch) getView().findViewById(R.id.intervalo);
+        nintrusos = (EditText) getView().findViewById(R.id.n_intrusos);
+        secintervalo = (EditText) getView().findViewById(R.id.intervalosec);
+        send = (Button) getView().findViewById(R.id.enviar);
+
+
+        secintervalo.setEnabled(false);
+        nintrusos.setEnabled(false);
+
+
+        intervalo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    secintervalo.setEnabled(true);
+                    nintrusos.setEnabled(false);
+                    intrusos.setEnabled(false);
+                } else if (intervalo.isChecked() == false) {
+                    secintervalo.setEnabled(false);
+                    intrusos.setEnabled(true);
+                }
+
+
+            }
+        });
+
+        intrusos.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (intrusos.isChecked()) {
+                    nintrusos.setEnabled(true);
+                    intervalo.setEnabled(false);
+
+                } else if (intrusos.isChecked() == false) {
+                    nintrusos.setEnabled(false);
+                    intervalo.setEnabled(true);
+                }
+
+            }
+        });
+
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    if(intervalo.isChecked()==true){
+                        segundos = String.valueOf(secintervalo.getText());
+                        if(segundos=="" || segundos=="0"){
+                            Toast.makeText(ConfigurationFragment.this.getActivity(),  "Introduzca los segundos", Toast.LENGTH_LONG).show();
+
+                        }else
+                            {
+                        numintrusos = "0";
+                        onButtonPressed(segundos,numintrusos);
+                        }
+
+
+                    }else if(intrusos.isChecked()==true){
+                        String numerointrusos=String.valueOf(nintrusos);
+                        if(numerointrusos=="" || numerointrusos=="0"){
+                            Toast.makeText(ConfigurationFragment.this.getActivity(),  "Introduzca los segundos", Toast.LENGTH_LONG).show();
+                        }
+                        segundos="0";
+                        onButtonPressed(numerointrusos,segundos);
+                    }else {
+                        Toast.makeText(ConfigurationFragment.this.getActivity(),  "Marque al menos una de las 2 opciones", Toast.LENGTH_LONG).show();
+                    }
+
+
+                }catch (Exception ex){
+
+                }
+
+            }
+
+
+        });
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+
+
+
+
+
         return inflater.inflate(R.layout.fragment_configuration, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed(String intervalosec,String numintrusos) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+            mListener.onFragmentInteractionConfiguration(intervalosec,numintrusos);
         }
     }
+
 
     @Override
     public void onAttach(Context context) {
@@ -103,6 +206,6 @@ public class ConfigurationFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteractionConfiguration(String intervalosec,String numintrusos);
     }
 }
