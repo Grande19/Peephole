@@ -7,100 +7,39 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.tfguniovi.grande.peephole.MainActivity"
-    tools:showIn="@layout/app_bar_main2"
-    tools:layout_editor_absoluteY="137dp"
     tools:layout_editor_absoluteX="0dp"
-    android:background="@color/md_teal_100">
-
-    <TextView
-        android:id="@+id/editText1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:textColor="@color/md_black_1000"
-        android:textSize="13sp"
-        android:fontFamily="sans-serif-smallcaps"
-        android:inputType="textMultiLine"
-        android:text="@string/main"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="17dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
-        app:srcCompat="@drawable/policia"
-        android:layout_marginLeft="24dp"
-        android:layout_marginStart="24dp"
-        android:layout_below="@+id/editText1"
-        android:layout_toRightOf="@+id/cam"
-        android:layout_toEndOf="@+id/cam" />
-
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
-        app:srcCompat="@mipmap/iapp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_below="@+id/editText1"
-        android:layout_alignLeft="@+id/editText1"
-        android:layout_alignStart="@+id/editText1" />
-
-    <Button
-            android:id="@+id/cam"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="camera"
-        android:text="camara"
-        android:layout_marginBottom="22dp"
-        android:layout_marginLeft="13dp"
-        android:layout_marginStart="13dp"
-        android:layout_alignBottom="@+id/email"
-        android:layout_toRightOf="@+id/comenzar"
-        android:layout_toEndOf="@+id/comenzar" />
-
-
-    <Button
-            android:id="@+id/email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="enviar"
-            android:text="Email"
-        android:layout_alignTop="@+id/end"
-        android:layout_toLeftOf="@+id/end"
-        android:layout_toStartOf="@+id/end" />
+    tools:layout_editor_absoluteY="137dp"
+    tools:showIn="@layout/app_bar_main2">
 
 
     <ImageButton
-            android:id="@+id/end"
-            android:layout_weight="1"
-            android:onClick="fin"
+        android:id="@+id/end"
         android:layout_width="59dp"
         android:layout_height="54dp"
-        android:layout_marginBottom="23dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/editText1"
-        android:layout_alignEnd="@+id/editText1"
-        app:srcCompat="@mipmap/exit_circle"/>
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_weight="1"
+        android:background="@color/common_google_signin_btn_text_dark_default"
+        android:onClick="fin"
+        app:srcCompat="@mipmap/exit_circle" />
 
     <ImageButton
         android:id="@+id/comenzar"
-        android:layout_weight="1"
-        android:onClick="discover"
-        app:srcCompat="@mipmap/play"
         android:layout_width="59dp"
         android:layout_height="54dp"
-        android:layout_alignTop="@+id/email"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/end"
+        android:layout_marginLeft="22dp"
+        android:layout_marginStart="22dp"
+        android:layout_weight="1"
+        android:background="@color/common_google_signin_btn_text_dark_default"
+        android:onClick="discover"
+        app:srcCompat="@mipmap/play" />
 
 
 </RelativeLayout>

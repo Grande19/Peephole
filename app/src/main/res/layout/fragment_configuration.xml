@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tfguniovi.grande.peephole.ConfigurationFragment"
-    android:background="@color/md_teal_100">
+    tools:context="com.tfguniovi.grande.peephole.Fragement.ConfigurationFragment"
+    >
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -72,7 +72,7 @@
         android:layout_height="54dp"
         android:layout_marginTop="43dp"
         android:layout_below="@+id/numintrusos"
-        android:background="@color/md_teal_100"
+        android:background="@color/md_brown_50"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 

@@ -10,7 +10,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -18,22 +17,26 @@ import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.Toast;
+
+import com.tfguniovi.grande.peephole.Fragement.AcercadeFragment;
+import com.tfguniovi.grande.peephole.Fragement.ConfigurationFragment;
+import com.tfguniovi.grande.peephole.Fragement.HomeFragment;
+import com.tfguniovi.grande.peephole.Fragement.IntrusosFragment;
+import com.tfguniovi.grande.peephole.Fragement.RegistroFragment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -52,6 +55,7 @@ import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
+import javax.mail.Service;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -60,7 +64,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+public class MainActivity extends AppCompatActivity implements
         RegistroFragment.OnFragmentInteractionListener,ConfigurationFragment.OnFragmentInteractionListener {
     private Button    botonDES , botonLocal , cam  ;
     private ImageButton homebutton;
@@ -79,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean finalizar = false;
     public boolean get = false ;
     boolean running = true;
-    public int cont=1;
+    public int cont=0;
     int segundos,num_intrusos;
     Session session = null;
     String  pol;
@@ -89,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String path = Environment.getExternalStorageDirectory()+"/intruso.txt";
     String path1 = Environment.getExternalStorageDirectory()+"/intruso_audio.3gpp";
     //Solicitud de permisos
+    DrawerLayout drawerLayout;
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final int MY_PERMISSIONS_REQUEST_CAMERA=8;
@@ -108,39 +113,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        if(savedInstanceState==null) {
+            Log.d("ENTRANDO", String.valueOf(trusted_device));
 
-        BA = BluetoothAdapter.getDefaultAdapter();
-        //lv = (ListView) findViewById(R.id.lvDispositivos);
-        //ls = (ListView) findViewById(R.id.DispositivosRSSI);
-        botonDES = (Button) findViewById(R.id.add);
-        cam = (Button) findViewById(R.id.cam);
-        Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar);
-        ImageButton homebutton = (ImageButton) findViewById(R.id.home);
-        setSupportActionBar(toolbar1);
+            setContentView(R.layout.activity_main);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start);
-
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer,toolbar1, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+            BA = BluetoothAdapter.getDefaultAdapter();
+            //lv = (ListView) findViewById(R.id.lvDispositivos);
+            //ls = (ListView) findViewById(R.id.DispositivosRSSI);
+            botonDES = (Button) findViewById(R.id.add);
+            Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar);
+            ImageButton homebutton = (ImageButton) findViewById(R.id.home);
+            setSupportActionBar(toolbar1);
+            drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start);
 
 
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar1, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            toggle.syncState();
 
-        if (!BA.isEnabled()) {
-            Intent ONintent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(ONintent, REQUEST_ENABLE_BT);
-            Toast.makeText(this, "Turning on Bluetooth", Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            if (navigationView != null) {
+                setupNavigationDrawerContent(navigationView);
+            }
+
+            setupNavigationDrawerContent(navigationView);
+            setFragment(4);
+
+
+            if (!BA.isEnabled()) {
+                Intent ONintent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(ONintent, REQUEST_ENABLE_BT);
+                Toast.makeText(this, "Turning on Bluetooth", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
+            }
+
+        }
+        else {
+            Log.d("ENTRANDO","SEGUNDA VED");
+            /*outState.putCharSequenceArrayList("dispostiivos de confianza", trusted_device);
+            outState.putInt("segundos",segundos);
+            outState.putInt("nintrusos",num_intrusos);
+            outState.putString("email1",dir1);
+            outState.putString("email2",dir2);
+            outState.putString("email3",dir3);*/
+            try {
+                segundos = savedInstanceState.getInt("segundos");
+                num_intrusos = savedInstanceState.getInt("nintrusos");
+                trusted_device = savedInstanceState.getCharSequenceArrayList("dispositivos de confianza");
+                dir1 = savedInstanceState.getString("email1");
+                dir2 = savedInstanceState.getString("email2");
+                dir3 = savedInstanceState.getString("email3");
+
+            }catch (Exception ex){
+
+            }
+
         }
 
 
@@ -188,83 +221,109 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            item.setChecked(true);
-            Intent i = new Intent(this,VideoActivity.class);
-            startActivity(i);
-            //replace(lo que quieres remplazar,lo que añades)
-            // Handle the camera action
-        } else if (id == R.id.registro) {
-            item.setChecked(true);
-            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
-            RegistroFragment registroFragment = RegistroFragment.newInstance("dire1","dire2","dire3","dis1","dis2","dis3");
-            FragmentManager maganerregistro = getSupportFragmentManager();
-            maganerregistro.beginTransaction().replace(R.id.cmain,registroFragment,
-                    registroFragment.getTag()).commit();
-
-        } else if (id == R.id.permisos) {
-            item.setChecked(true);
-
-        } else if (id == R.id.tools) {
-            item.setChecked(true);
-            /*Intent i1 = new Intent(this,ConfiguracionActivity.class);
-            startActivity(i1);*/
-            Toast.makeText(this, "Parametros de configuración para el " +
-                    "+\nel envio de correo", Toast.LENGTH_LONG).show();
-            ConfigurationFragment configurationFragment = ConfigurationFragment.newInstance("intervalo","numerointrusos");
-            FragmentManager managerconfiguration = getSupportFragmentManager();
-            managerconfiguration.beginTransaction().replace(R.id.cmain,configurationFragment,
-                    configurationFragment.getTag()).commit();
 
 
-        } else if (id == R.id.acerdade) {
-            item.setChecked(true);
-            AcercadeFragment acercadeFragment = new AcercadeFragment();
-            FragmentManager manageracercade = getSupportFragmentManager();
-            manageracercade.beginTransaction().replace(R.id.cmain,acercadeFragment,
-                    acercadeFragment.getTag()).commit();
-
-        } else if (id == R.id.intrusos) {
-           item.setChecked(true);
-            Bundle arguments = new Bundle();
-            arguments.putCharSequenceArrayList("id", dispositivos);
-            IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos);
-           // intrusosFragment.setArguments(bundle);
-            FragmentManager managerintruso = getSupportFragmentManager();
-            managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
-            intrusosFragment.getTag()).commit();
-
-
-        }else if(id == R.id.email){
-            Intent intent = new Intent(this,MailActivity.class);
-            startActivity(intent);
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+    private void setupNavigationDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.tools:
+                                menuItem.setChecked(true);
+                                setFragment(0);
+                                drawerLayout.closeDrawer(GravityCompat.START);
+                                return true;
+                            case R.id.registro:
+                                menuItem.setChecked(true);
+                                setFragment(1);
+                                drawerLayout.closeDrawer(GravityCompat.START);
+                                return true;
+                            case R.id.nav_camera:
+                                menuItem.setChecked(true);
+                                drawerLayout.closeDrawer(GravityCompat.START);
+                                Intent i = new Intent(MainActivity.this,VideoActivity.class);
+                                startActivity(i);
+                                return true;
+                            case R.id.acerdade:
+                                menuItem.setChecked(true);
+                                Toast.makeText(MainActivity.this, "Launching " + menuItem.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                                drawerLayout.closeDrawer(GravityCompat.START);
+                                setFragment(3);
+                                return true;
+                            case R.id.intrusos:
+                                menuItem.setChecked(true);
+                                Toast.makeText(MainActivity.this, "Launching " + menuItem.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                                drawerLayout.closeDrawer(GravityCompat.START);
+                                setFragment(2);
+                                return true;
+                            case R.id.home:
+                                menuItem.setChecked(true);
+                                drawerLayout.closeDrawer(GravityCompat.START);
+                                setFragment(4);
+                                return true;
+                            case R.id.email:
+                                menuItem.setChecked(true);
+                                drawerLayout.closeDrawer(GravityCompat.START);
+                                Intent im = new Intent(MainActivity.this,MailActivity.class);
+                                startActivity(im);
+                        }
+                        return true;
+                    }
+                });
     }
 
-    /*@Override
-    public void onSaveInstanceState(Bundle outState) {
 
-        outState.putInt("intervalo", segundos);
-        outState.putInt("numero_intusos",num_intrusos);
-        //outState.putBoolean("snintrusos", intrusos.isChecked());
-        //outState.putBoolean("sintervalo",intervalo.isChecked());
-        super.onSaveInstanceState(outState);
-    }*/
 
     public void home (View v){
         Intent intent= new Intent(this,MainActivity.class);
         startActivity(intent);
     }
+
+    public void setFragment(int position) {
+        FragmentManager fragmentManager;
+        FragmentTransaction fragmentTransaction;
+        switch (position) {
+            case 0:
+                fragmentManager = getSupportFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                ConfigurationFragment configurationFragment = new ConfigurationFragment();
+                fragmentTransaction.replace(R.id.cmain, configurationFragment);
+                fragmentTransaction.commit();
+                break;
+            case 1:
+                fragmentManager = getSupportFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                RegistroFragment registroFragment = new RegistroFragment();
+                fragmentTransaction.replace(R.id.cmain, registroFragment);
+                fragmentTransaction.commit();
+                break;
+            case 2:
+                Bundle arguments = new Bundle();
+                arguments.putCharSequenceArrayList("id", dispositivos);
+                IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
+                // intrusosFragment.setArguments(bundle);
+                FragmentManager managerintruso = getSupportFragmentManager();
+                managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
+                        intrusosFragment.getTag()).commit();
+
+
+                break;
+            case 3:
+                AcercadeFragment acercadeFragment = new AcercadeFragment();
+                FragmentManager manageracercade = getSupportFragmentManager();
+                manageracercade.beginTransaction().replace(R.id.cmain,acercadeFragment,
+                        acercadeFragment.getTag()).commit();
+                break;
+            case 4:
+                HomeFragment homeFragment = new HomeFragment();
+                FragmentManager managerhome = getSupportFragmentManager();
+                managerhome.beginTransaction().replace(R.id.cmain,homeFragment,
+                        homeFragment.getTag()).commit();
+
+        }
+    }
+
 
 
     public void discover(View view) {
@@ -274,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 new Bluetooth().execute();
                 Bundle arguments = new Bundle();
                 arguments.putCharSequenceArrayList("id", dispositivos);
-                IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos);
+                IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos,trusted_device);
                 // intrusosFragment.setArguments(bundle);
                 FragmentManager managerintruso = getSupportFragmentManager();
                 managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
@@ -282,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startGps();
                 getCoordenadas();
             } else {
-                Toast.makeText(this, "ELSE", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Introduzca los parametros", Toast.LENGTH_LONG).show();
             }
         } catch (Exception ex) {
             Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
@@ -291,6 +350,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    /*@Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        outState.putCharSequenceArrayList("dispostiivos de confianza", trusted_device);
+        outState.putInt("segundos",segundos);
+        outState.putInt("nintrusos",num_intrusos);
+        outState.putString("email1",dir1);
+        outState.putString("email2",dir2);
+        outState.putString("email3",dir3);
+
+
+        super.onSaveInstanceState(outState, outPersistentState);
+    }*/
 
     @Override
     public void onFragmentInteraction(String dire1, String dire2, String dire3, String dis1, String dis2, String dis3) {
@@ -414,13 +485,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     } //Fin de AsynTask
 
 
-
-    public ArrayList dispositivos(){
-        dispostivos_fin=dispositivos;
-
-        return dispostivos_fin;
-    }
-
     public void fichero(){
         try {
             //getCoordenadas();
@@ -444,7 +508,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     +"\n[MAC->NOMBRE]:" + dispositivos
                     + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
             fout.close();
-            cont =2 ;
+           /* if(cont==1){
+                Log.d("VIDEO", "GRABACION DE VIDEDO");
+               Intent video = new Intent(MainActivity.this,VideoService.class);
+                startService(video);
+            }*/
+            cont +=1 ;
+            if(cont == 4){
+                email();
+            }
             //bucle();
             new Bluetooth().execute();
         } catch (Exception ex) {

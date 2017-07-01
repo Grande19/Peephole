@@ -33,7 +33,7 @@
             android:name=".MainActivity"
             android:label="Peephole"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/AppThemeRedLight">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.GPS" />
@@ -68,9 +68,13 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".MailActivity"
-            android:label="@string/title_activity_mail"
+            android:label="Envio de comentario"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+
+        <service
+            android:name=".VideoService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

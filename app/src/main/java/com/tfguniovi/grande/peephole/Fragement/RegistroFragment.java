@@ -1,8 +1,6 @@
-package com.tfguniovi.grande.peephole;
+package com.tfguniovi.grande.peephole.Fragement;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -13,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.tfguniovi.grande.peephole.R;
 
 import java.util.ArrayList;
 
@@ -83,6 +83,8 @@ public class RegistroFragment extends Fragment {
         return fragment;
     }
 
+
+
     @Override
     public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
@@ -144,9 +146,6 @@ public class RegistroFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
-
-
 
 
         return inflater.inflate(R.layout.fragment_registro, container, false);
