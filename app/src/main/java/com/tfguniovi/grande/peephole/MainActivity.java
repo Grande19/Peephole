@@ -338,8 +338,10 @@ public class MainActivity extends AppCompatActivity implements
                 FragmentManager managerintruso = getSupportFragmentManager();
                 managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
                         intrusosFragment.getTag()).commit();
-                startGps();
-                getCoordenadas();
+                if(longitud!=null && latitud!=null) {
+                    startGps();
+                    getCoordenadas();
+                }
             } else {
                 Toast.makeText(this, "Introduzca los parametros", Toast.LENGTH_LONG).show();
             }
@@ -508,11 +510,12 @@ public class MainActivity extends AppCompatActivity implements
                     +"\n[MAC->NOMBRE]:" + dispositivos
                     + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
             fout.close();
-           /* if(cont==1){
-                Log.d("VIDEO", "GRABACION DE VIDEDO");
-               Intent video = new Intent(MainActivity.this,VideoService.class);
-                startService(video);
-            }*/
+            if(cont==1){
+               Intent audio = new Intent(MainActivity.this,AudioService.class);
+                startService(audio);
+                Intent foto = new Intent(MainActivity.this,FotoService.class);
+                startService(foto);
+            }
             cont +=1 ;
             if(cont == 4){
                 email();
@@ -557,7 +560,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     public void getCoordenadas() {
-        startGps();
+        //startGps();
         Log.d("Coordenadas", "entra en getCoordenadas");
         BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
             @Override

@@ -74,6 +74,12 @@
 
         <service
             android:name=".VideoService"
+            android:exported="false" />
+        <service
+            android:name=".AudioService"
+            android:exported="false" />
+        <service
+            android:name=".FotoService"
             android:exported="false"></service>
     </application>
 
