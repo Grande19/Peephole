@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -103,19 +104,23 @@ public class RegistroFragment extends Fragment {
                     e1 = dire1.getText().toString();
                     e2 = dire2.getText().toString();
                     e3 = dire3.getText().toString();
-                    Log.d("SHOW" , d1);
-                    if (d1!="" && d2!=""  && d3!=""  && e1!=""  && e2!=""  && e3!=""){
+                    Log.d("DISPOSITIVOS" , d1 + d2 + d3);
+                    if (TextUtils.isEmpty(d1)==false && TextUtils.isEmpty(d1)==false  && TextUtils.isEmpty(d1)==false
+                            && TextUtils.isEmpty(d1)==false  &&TextUtils.isEmpty(d1)==false  && TextUtils.isEmpty(d1)==false){
                         Toast.makeText(RegistroFragment.this.getActivity(), "Registrado,puede empezar el descubrimiento", Toast.LENGTH_LONG).show();
                         onButtonPressed(d1,d2,d3,e1,e2,e3);
+                        //Intent intent= new Intent(RegistroFragment.this.getActivity(),MainActivity.class);
+                        //startActivity(intent);
                     }
                     else {
 
-                        Toast.makeText(RegistroFragment.this.getActivity(), "Rgigui", Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegistroFragment.this.getActivity(), "Introduzca todos los campos", Toast.LENGTH_LONG).show();
 
                     }
                 }catch(Exception ex){
                     Toast.makeText(RegistroFragment.this.getActivity(), "RELLENE TODOS LOS CAMPOS", Toast.LENGTH_LONG).show();
                 }
+
             }
         });
 

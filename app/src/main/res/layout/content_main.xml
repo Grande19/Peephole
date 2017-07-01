@@ -9,8 +9,49 @@
     tools:context="com.tfguniovi.grande.peephole.MainActivity"
     tools:showIn="@layout/app_bar_main2"
     tools:layout_editor_absoluteY="137dp"
-    tools:layout_editor_absoluteX="0dp">
+    tools:layout_editor_absoluteX="0dp"
+    android:background="@color/md_teal_100">
 
+    <TextView
+        android:id="@+id/editText1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:textColor="@color/md_black_1000"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-smallcaps"
+        android:inputType="textMultiLine"
+        android:text="@string/main"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="17dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        app:srcCompat="@drawable/policia"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_below="@+id/editText1"
+        android:layout_toRightOf="@+id/cam"
+        android:layout_toEndOf="@+id/cam" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        app:srcCompat="@mipmap/iapp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_below="@+id/editText1"
+        android:layout_alignLeft="@+id/editText1"
+        android:layout_alignStart="@+id/editText1" />
 
     <Button
             android:id="@+id/cam"
@@ -38,31 +79,26 @@
         android:layout_toStartOf="@+id/end" />
 
 
-    <Button
+    <ImageButton
             android:id="@+id/end"
             android:layout_weight="1"
             android:onClick="fin"
-            android:background="@color/common_google_signin_btn_text_dark_default"
-            android:drawableRight="@mipmap/exit"
         android:layout_width="59dp"
         android:layout_height="54dp"
-        android:layout_marginBottom="15dp"
-        android:layout_marginRight="11dp"
-        android:layout_marginEnd="11dp"
+        android:layout_marginBottom="23dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignRight="@+id/editText1"
+        android:layout_alignEnd="@+id/editText1"
+        app:srcCompat="@mipmap/exit_circle"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/comenzar"
         android:layout_weight="1"
         android:onClick="discover"
-        android:background="@color/common_google_signin_btn_text_dark_default"
-        android:drawableRight="@mipmap/backcircle"
+        app:srcCompat="@mipmap/play"
         android:layout_width="59dp"
         android:layout_height="54dp"
-        android:layout_alignBaseline="@+id/end"
-        android:layout_alignBottom="@+id/end"
+        android:layout_alignTop="@+id/email"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

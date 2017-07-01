@@ -24,12 +24,14 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -60,7 +62,8 @@ import javax.mail.internet.MimeMultipart;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         RegistroFragment.OnFragmentInteractionListener,ConfigurationFragment.OnFragmentInteractionListener {
-    private Button    botonDES , botonLocal , cam , list ;
+    private Button    botonDES , botonLocal , cam  ;
+    private ImageButton homebutton;
     private final static int REQUEST_ENABLE_BT = 1;
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice device;
@@ -115,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         botonDES = (Button) findViewById(R.id.add);
         cam = (Button) findViewById(R.id.cam);
         Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar);
+        ImageButton homebutton = (ImageButton) findViewById(R.id.home);
         setSupportActionBar(toolbar1);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start);
@@ -244,15 +248,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    public void home (View v){
+        Intent intent= new Intent(this,MainActivity.class);
+        startActivity(intent);
+    }
+
 
     public void discover(View view) {
         try {
-            startGps();
-            getCoordenadas();
-            if (dir1 != null && dir1 != "") {
+
+            if (trusted_device.isEmpty()==false) {
                 new Bluetooth().execute();
+                Bundle arguments = new Bundle();
+                arguments.putCharSequenceArrayList("id", dispositivos);
+                IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos);
+                // intrusosFragment.setArguments(bundle);
+                FragmentManager managerintruso = getSupportFragmentManager();
+                managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
+                        intrusosFragment.getTag()).commit();
+                startGps();
+                getCoordenadas();
             } else {
-                Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "ELSE", Toast.LENGTH_LONG).show();
             }
         } catch (Exception ex) {
             Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();

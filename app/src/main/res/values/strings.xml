@@ -11,7 +11,30 @@
     <string name="title_activity_audio">AudioActivity</string>
     <string name="title_activity_video">VideoActivity</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="acercade">
+        "   Servicio desarrollado por Peephole Surveillance.  "
+        "Está utilizando la versión gratuita de vigilancia.Esta versión,"
+        "   ha sido desarrollada en colaboración con la Universidad de Oviedo"
+        "   y el Cuerpo Nacional de Policía.\n\n"
+        "   Trabajo final de grado 2017 Ingeniería de Telecomunicaciones(Telemática)"
+
+    </string>
+    <string name="contacto">
+        "peephole@peephole.com\n"
+         "+34 902 34 35 36"
+    </string>
+
+    <string name="main">
+        "   Bienvenido a Peephole.\n"
+        "   En esta versión gratuita podrá tener vigilada su casa siempre que quiera."
+        "   El usuario podrá visualizar acceder a los archivos generados por la app"
+        "   abriendo el administrador de archivos y poniendo en el buscador intruso"
+        "   Para más información comuníquese con nosotros a través de la pestaña Enviar Comentario."
+
+
+    </string>
     <string name="large_text">
+
         "Material is the metaphor.\n\n"
 
         "A material metaphor is the unifying theory of a rationalized space and a system of motion."

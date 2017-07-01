@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tfguniovi.grande.peephole.ConfigurationFragment">
+    tools:context="com.tfguniovi.grande.peephole.ConfigurationFragment"
+    android:background="@color/md_teal_100">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -12,10 +13,9 @@
         android:layout_height="wrap_content"
         android:text="Intervalo de tiempo"
         android:textSize="18sp"
+        android:layout_marginLeft="30dp"
         android:checked="false"
         android:layout_below="@+id/tiempo"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_marginTop="15dp" />
 
     <TextView
@@ -24,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginTop="27dp"
+        android:layout_marginLeft="30dp"
         android:fontFamily="sans-serif-smallcaps"
         android:text="Opciones de envío de mail"
         android:textColor="@color/md_amber_900"
@@ -35,7 +36,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="number"
-        android:text="Minutos"
+        android:hint="Minutos"
         android:layout_below="@+id/intervalo"
         android:layout_alignLeft="@+id/n_intrusos"
         android:layout_alignStart="@+id/n_intrusos"
@@ -47,6 +48,7 @@
         android:layout_height="wrap_content"
         android:text="En función del nº de intrusos"
         android:textSize="18sp"
+        android:layout_marginLeft="30dp"
         android:layout_above="@+id/n_intrusos"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -58,24 +60,22 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Número"
+        android:hint="Número"
         android:layout_marginBottom="145dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 
-    <Button
+    <ImageButton
         android:id="@+id/enviar"
-
+        android:src="@mipmap/configuracion_circle"
         android:layout_width="59dp"
         android:layout_height="54dp"
-        android:layout_marginBottom="15dp"
-        android:layout_marginRight="11dp"
-        android:layout_marginEnd="11dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_marginTop="43dp"
         android:layout_below="@+id/numintrusos"
-        android:layout_marginTop="48dp"
+        android:background="@color/md_teal_100"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
-        android:background="@color/common_google_signin_btn_text_dark_default"
-        android:drawableRight="@mipmap/configuracion"/>
+
+
 </RelativeLayout>

@@ -1,6 +1,7 @@
 package com.tfguniovi.grande.peephole;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -36,7 +38,7 @@ public class ConfigurationFragment extends Fragment {
     private Switch intrusos,intervalo;
     public EditText nintrusos,secintervalo;
     private OnFragmentInteractionListener mListener;
-    private Button send;
+    private ImageButton send;
     String segundos,numintrusos;
 
     public ConfigurationFragment() {
@@ -79,7 +81,7 @@ public class ConfigurationFragment extends Fragment {
         intervalo = (Switch) getView().findViewById(R.id.intervalo);
         nintrusos = (EditText) getView().findViewById(R.id.n_intrusos);
         secintervalo = (EditText) getView().findViewById(R.id.intervalosec);
-        send = (Button) getView().findViewById(R.id.enviar);
+        send = (ImageButton) getView().findViewById(R.id.enviar);
 
 
         secintervalo.setEnabled(false);
@@ -143,6 +145,7 @@ public class ConfigurationFragment extends Fragment {
                     }else {
                         Toast.makeText(ConfigurationFragment.this.getActivity(),  "Marque al menos una de las 2 opciones", Toast.LENGTH_LONG).show();
                     }
+
 
 
                 }catch (Exception ex){
