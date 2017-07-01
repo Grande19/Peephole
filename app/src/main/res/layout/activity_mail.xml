@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.tfguniovi.grande.peephole.MailActivity"
+    android:background="@color/md_teal_100">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppThemeRedLight.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppThemeRedLight.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <include layout="@layout/content_mail" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical"
+            android:layout_marginTop="50dp">
+
+
+            <EditText
+                android:id="@+id/editUser"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="address@gmail.com"
+                android:inputType="textEmailAddress"/>
+
+            <EditText
+                android:id="@+id/editPass"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:hint="password" />
+
+
+            <EditText
+                android:id="@+id/editSubject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="asunto" />
+
+            <EditText
+                android:id="@+id/editBody"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="mensaje" />
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:onClick="email"
+                android:text="Enviar" />
+
+        </LinearLayout>
+
+
+
+
+
+</android.support.design.widget.CoordinatorLayout>

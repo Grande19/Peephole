@@ -32,9 +32,8 @@
         <activity
             android:name=".MainActivity"
             android:label="Peephole"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:screenOrientation="portrait">
-
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.GPS" />
@@ -67,6 +66,11 @@
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".MailActivity"
+            android:label="@string/title_activity_mail"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

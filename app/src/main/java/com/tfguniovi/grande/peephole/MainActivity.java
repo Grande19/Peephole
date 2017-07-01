@@ -239,14 +239,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FragmentManager managerintruso = getSupportFragmentManager();
             managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
             intrusosFragment.getTag()).commit();
-            
 
+
+        }else if(id == R.id.email){
+            Intent intent = new Intent(this,MailActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    /*@Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        outState.putInt("intervalo", segundos);
+        outState.putInt("numero_intusos",num_intrusos);
+        //outState.putBoolean("snintrusos", intrusos.isChecked());
+        //outState.putBoolean("sintervalo",intervalo.isChecked());
+        super.onSaveInstanceState(outState);
+    }*/
 
     public void home (View v){
         Intent intent= new Intent(this,MainActivity.class);

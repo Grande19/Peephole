@@ -66,13 +66,13 @@ public class ConfigurationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
 
 
-        }
     }
+
+
+
+
     @Override
     public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
@@ -82,7 +82,6 @@ public class ConfigurationFragment extends Fragment {
         nintrusos = (EditText) getView().findViewById(R.id.n_intrusos);
         secintervalo = (EditText) getView().findViewById(R.id.intervalosec);
         send = (ImageButton) getView().findViewById(R.id.enviar);
-
 
         secintervalo.setEnabled(false);
         nintrusos.setEnabled(false);
@@ -164,6 +163,21 @@ public class ConfigurationFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
+        if(null==savedInstanceState){
+            Toast.makeText(ConfigurationFragment.this.getActivity(),  "Primera vez", Toast.LENGTH_LONG).show();
+
+
+        }
+
+        else {
+            Toast.makeText(ConfigurationFragment.this.getActivity(),  "Parametros guardados", Toast.LENGTH_LONG).show();
+            //boolean seleccionado_intrusos = savedInstanceState.getBoolean("snintrusos");
+            //  intervalo.isChecked(savedInstanceState.getBoolean("sintervalo"));
+            //segundos = savedInstanceState.getString("numintrusos");
+            secintervalo.setText(segundos);
+            numintrusos = savedInstanceState.getString("numero_intrusos");
+            nintrusos.setText(numintrusos);
+        }
 
 
 
@@ -211,4 +225,15 @@ public class ConfigurationFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteractionConfiguration(String intervalosec,String numintrusos);
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        outState.putString("intervalo", segundos);
+        outState.putString("numero_intusos",numintrusos);
+        outState.putBoolean("snintrusos", intrusos.isChecked());
+        outState.putBoolean("sintervalo",intervalo.isChecked());
+        super.onSaveInstanceState(outState);
+    }
 }
+

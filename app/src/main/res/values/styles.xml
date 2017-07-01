@@ -129,4 +129,13 @@
         <item name="color">@android:color/white</item>
     </style>
 
+    <style name="AppThemeRedLight.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeRedLight.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppThemeRedLight.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>
