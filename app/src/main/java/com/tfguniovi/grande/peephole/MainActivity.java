@@ -4,10 +4,12 @@ package com.tfguniovi.grande.peephole;
  * Alvaro Grande
  */
 
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
@@ -21,10 +23,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,11 +36,11 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.tfguniovi.grande.peephole.Fragement.AcercadeFragment;
-import com.tfguniovi.grande.peephole.Fragement.ConfigurationFragment;
-import com.tfguniovi.grande.peephole.Fragement.HomeFragment;
-import com.tfguniovi.grande.peephole.Fragement.IntrusosFragment;
-import com.tfguniovi.grande.peephole.Fragement.RegistroFragment;
+import com.tfguniovi.grande.peephole.Fragment.AcercadeFragment;
+import com.tfguniovi.grande.peephole.Fragment.ConfigurationFragment;
+import com.tfguniovi.grande.peephole.Fragment.HomeFragment;
+import com.tfguniovi.grande.peephole.Fragment.IntrusosFragment;
+import com.tfguniovi.grande.peephole.Fragment.RegistroFragment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,7 +59,6 @@ import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
-import javax.mail.Service;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -81,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements
     public String dir1 , dir2 , dir3 , usu1 , usu2 , usu3;
     File ruta_sd = Environment.getExternalStorageDirectory();
     public boolean finalizar = false;
-    public boolean get = false ;
+    public boolean confirma;
     boolean running = true;
     public int cont=0;
     int segundos,num_intrusos;
@@ -289,14 +292,14 @@ public class MainActivity extends AppCompatActivity implements
                 fragmentTransaction = fragmentManager.beginTransaction();
                 ConfigurationFragment configurationFragment = new ConfigurationFragment();
                 fragmentTransaction.replace(R.id.cmain, configurationFragment);
-                fragmentTransaction.commit();
+                fragmentTransaction.addToBackStack(null).commit();
                 break;
             case 1:
                 fragmentManager = getSupportFragmentManager();
                 fragmentTransaction = fragmentManager.beginTransaction();
                 RegistroFragment registroFragment = new RegistroFragment();
                 fragmentTransaction.replace(R.id.cmain, registroFragment);
-                fragmentTransaction.commit();
+                fragmentTransaction.addToBackStack(null).commit();
                 break;
             case 2:
                 Bundle arguments = new Bundle();
@@ -305,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements
                 // intrusosFragment.setArguments(bundle);
                 FragmentManager managerintruso = getSupportFragmentManager();
                 managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
-                        intrusosFragment.getTag()).commit();
+                        intrusosFragment.getTag()).addToBackStack(null).commit();
 
 
                 break;
@@ -313,13 +316,13 @@ public class MainActivity extends AppCompatActivity implements
                 AcercadeFragment acercadeFragment = new AcercadeFragment();
                 FragmentManager manageracercade = getSupportFragmentManager();
                 manageracercade.beginTransaction().replace(R.id.cmain,acercadeFragment,
-                        acercadeFragment.getTag()).commit();
+                        acercadeFragment.getTag()).addToBackStack(null).commit();
                 break;
             case 4:
                 HomeFragment homeFragment = new HomeFragment();
                 FragmentManager managerhome = getSupportFragmentManager();
                 managerhome.beginTransaction().replace(R.id.cmain,homeFragment,
-                        homeFragment.getTag()).commit();
+                        homeFragment.getTag()).addToBackStack(null).commit();
 
         }
     }
@@ -509,10 +512,14 @@ public class MainActivity extends AppCompatActivity implements
             fout.write("Intruso detectado[hora/día/mes]"+"["+hora+":"+ min + "/"+dia+"/"+month
                     +"\n[MAC->NOMBRE]:" + dispositivos
                     + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
+            IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
+            FragmentManager managerintruso = getSupportFragmentManager();
+            managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
+                    intrusosFragment.getTag()).commit();
             fout.close();
             if(cont==1){
-               Intent audio = new Intent(MainActivity.this,AudioService.class);
-                startService(audio);
+               //Intent audio = new Intent(MainActivity.this,AudioService.class);
+                //startService(audio);
                 Intent foto = new Intent(MainActivity.this,FotoService.class);
                 startService(foto);
             }
@@ -531,21 +538,59 @@ public class MainActivity extends AppCompatActivity implements
 
 
     public void fin (View view){
-        finalizar = true ;
-        running = false;
-        dispostivos_fin = dispositivos;
-        stopGps();
+
+        confirmacion();
+
         //Bluetooth.onCancelled();
-        Intent intent = new Intent(this , FinalizarActivity.class);
-        //intent.putCharSequenceArrayListExtra("lista",dispostivos_fin);
-        startActivity(intent);
-        //descub.dismiss();
-        //finish();
+        /*FragmentManager dialogoFragment = getSupportFragmentManager();
+        DialogoConfirmacion dialogo = new DialogoConfirmacion();
+        dialogo.show(getSupportFragmentManager(), "tagPersonalizado");*/
+
+
+
     }
 
     private void startGps(){
         Intent Gservice = new Intent(this,LocationService.class);
         startService(Gservice);
+    }
+
+
+    private void confirmacion(){
+
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        //builder.setView(inflater.inflate(R.layout.dialogo, null));
+        builder.setTitle(R.string.dialogo_linea_1);
+        builder.setMessage(R.string.dialogo_linea_2);
+        builder.setPositiveButton(R.string.aceptar, new DialogInterface.OnClickListener()  {
+            public void onClick(DialogInterface dialog, int id) {
+                Log.i("Dialogos", "Confirmacion Aceptada.");
+                Intent intent = new Intent(MainActivity.this , FinalizarActivity.class);
+                intent.putCharSequenceArrayListExtra("lista",dispostivos_fin);
+                Toast.makeText(MainActivity.this, "Finalizando descubrimiento", Toast.LENGTH_LONG).show();
+                startActivity(intent);
+                finalizar = true ;
+                running = false;
+                dispostivos_fin = dispositivos;
+                stopGps();
+                //descub.dismiss();
+                finish();
+
+            }
+        })
+                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Log.i("Dialogos", "Confirmacion Cancelada.");
+                        Toast.makeText(MainActivity.this, "Continua el descubrimto", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+        Dialog dialog= builder.create();
+        dialog.show();
+
+
     }
 
 

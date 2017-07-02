@@ -1,4 +1,4 @@
-package com.tfguniovi.grande.peephole.Fragement;
+package com.tfguniovi.grande.peephole.Fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -54,7 +54,7 @@ public class RegistroFragment extends Fragment {
     public EditText dis1,dis2,dis3 ;
     public EditText dire1,dire2,dire3 ;
     Button enviar;
-
+    boolean congelar;
     public RegistroFragment() {
         // Required empty public constructor
     }
@@ -88,51 +88,67 @@ public class RegistroFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
-        enviar = (Button)getView().findViewById(R.id.enviar);
-        dis1 = (EditText)getView().findViewById(R.id.dispositivo1);
-        dis2 = (EditText)getView().findViewById(R.id.dispositvo2);
-        dis3 = (EditText)getView().findViewById(R.id.dispositivo3);
-        dire1 = (EditText)getView().findViewById(R.id.email1);
-        dire2 = (EditText)getView().findViewById(R.id.email2);
-        dire3 = (EditText)getView().findViewById(R.id.email3);
-        enviar = (Button)getView().findViewById(R.id.enviar);
-        enviar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    d1 = dis1.getText().toString();
-                    d2 = dis2.getText().toString();
-                    d3 = dis3.getText().toString();
-                    e1 = dire1.getText().toString();
-                    e2 = dire2.getText().toString();
-                    e3 = dire3.getText().toString();
-                    Log.d("DISPOSITIVOS" , d1 + d2 + d3);
-                    if (TextUtils.isEmpty(d1)==false && TextUtils.isEmpty(d1)==false  && TextUtils.isEmpty(d1)==false
-                            && TextUtils.isEmpty(d1)==false  &&TextUtils.isEmpty(d1)==false  && TextUtils.isEmpty(d1)==false){
-                        Toast.makeText(RegistroFragment.this.getActivity(), "Registrado,puede empezar el descubrimiento", Toast.LENGTH_LONG).show();
+        enviar = (Button) getView().findViewById(R.id.enviar);
+        dis1 = (EditText) getView().findViewById(R.id.dispositivo1);
+        dis2 = (EditText) getView().findViewById(R.id.dispositvo2);
+        dis3 = (EditText) getView().findViewById(R.id.dispositivo3);
+        dire1 = (EditText) getView().findViewById(R.id.email1);
+        dire2 = (EditText) getView().findViewById(R.id.email2);
+        dire3 = (EditText) getView().findViewById(R.id.email3);
+        enviar = (Button) getView().findViewById(R.id.enviar);
+
+
+        /*if(congelar){
+            Toast.makeText(RegistroFragment.this.getActivity(), "Segunda vez", Toast.LENGTH_LONG).show();
+            dire1.setText(e1);
+            dire2.setText(e2);
+            dire3.setText(e3);
+
+        }else {*/
+
+            enviar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        d1 = dis1.getText().toString();
+                        d2 = dis2.getText().toString();
+                        d3 = dis3.getText().toString();
+                        e1 = dire1.getText().toString();
+                        e2 = dire2.getText().toString();
+                        e3 = dire3.getText().toString();
+                        Log.d("DISPOSITIVOS", d1 + d2 + d3);
+                        if (TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false
+                                && TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false) {
+                            Toast.makeText(RegistroFragment.this.getActivity(), "Registrado,puede empezar el descubrimiento", Toast.LENGTH_LONG).show();
+                       /* dis1.setText(d1);
+                        dis2.setText(d2);
+                        dis3.setText(d3);
+                        dire1.setText(e1);
+                        dire2.setText(e2);
+                        dire3.setText(e3);*/
                         onButtonPressed(d1,d2,d3,e1,e2,e3);
-                        //Intent intent= new Intent(RegistroFragment.this.getActivity(),MainActivity.class);
-                        //startActivity(intent);
-                    }
-                    else {
+                            //Intent intent= new Intent(RegistroFragment.this.getActivity(),MainActivity.class);
+                            //startActivity(intent);
+                        } else {
 
-                        Toast.makeText(RegistroFragment.this.getActivity(), "Introduzca todos los campos", Toast.LENGTH_LONG).show();
+                            Toast.makeText(RegistroFragment.this.getActivity(), "Introduzca todos los campos", Toast.LENGTH_LONG).show();
 
+                        }
+                    } catch (Exception ex) {
+                        Toast.makeText(RegistroFragment.this.getActivity(), "RELLENE TODOS LOS CAMPOS", Toast.LENGTH_LONG).show();
                     }
-                }catch(Exception ex){
-                    Toast.makeText(RegistroFragment.this.getActivity(), "RELLENE TODOS LOS CAMPOS", Toast.LENGTH_LONG).show();
+
                 }
+            });
+        }
 
-            }
-        });
 
 
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+        if (getArguments() != null ) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
             mParam3 = getArguments().getString(ARG_PARAM3);
@@ -145,8 +161,12 @@ public class RegistroFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
+        /*if(savedInstanceState !=null) {
+            e1 = savedInstanceState.getString("email1");
+            e2 = savedInstanceState.getString("emai2");
+            e3 = savedInstanceState.getString("email3");
+            congelar = true;
+        }*/
 
         return inflater.inflate(R.layout.fragment_registro, container, false);
     }
@@ -194,5 +214,11 @@ public class RegistroFragment extends Fragment {
         void onFragmentInteraction(String data, String dir2, String dir3, String dis1, String dis2, String dis3);
     }
 
-
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        /*outState.putString("email1",e1);
+        outState.putString("email2",e1);
+        outState.putString("email3",e1);*/
+    }
 }

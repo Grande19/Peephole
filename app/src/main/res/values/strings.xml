@@ -11,6 +11,22 @@
     <string name="title_activity_audio">AudioActivity</string>
     <string name="title_activity_video">VideoActivity</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="aceptar">
+        "Si"
+    </string>
+    <string name="cancelar">
+        "No"
+    </string>
+    <string name="dialogo_linea_1">
+        "Confirmación"
+
+    </string>
+    <string name="dialogo_linea_2">
+        "¿Desea salir de la aplicación y cancelar"
+        "el descubrimiento?"
+
+
+    </string>
     <string name="acercade">
         "   Servicio desarrollado por Peephole Surveillance.  "
         "Está utilizando la versión gratuita de vigilancia.Esta versión,"
@@ -29,7 +45,7 @@
         "   En esta versión gratuita podrá tener vigilada su casa siempre que quiera."
         "   El usuario podrá visualizar acceder a los archivos generados por la app"
         "   abriendo el administrador de archivos y poniendo en el buscador intruso"
-        "   Para más información comuníquese con nosotros a través de la pestaña Enviar Comentario."
+        "   Para más información comuniquese con nosotros a través de la pestaña Enviar Comentario."
 
 
     </string>

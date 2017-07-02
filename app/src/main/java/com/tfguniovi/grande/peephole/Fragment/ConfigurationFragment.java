@@ -1,4 +1,4 @@
-package com.tfguniovi.grande.peephole.Fragement;
+package com.tfguniovi.grande.peephole.Fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -63,6 +63,19 @@ public class ConfigurationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(null!=savedInstanceState){
+            Toast.makeText(ConfigurationFragment.this.getActivity(),  "Parametros guardados" + segundos, Toast.LENGTH_LONG).show();
+            //boolean seleccionado_intrusos = savedInstanceState.getBoolean("snintrusos");
+            //  intervalo.isChecked(savedInstanceState.getBoolean("sintervalo"));
+            //segundos = savedInstanceState.getString("numintrusos");
+            segundos = (String) savedInstanceState.get("intervalo");
+            secintervalo.setText(segundos);
+            numintrusos = savedInstanceState.getString("numero_intrusos");
+            nintrusos.setText(numintrusos);
+        }else {
+
+        }
+
 
 
     }
@@ -160,28 +173,18 @@ public class ConfigurationFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        if(null==savedInstanceState){
-            Toast.makeText(ConfigurationFragment.this.getActivity(),  "Primera vez", Toast.LENGTH_LONG).show();
 
 
-        }
+            return inflater.inflate(R.layout.fragment_configuration, container, false);
 
-        else {
-            Toast.makeText(ConfigurationFragment.this.getActivity(),  "Parametros guardados", Toast.LENGTH_LONG).show();
-            //boolean seleccionado_intrusos = savedInstanceState.getBoolean("snintrusos");
-            //  intervalo.isChecked(savedInstanceState.getBoolean("sintervalo"));
-            //segundos = savedInstanceState.getString("numintrusos");
-            secintervalo.setText(segundos);
-            numintrusos = savedInstanceState.getString("numero_intrusos");
-            nintrusos.setText(numintrusos);
         }
 
 
 
 
 
-        return inflater.inflate(R.layout.fragment_configuration, container, false);
-    }
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(String intervalosec,String numintrusos) {
@@ -225,12 +228,12 @@ public class ConfigurationFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-
+        super.onSaveInstanceState(outState);
         outState.putString("intervalo", segundos);
         outState.putString("numero_intusos",numintrusos);
         outState.putBoolean("snintrusos", intrusos.isChecked());
         outState.putBoolean("sintervalo",intervalo.isChecked());
-        super.onSaveInstanceState(outState);
+
     }
 }
 

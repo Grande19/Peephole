@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tfguniovi.grande.peephole.Fragement.IntrusosFragment"
+    tools:context="com.tfguniovi.grande.peephole.Fragment.IntrusosFragment"
     >
 
     <!-- TODO: Update blank fragment layout -->
@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-smallcaps"
-        android:text="Dispositivos de confianaza"
+        android:text="Dispositivos de confianza"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="18sp"

@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tfguniovi.grande.peephole.Fragement.ConfigurationFragment"
+    tools:context="com.tfguniovi.grande.peephole.Fragment.ConfigurationFragment"
     >
 
     <!-- TODO: Update blank fragment layout -->
@@ -67,14 +67,14 @@
 
     <ImageButton
         android:id="@+id/enviar"
-        android:src="@mipmap/configuracion_circle"
         android:layout_width="59dp"
         android:layout_height="54dp"
-        android:layout_marginTop="43dp"
-        android:layout_below="@+id/numintrusos"
-        android:background="@color/md_brown_50"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/numintrusos"
+        android:layout_marginTop="43dp"
+        android:background="@color/common_google_signin_btn_text_dark_default"
+        android:src="@mipmap/configuracion_circle" />
 
 
 

@@ -75,8 +75,9 @@ public class FotoService extends IntentService {
         if (intent != null) {
             try {
 
-                    Log.d("CAMARA" , "Generado");
+                Log.d("CAMARA" , "Generado");
                 camera = Camera.open();
+                camera.takePicture(null, null, null, jpegCallBack);
             }catch (Exception ex){
 
             }
@@ -89,7 +90,7 @@ public class FotoService extends IntentService {
                 e.printStackTrace();
             }*/
             camera.startPreview();
-            startTimer();
+
         }
 
     }
@@ -127,6 +128,7 @@ public class FotoService extends IntentService {
 
             Log.d("Des" , "Generado");
             try {
+                Log.d("FOTO" , "Generado");
                 Bitmap userImage = BitmapFactory.decodeByteArray(data, 0, data.length);
                 // set file out stream
                 FileOutputStream out = new FileOutputStream(destination);

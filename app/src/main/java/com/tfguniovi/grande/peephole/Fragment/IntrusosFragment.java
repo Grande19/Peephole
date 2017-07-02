@@ -1,4 +1,4 @@
-package com.tfguniovi.grande.peephole.Fragement;
+package com.tfguniovi.grande.peephole.Fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.tfguniovi.grande.peephole.R;
 
@@ -106,21 +105,19 @@ public class IntrusosFragment extends Fragment {
         if(v != null){
             lista = (ListView) v.findViewById(R.id.dispostivos_lista);
             trusted = (ListView) v.findViewById(R.id.dispostivos_confianza);
-            if(listaconfianza.isEmpty()==false){
+           /* if(listaconfianza.isEmpty()==true){
                 Toast.makeText(IntrusosFragment.this.getActivity(), "Registre los paramteros", Toast.LENGTH_LONG).show();
-            }
-            }
-            if(listadispositivos.isEmpty()==true){
-                Toast.makeText(IntrusosFragment.this.getActivity(), "No hay dispositivos registrados", Toast.LENGTH_LONG).show();
-            }
-            else {
+            }*/
                 try {
+
                     ArrayAdapter adapter1 = new ArrayAdapter(getActivity(),android.R.layout.simple_expandable_list_item_1,listaconfianza);
-                    lista.setAdapter(adapter1);
+                    trusted.setAdapter(adapter1);
                     ArrayAdapter adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_expandable_list_item_1,listadispositivos);
                     lista.setAdapter(adapter);
-                    Log.d("LISTA", "Escribelista");
+                    Log.d("LISTA", "Escribelista" + listaconfianza + listadispositivos);
                 }
+
+
                 catch (Exception ex){
                     Log.d("LISTA","aaaa");
                 }
