@@ -35,15 +35,14 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
     private static final String EXTRA_PARAM1 = "com.tfguniovi.grande.peephole.extra.PARAM1";
     private static final String EXTRA_PARAM2 = "com.tfguniovi.grande.peephole.extra.PARAM2";
 
-    private MediaPlayer mediaPlayer;
+
     private MediaRecorder recorderVideo;
-    private MediaRecorder recorderAudio;
-    private String OUTPUT_FILE , OUTPUT_FILE_AUDIO;
+
 
     //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
     int i = 0;
     private VideoView videoView = null;
-    private SurfaceHolder holder = null;
+    //private SurfaceHolder holder;
     private Camera camera = null;
     private String outputFilename ;
 
@@ -83,11 +82,11 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        OUTPUT_FILE_AUDIO = Environment.getExternalStorageDirectory() + "/intruso_audio.3gpp";
-        OUTPUT_FILE = Environment.getExternalStorageDirectory() + "/intruso_video.mp4";
+
+        outputFilename = Environment.getExternalStorageDirectory() + "/intruso_video.mp4";
         if (intent != null) {
             //beginAudio();
-            beginRecording();
+            initCamera();
 
         }
 
@@ -133,16 +132,15 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
 
     private  void beginRecording(){
 
-        outputFilename = Environment.getExternalStorageDirectory()+"/intruso.mp4";
         //Abre el archivo en la ruta que le especificamos
         File outFile = new File(outputFilename);
+        recorderVideo = new MediaRecorder();
         if(outFile.exists())
             outFile.delete();
 
         try {
             camera.stopPreview();
             camera.unlock();
-            recorderVideo = new MediaRecorder();
             recorderVideo.setCamera(camera);
             recorderVideo.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
             recorderVideo.setVideoSource(MediaRecorder.VideoSource.CAMERA);
@@ -153,14 +151,15 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
             recorderVideo.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
             recorderVideo.setOutputFile(outputFilename);
             recorderVideo.prepare();
+            recorderVideo.start();
+            temporizaVideo();
+
 
         }catch (Exception ex){
 
         }
 
 
-        recorderVideo.start();
-        temporizaVideo();
 
 
 
@@ -249,9 +248,10 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
             camera = Camera.open();
             Camera.Parameters camParams = camera.getParameters();
             camera.lock();
-            holder = videoView.getHolder();
-            holder.addCallback(this);
-            holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+            //holder = videoView.getHolder();
+           // holder.addCallback(this);
+            //holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+            beginRecording();
         }
         catch (RuntimeException ex){
             ex.printStackTrace();

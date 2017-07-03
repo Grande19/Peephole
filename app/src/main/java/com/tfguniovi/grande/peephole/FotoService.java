@@ -6,8 +6,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.media.MediaRecorder;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
@@ -17,6 +19,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -34,6 +38,7 @@ public class FotoService extends IntentService {
     // TODO: Rename parameters
     private static final String EXTRA_PARAM1 = "com.tfguniovi.grande.peephole.extra.PARAM1";
     private static final String EXTRA_PARAM2 = "com.tfguniovi.grande.peephole.extra.PARAM2";
+    private static int TAKE_PICTURE=1;
     private  Camera camera;
 
     public FotoService() {
@@ -74,26 +79,32 @@ public class FotoService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             try {
-
-                Log.d("CAMARA" , "Generado");
                 camera = Camera.open();
-                camera.takePicture(null, null, null, jpegCallBack);
+                camera.startPreview();
             }catch (Exception ex){
-
+                Toast.makeText(this,"No tienes los permisos necesarios revisar configuración",Toast.LENGTH_LONG).show();
             }
-            //SurfaceView view = new SurfaceView(FotoService.this);
+            //SurfaceView view = new SurfaceView(this);
 
-            /*try {
-               // camera.setPreviewDisplay(view.getHolder()); // feed dummy surface to surface
+           /* try {
+                //camera.setPreviewDisplay(view.getHolder()); // feed dummy surface to surface
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            }*/
-            camera.startPreview();
+            }
+            */
+
+            startTimer();
 
         }
 
     }
+
+    public void camara(){
+
+    }
+
+
 
     /**
      * Handle action Foo in the provided background thread with the provided
@@ -121,12 +132,7 @@ public class FotoService extends IntentService {
 
             //Si la sd es de solo lectura escribe en memoria interna
             File destination=new File(Environment.getExternalStorageDirectory(),"intruso.jpg");
-
-
-
-
-
-            Log.d("Des" , "Generado");
+            Log.d("CAMARA" , "Generado");;
             try {
                 Log.d("FOTO" , "Generado");
                 Bitmap userImage = BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -151,13 +157,15 @@ public class FotoService extends IntentService {
         int nro1=Integer.parseInt(valor1);*/
 
         // 5000ms=5s at intervals of 1000ms=1s so that means it lasts 5 seconds
-        new CountDownTimer(5000,1000){
+        Log.d("FOTO" , "Entra en timer");
+        camera.takePicture(null, null, null, jpegCallBack);
+        /*new CountDownTimer(5000,1000){
 
             @Override
             public void onFinish() {
                 // count finished
 
-                camera.takePicture(null, null, null, jpegCallBack);
+
             }
 
             @Override
@@ -166,7 +174,7 @@ public class FotoService extends IntentService {
 
             }
 
-        }.start();
+        }.start();*/
     }
 
 

@@ -12,8 +12,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.hardware.Camera;
+import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
@@ -35,6 +40,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.tfguniovi.grande.peephole.Fragment.AcercadeFragment;
 import com.tfguniovi.grande.peephole.Fragment.ConfigurationFragment;
@@ -43,6 +49,7 @@ import com.tfguniovi.grande.peephole.Fragment.IntrusosFragment;
 import com.tfguniovi.grande.peephole.Fragment.RegistroFragment;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -88,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements
     boolean running = true;
     public int cont=0;
     int segundos,num_intrusos;
+    int iterator = 1 ;
     Session session = null;
     String  pol;
     String  subject, textMessage;
@@ -97,6 +105,17 @@ public class MainActivity extends AppCompatActivity implements
     String path1 = Environment.getExternalStorageDirectory()+"/intruso_audio.3gpp";
     //Solicitud de permisos
     DrawerLayout drawerLayout;
+    Button video,foto;
+    private MediaRecorder recorderVideo;
+
+
+    //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+    int i = 0;
+    private VideoView videoView = null;
+    //private SurfaceHolder holder;
+    private Camera camera = null;
+    private Camera camarafotos=null;
+    private String outputFilename ;
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final int MY_PERMISSIONS_REQUEST_CAMERA=8;
@@ -123,8 +142,7 @@ public class MainActivity extends AppCompatActivity implements
             setContentView(R.layout.activity_main);
 
             BA = BluetoothAdapter.getDefaultAdapter();
-            //lv = (ListView) findViewById(R.id.lvDispositivos);
-            //ls = (ListView) findViewById(R.id.DispositivosRSSI);
+            video = (Button) findViewById(R.id.video) ;
             botonDES = (Button) findViewById(R.id.add);
             Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar);
             ImageButton homebutton = (ImageButton) findViewById(R.id.home);
@@ -448,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements
                                 discover.add(device);
                                 dispositivos.add(device + "->" + name);
                                 //Log.d("DESCUBRE : nombre_disp" , name);
-                                fichero();
+                                fichero(name);
 
                             }
                         } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
@@ -476,11 +494,14 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         protected void onPreExecute(){
+            //unregisterReceiver(mReciever);
             Log.d("ASYCN" , "Doing ASYCN Task");
         }
 
         @Override
         protected void onCancelled(){
+
+            unregisterReceiver(mReciever);
             Log.d("FIN" , "Acaba");
             running = false;
 
@@ -490,20 +511,16 @@ public class MainActivity extends AppCompatActivity implements
     } //Fin de AsynTask
 
 
-    public void fichero(){
+    public void fichero(String name){
         try {
-            //getCoordenadas();
-            //falta añadir 2 dispositivos en el mismo fichero porque ahora solo detecta y escribe 1
-            //if(longitud!=null && latitud!=null ){
-            //stopGps();
-            //if(longitud!=null && latitud!=null && cont==0) {
             Calendar calendarNow = new GregorianCalendar(TimeZone.getTimeZone("Europe/Madrid"));
             int dia=calendarNow.get(Calendar.DAY_OF_MONTH);
             int month = calendarNow.get(Calendar.MONTH)+1;
             int min = calendarNow.get(Calendar.MINUTE);
             int hora = calendarNow.get(Calendar.HOUR_OF_DAY);
-            stopGps();
-            //getCoordenadas();
+            if (latitud==null && longitud==null) {
+                getCoordenadas();
+            }
             File ruta_sd = Environment.getExternalStorageDirectory();
             File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
             OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
@@ -517,12 +534,9 @@ public class MainActivity extends AppCompatActivity implements
             managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
                     intrusosFragment.getTag()).commit();
             fout.close();
-            if(cont==1){
-               //Intent audio = new Intent(MainActivity.this,AudioService.class);
-                //startService(audio);
-                Intent foto = new Intent(MainActivity.this,FotoService.class);
-                startService(foto);
-            }
+            new Foto().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            Intent audio = new Intent(MainActivity.this,AudioService.class);
+            startService(audio);
             cont +=1 ;
             if(cont == 4){
                 email();
@@ -537,18 +551,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
-    public void fin (View view){
-
-        confirmacion();
-
-        //Bluetooth.onCancelled();
-        /*FragmentManager dialogoFragment = getSupportFragmentManager();
-        DialogoConfirmacion dialogo = new DialogoConfirmacion();
-        dialogo.show(getSupportFragmentManager(), "tagPersonalizado");*/
-
-
-
-    }
+    public void fin (View view){confirmacion();}
 
     private void startGps(){
         Intent Gservice = new Intent(this,LocationService.class);
@@ -628,7 +631,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-
+    @Override
     public void onPause() {
         super.onPause();
         try{
@@ -642,23 +645,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    //CameraActivity
-    public void camera(View view){
-        Intent intent = new Intent(this , CameraActivity.class);
-        startActivity(intent);
-
-    }
-
-
-    public void enviar(View v){
-            email();
-    }
-
-
-    public void grabar(View v){
-        Intent intent = new Intent(this,VideoActivity.class);
-        startActivity(intent);
-    }
 
 
     /***
@@ -787,5 +773,172 @@ public class MainActivity extends AppCompatActivity implements
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
         }
     }
+
+    /**
+     * AsycnTask para hacer video
+     *
+     *
+     */
+
+
+    public void graba(View view){
+        try{
+            camera = Camera.open();
+            Camera.Parameters camParams = camera.getParameters();
+            camera.lock();
+            //holder = videoView.getHolder();
+            // holder.addCallback(this);
+            //holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+            new Video().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+        catch (RuntimeException ex){
+            ex.printStackTrace();
+
+
+        }
+
+
+    }
+
+    class Video extends AsyncTask<Void , Void , Void >{
+
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            outputFilename = Environment.getExternalStorageDirectory() + "/intruso_video.mp4";
+            File outFile = new File(outputFilename);
+            recorderVideo = new MediaRecorder();
+            if(outFile.exists())
+                outFile.delete();
+
+            try {
+                camera.stopPreview();
+                camera.unlock();
+                recorderVideo.setCamera(camera);
+                recorderVideo.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+                recorderVideo.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+                recorderVideo.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+                recorderVideo.setVideoFrameRate(15);
+                recorderVideo.setVideoSize(176,144);
+                recorderVideo.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
+                recorderVideo.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+                recorderVideo.setOutputFile(outputFilename);
+                recorderVideo.prepare();
+                recorderVideo.start();
+                timer();
+                //temporizaVideo();
+
+
+
+
+                }catch (Exception ex){
+
+            }
+
+
+
+            return null;
+        }//onReceive
+
+        public void timer(){
+            new CountDownTimer(5000,1000){
+
+                @Override
+                public void onFinish() {
+                    Log.d("VIDEO","FINALIZA de grabar");
+
+
+                }
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+
+                }};
+
+        }
+
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Log.d("VIDEO","FINALIZA onPostExecute");
+            recorderVideo.stop();
+            recorderVideo.reset();
+            recorderVideo.release();
+            super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected void onCancelled() {
+            Log.d("VIDEO","Video cancelado");
+            super.onCancelled();
+        }
+    }
+
+    /**
+     * AsycnTask para capturar imágenes cada vez que se detecta un dispositivo
+     */
+
+    class Foto extends AsyncTask<Void , Void , Void >{
+
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+
+
+            Camera.PictureCallback jpegCallBack=new Camera.PictureCallback() {
+                public void onPictureTaken(byte[] data, Camera camera) {
+                    // set file destination and file name
+
+
+                    //Si la sd es de solo lectura escribe en memoria interna
+
+                    String nombrepath = String.valueOf(iterator)+"intruso.jpg";
+                    File destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
+                    iterator++;
+                    Log.d("CAMARA" , "Generado");;
+                    try {
+                        Log.d("FOTO" , "Generado");
+                        Bitmap userImage = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        // set file out stream
+                        FileOutputStream out = new FileOutputStream(destination);
+                        // set compress format quality and stream
+                        userImage.compress(Bitmap.CompressFormat.JPEG, 90, out);
+
+                    } catch (FileNotFoundException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
+                }
+            };
+
+            camarafotos = Camera.open();
+            camarafotos.startPreview();
+            camarafotos.takePicture(null,null,null,jpegCallBack);
+
+
+
+
+
+            return null;
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }//MainActivity

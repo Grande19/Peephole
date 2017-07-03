@@ -28,7 +28,7 @@ public class AudioService extends IntentService {
     private static final String EXTRA_PARAM2 = "com.tfguniovi.grande.peephole.extra.PARAM2";
 
     private MediaRecorder recorderAudio;
-    String OUTPUT_FILE_AUDIO ;
+    int iterator = 1 ;
     public AudioService() {
         super("AudioService");
     }
@@ -93,12 +93,15 @@ public class AudioService extends IntentService {
 
 
     private void beginAudio(){
-        OUTPUT_FILE_AUDIO  = Environment.getExternalStorageDirectory() + "/intruso_audio.3gpp";
-        File outFileaudio = new File(OUTPUT_FILE_AUDIO);
 
-        if(outFileaudio.exists())
 
-            outFileaudio.delete();
+        String nombrepath = String.valueOf(iterator)+"intruso_audio.3gpp";
+
+        //OUTPUT_FILE_AUDIO  = Environment.getExternalStorageDirectory() + nombrepath;
+        File destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
+        iterator++;
+
+
 
         try {
             recorderAudio = new MediaRecorder();
@@ -106,11 +109,11 @@ public class AudioService extends IntentService {
             recorderAudio.setAudioSource(MediaRecorder.AudioSource.MIC);
             recorderAudio.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             recorderAudio.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            recorderAudio.setOutputFile(OUTPUT_FILE_AUDIO);
+            recorderAudio.setOutputFile(String.valueOf(destination));
             recorderAudio.prepare();
             recorderAudio.start();
-            temporizaAudio();
-
+            //temporizaAudio();
+            recorderAudio.stop();
 
         } catch (Exception e){
 
