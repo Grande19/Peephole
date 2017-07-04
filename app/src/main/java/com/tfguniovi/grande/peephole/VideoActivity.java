@@ -146,10 +146,7 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
         //ditchMediaRecorder();
     }
 
-    public void volver(View v){
-        Intent i = new Intent(this,MainActivity.class);
-        startActivity(i);
-    }
+
 
     public void stop_audio(View v){
         stopRecordingAudio();

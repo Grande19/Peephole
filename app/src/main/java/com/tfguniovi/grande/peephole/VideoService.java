@@ -24,7 +24,7 @@ import java.io.IOException;
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
-public class VideoService extends IntentService implements SurfaceHolder.Callback ,
+public class VideoService extends IntentService implements SurfaceHolder.Callback,
         MediaPlayer.OnInfoListener , MediaPlayer.OnErrorListener, MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener  {
     // TODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
@@ -40,9 +40,9 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
 
 
     //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
-    int i = 0;
+    int iterator = 0;
     private VideoView videoView = null;
-    //private SurfaceHolder holder;
+    private SurfaceHolder holder;
     private Camera camera = null;
     private String outputFilename ;
 
@@ -83,6 +83,7 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
     @Override
     protected void onHandleIntent(Intent intent) {
 
+
         outputFilename = Environment.getExternalStorageDirectory() + "/intruso_video.mp4";
         if (intent != null) {
             //beginAudio();
@@ -90,7 +91,10 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
 
         }
 
+
     }
+
+
 
     /**
      * Handle action Foo in the provided background thread with the provided
@@ -123,8 +127,10 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
             public void onFinish() {
                 stopRecording();
             }
-        };
+        }.start();
     }
+
+
 
 
 
@@ -133,10 +139,19 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
     private  void beginRecording(){
 
         //Abre el archivo en la ruta que le especificamos
-        File outFile = new File(outputFilename);
+
+        String nombrepath = String.valueOf(iterator)+"intruso.mp4";
+
+        //OUTPUT_FILE_AUDIO  = Environment.getExternalStorageDirectory() + nombrepath;
+        File destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
+        iterator++;
         recorderVideo = new MediaRecorder();
-        if(outFile.exists())
-            outFile.delete();
+        if(destination.exists()){
+            path();
+        nombrepath = String.valueOf(iterator)+"intruso.mp4";
+        destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
+        }
+
 
         try {
             camera.stopPreview();
@@ -149,7 +164,7 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
             recorderVideo.setVideoSize(176,144);
             recorderVideo.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
             recorderVideo.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            recorderVideo.setOutputFile(outputFilename);
+            recorderVideo.setOutputFile(String.valueOf(destination));
             recorderVideo.prepare();
             recorderVideo.start();
             temporizaVideo();
@@ -158,16 +173,12 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
         }catch (Exception ex){
 
         }
-
-
-
-
-
+    }
+    public int path(){
+        iterator=(int)(Math.random());
+        return iterator;
 
     }
-
-
-
 
 
 
@@ -221,6 +232,8 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
 
     }
 
+
+
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
@@ -248,9 +261,9 @@ public class VideoService extends IntentService implements SurfaceHolder.Callbac
             camera = Camera.open();
             Camera.Parameters camParams = camera.getParameters();
             camera.lock();
-            //holder = videoView.getHolder();
-           // holder.addCallback(this);
-            //holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+            holder = videoView.getHolder();
+            holder.addCallback(this);
+            holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
             beginRecording();
         }
         catch (RuntimeException ex){

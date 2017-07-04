@@ -1,11 +1,15 @@
 package com.tfguniovi.grande.peephole.Fragment;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -37,6 +41,7 @@ public class ConfigurationFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private ImageButton send;
     String segundos,numintrusos;
+    Button restablecer;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -92,9 +97,49 @@ public class ConfigurationFragment extends Fragment {
         nintrusos = (EditText) getView().findViewById(R.id.n_intrusos);
         secintervalo = (EditText) getView().findViewById(R.id.intervalosec);
         send = (ImageButton) getView().findViewById(R.id.enviar);
+        restablecer = (Button) getView().findViewById(R.id.restablecer);
 
-        secintervalo.setEnabled(false);
-        nintrusos.setEnabled(false);
+        restablecer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+
+
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                SharedPreferences.Editor editor = pref.edit();
+                editor.remove("segundos");
+                editor.remove("intervalo_switch");
+                editor.remove("intruso_switch");
+                editor.remove("intervalo_switch");
+
+                editor.commit();
+
+            }
+        });
+
+        try {
+            SharedPreferences configuracion = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+            boolean is = configuracion.getBoolean("intervalo_switch",false);
+            boolean isn = configuracion.getBoolean("intrusos_switch",false);
+            String sec = configuracion.getString("segundos","");
+            String intr = configuracion.getString("intrusos","");
+
+            intrusos.setChecked(isn);
+            intervalo.setChecked(is);
+
+            Log.d("CONFG" , String.valueOf(sec + intr));
+            nintrusos.setText(intr);
+            secintervalo.setText(String.valueOf(sec));
+
+        } catch (Exception ex){
+
+        }
+
+
+
 
 
         intervalo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -140,6 +185,14 @@ public class ConfigurationFragment extends Fragment {
                         }else
                             {
                         numintrusos = "0";
+                                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                                SharedPreferences.Editor editor = pref.edit();
+                                editor.putString("segundos",segundos);
+                                editor.putBoolean("intervalo_switch",true);
+                                editor.putBoolean("intruso_switch",false);
+                                editor.commit();
+
+
                         onButtonPressed(segundos,numintrusos);
                         }
 
@@ -150,6 +203,12 @@ public class ConfigurationFragment extends Fragment {
                             Toast.makeText(ConfigurationFragment.this.getActivity(),  "Introduzca los segundos", Toast.LENGTH_LONG).show();
                         }
                         segundos="0";
+                        SharedPreferences pref1 = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                        SharedPreferences.Editor editor = pref1.edit();
+                        editor.putString("intrusos",numerointrusos);
+                        editor.putBoolean("intervalo_switch",false);
+                        editor.putBoolean("intruso_switch",false);
+                        editor.commit();
                         onButtonPressed(numerointrusos,segundos);
                     }else {
                         Toast.makeText(ConfigurationFragment.this.getActivity(),  "Marque al menos una de las 2 opciones", Toast.LENGTH_LONG).show();
@@ -228,11 +287,7 @@ public class ConfigurationFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("intervalo", segundos);
-        outState.putString("numero_intusos",numintrusos);
-        outState.putBoolean("snintrusos", intrusos.isChecked());
-        outState.putBoolean("sintervalo",intervalo.isChecked());
+
 
     }
 }

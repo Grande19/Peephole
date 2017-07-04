@@ -76,6 +76,16 @@
         android:background="@color/common_google_signin_btn_text_dark_default"
         android:src="@mipmap/configuracion_circle" />
 
+    <Button
+        android:id="@+id/restablecer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/enviar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="14dp"
+        android:layout_marginStart="14dp"
+        android:text="restablecer" />
 
 
 </RelativeLayout>

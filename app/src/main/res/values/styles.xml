@@ -47,7 +47,6 @@
         <item name="android:textColorSecondaryInverse">@color/md_secondary_text_icons_white</item>
         <item name="android:textColorTertiaryInverse">@color/md_disabled_hint_text_white</item>
         <item name="android:cacheColorHint">@color/md_divider</item>
-
         <!-- Navigation Drawer Arrow Style. -->
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
     </style>

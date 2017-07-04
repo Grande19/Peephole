@@ -12,14 +12,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -36,6 +39,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -51,6 +55,7 @@ import com.tfguniovi.grande.peephole.Fragment.RegistroFragment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -75,56 +80,52 @@ import javax.mail.internet.MimeMultipart;
 
 
 public class MainActivity extends AppCompatActivity implements
-        RegistroFragment.OnFragmentInteractionListener,ConfigurationFragment.OnFragmentInteractionListener {
-    private Button    botonDES , botonLocal , cam  ;
+        RegistroFragment.OnFragmentInteractionListener,ConfigurationFragment.OnFragmentInteractionListener{
+
     private ImageButton homebutton;
     private final static int REQUEST_ENABLE_BT = 1;
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice device;
     private BluetoothAdapter BA;
-    private BroadcastReceiver mReciever , gReciever , gpsReceiver , usuReceiver , disReceiver;
+    private BroadcastReceiver mReciever, gReciever, gpsReceiver, usuReceiver, disReceiver;
     public ArrayList dispositivos = new ArrayList();
     public ArrayList trusted_device = new ArrayList();
     public ArrayList discover = new ArrayList();
     public ArrayList dispostivos_fin = new ArrayList();
-    public Double longitud , latitud;
-    public String dir1 , dir2 , dir3 , usu1 , usu2 , usu3;
-    File ruta_sd = Environment.getExternalStorageDirectory();
+    public Double longitud, latitud;
+    public String dir1, dir2, dir3, usu1, usu2, usu3;
     public boolean finalizar = false;
-    public boolean confirma;
     boolean running = true;
-    public int cont=0;
-    int segundos,num_intrusos;
-    int iterator = 1 ;
+    public int cont = 0;
+    int segundos, num_intrusos;
     Session session = null;
-    String  pol;
-    String  subject, textMessage;
+    String pol;
+    String subject, textMessage;
     BodyPart adjunto_texto;
     BodyPart adjunto_audio;
-    String path = Environment.getExternalStorageDirectory()+"/intruso.txt";
-    String path1 = Environment.getExternalStorageDirectory()+"/intruso_audio.3gpp";
+    String path = Environment.getExternalStorageDirectory() + "/intruso.txt";
+    String path1 = Environment.getExternalStorageDirectory() + "/intruso_audio.3gpp";
     //Solicitud de permisos
     DrawerLayout drawerLayout;
-    Button video,foto;
+    Button video;
     private MediaRecorder recorderVideo;
-
-
     //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
     int i = 0;
+    int iterator = 0;
     private VideoView videoView = null;
-    //private SurfaceHolder holder;
+    private SurfaceHolder holder = null;
     private Camera camera = null;
-    private Camera camarafotos=null;
-    private String outputFilename ;
+
+
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
-    private static final int MY_PERMISSIONS_REQUEST_CAMERA=8;
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH = 2 ;
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 8;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH = 2;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 3;
-    private static final int MY_PERMISSIONS_REQUEST_INTERNET = 4 ;
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN = 5 ;
+    private static final int MY_PERMISSIONS_REQUEST_INTERNET = 4;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN = 5;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE = 6;
-    private static  final int MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT=7;
+    private static final int MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT = 7;
 
 
     /***
@@ -136,19 +137,17 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState==null) {
+        if (savedInstanceState == null) {
             Log.d("ENTRANDO", String.valueOf(trusted_device));
 
             setContentView(R.layout.activity_main);
-
             BA = BluetoothAdapter.getDefaultAdapter();
-            video = (Button) findViewById(R.id.video) ;
-            botonDES = (Button) findViewById(R.id.add);
             Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar);
             ImageButton homebutton = (ImageButton) findViewById(R.id.home);
             setSupportActionBar(toolbar1);
             drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start);
+            videoView = (VideoView) findViewById(R.id.grabadora);
 
 
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -174,9 +173,8 @@ public class MainActivity extends AppCompatActivity implements
                 Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
             }
 
-        }
-        else {
-            Log.d("ENTRANDO","SEGUNDA VED");
+        } else {
+            Log.d("ENTRANDO", "SEGUNDA VED");
             /*outState.putCharSequenceArrayList("dispostiivos de confianza", trusted_device);
             outState.putInt("segundos",segundos);
             outState.putInt("nintrusos",num_intrusos);
@@ -191,19 +189,18 @@ public class MainActivity extends AppCompatActivity implements
                 dir2 = savedInstanceState.getString("email2");
                 dir3 = savedInstanceState.getString("email3");
 
-            }catch (Exception ex){
+            } catch (Exception ex) {
 
             }
 
         }
 
 
-
-
     }//OnCreate
 
     /**
      * Creación del NavigationDraver
+     *
      * @param
      * @return
      */
@@ -243,7 +240,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-
     private void setupNavigationDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -263,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements
                             case R.id.nav_camera:
                                 menuItem.setChecked(true);
                                 drawerLayout.closeDrawer(GravityCompat.START);
-                                Intent i = new Intent(MainActivity.this,VideoActivity.class);
+                                Intent i = new Intent(MainActivity.this, VideoActivity.class);
                                 startActivity(i);
                                 return true;
                             case R.id.acerdade:
@@ -286,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements
                             case R.id.email:
                                 menuItem.setChecked(true);
                                 drawerLayout.closeDrawer(GravityCompat.START);
-                                Intent im = new Intent(MainActivity.this,MailActivity.class);
+                                Intent im = new Intent(MainActivity.this, MailActivity.class);
                                 startActivity(im);
                         }
                         return true;
@@ -295,9 +291,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-
-    public void home (View v){
-        Intent intent= new Intent(this,MainActivity.class);
+    public void home(View v) {
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
@@ -318,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements
                 RegistroFragment registroFragment = new RegistroFragment();
                 fragmentTransaction.replace(R.id.cmain, registroFragment);
                 fragmentTransaction.addToBackStack(null).commit();
+
                 break;
             case 2:
                 Bundle arguments = new Bundle();
@@ -325,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements
                 IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
                 // intrusosFragment.setArguments(bundle);
                 FragmentManager managerintruso = getSupportFragmentManager();
-                managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
+                managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
                         intrusosFragment.getTag()).addToBackStack(null).commit();
 
 
@@ -333,36 +329,37 @@ public class MainActivity extends AppCompatActivity implements
             case 3:
                 AcercadeFragment acercadeFragment = new AcercadeFragment();
                 FragmentManager manageracercade = getSupportFragmentManager();
-                manageracercade.beginTransaction().replace(R.id.cmain,acercadeFragment,
+                manageracercade.beginTransaction().replace(R.id.cmain, acercadeFragment,
                         acercadeFragment.getTag()).addToBackStack(null).commit();
                 break;
             case 4:
                 HomeFragment homeFragment = new HomeFragment();
                 FragmentManager managerhome = getSupportFragmentManager();
-                managerhome.beginTransaction().replace(R.id.cmain,homeFragment,
+                managerhome.beginTransaction().replace(R.id.cmain, homeFragment,
                         homeFragment.getTag()).addToBackStack(null).commit();
 
         }
     }
 
 
-
     public void discover(View view) {
         try {
 
-            if (trusted_device.isEmpty()==false) {
-                new Bluetooth().execute();
+            if (trusted_device.isEmpty() == false) {
+                //Intent serviceBluetooth = new Intent(this,BluetoothService.class);
+                //serviceBluetooth.putCharSequenceArrayListExtra("trusted_devices",trusted_device);
+                //startService(serviceBluetooth);
+                new Bluetooth().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 Bundle arguments = new Bundle();
                 arguments.putCharSequenceArrayList("id", dispositivos);
-                IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos,trusted_device);
+                IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
                 // intrusosFragment.setArguments(bundle);
                 FragmentManager managerintruso = getSupportFragmentManager();
-                managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
+                managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
                         intrusosFragment.getTag()).commit();
-                if(longitud!=null && latitud!=null) {
-                    startGps();
-                    getCoordenadas();
-                }
+
+                startGps();
+                getCoordenadas();
             } else {
                 Toast.makeText(this, "Introduzca los parametros", Toast.LENGTH_LONG).show();
             }
@@ -373,56 +370,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    /*@Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        outState.putCharSequenceArrayList("dispostiivos de confianza", trusted_device);
-        outState.putInt("segundos",segundos);
-        outState.putInt("nintrusos",num_intrusos);
-        outState.putString("email1",dir1);
-        outState.putString("email2",dir2);
-        outState.putString("email3",dir3);
-
-
-        super.onSaveInstanceState(outState, outPersistentState);
-    }*/
-
-    @Override
-    public void onFragmentInteraction(String dire1, String dire2, String dire3, String dis1, String dis2, String dis3) {
-
-        try {
-
-            usu1 = dire1;
-            trusted_device.add(usu1);
-            usu2 = dire2;
-            trusted_device.add(usu2);
-            usu3 = dire3;
-            trusted_device.add(usu3);
-            dir1 = dis2;
-            dir2 = dis1;
-            dir3 = dis3;
-            Log.d("TRUSTED_DEVICES", usu1 + usu2 + usu3 + dir1 + dir2);
-
-
-        } catch (Exception e){
-            e.printStackTrace();
-            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
-
-        }
-
-    }
-
-
-
-    @Override
-    public void onFragmentInteractionConfiguration(String intervalosec, String numintrusos) {
-        segundos = Integer.parseInt(intervalosec)*60*1000; //se pasa de minutos a milisegundos que es con lo que trabaja java
-        num_intrusos = Integer.parseInt(numintrusos);
-        Toast.makeText(this, "Segundos + intrusos" + segundos + "" + num_intrusos, Toast.LENGTH_LONG).show();
-    }
 
 
     //Clase para ejecutar la tarea de descubrimiento de Bluetooth en segundo plano
-    class Bluetooth extends AsyncTask<Void , Void , ArrayList >{
+    class Bluetooth extends AsyncTask<Void, Void, ArrayList> {
 
 
         @Override
@@ -456,13 +407,9 @@ public class MainActivity extends AppCompatActivity implements
                             String name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
                             String address = device.getAddress();
                             discover.add(name);
-                            /***pairedDevices = Lista de dispositivos sincronizados del móvil
-                            trusted_device = Dispositivos que se le indican por pantalla que son de confianza
-                            discover = dispositivos desbiertos
-                            dispositivos = lista que contiene los intrusos encontrados*/
-                           // discover.contains("TV")==false
-                            if(pairedDevices.contains(device)==false && trusted_device.contains(name)==false
-                                    && dispositivos.contains(device + "->" + name)==false) {
+                            // discover.contains("TV")==false
+                            if (pairedDevices.contains(device) == false && trusted_device.contains(name) == false
+                                    && dispositivos.contains(device + "->" + name) == false) {
                                 discover.add(device);
                                 dispositivos.add(device + "->" + name);
                                 //Log.d("DESCUBRE : nombre_disp" , name);
@@ -481,44 +428,92 @@ public class MainActivity extends AppCompatActivity implements
                     }//onReceive
                 };
                 if (isCancelled()) {
+                    unregisterReceiver(mReciever);
                 }
+
 
                 IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
                 registerReceiver(mReceiver, filter);
 
 
             }
-            return dispositivos;
-        }
-
-
-        @Override
-        protected void onPreExecute(){
-            //unregisterReceiver(mReciever);
-            Log.d("ASYCN" , "Doing ASYCN Task");
-        }
-
-        @Override
-        protected void onCancelled(){
-
             unregisterReceiver(mReciever);
-            Log.d("FIN" , "Acaba");
+            return dispositivos;
+
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+
+            Log.d("ASYCN", "Doing ASYCN Task");
+
+        }
+
+        @Override
+        protected void onCancelled() {
+            Intent intent = new Intent(MainActivity.this, FinalizarActivity.class);
+            startActivity(intent);
+            //unregisterReceiver(mReciever);
+            Log.d("FIN", "Acaba");
             running = false;
 
 
         }
 
+        @Override
+        protected void onCancelled(ArrayList arrayList) {
+            super.onCancelled(arrayList);
+        }
     } //Fin de AsynTask
 
 
-    public void fichero(String name){
+    @Override
+    public void onFragmentInteraction(String dire1, String dire2, String dire3, String dis1, String dis2, String dis3) {
+
+        try {
+
+            usu1 = dire1;
+            trusted_device.add(usu1);
+            usu2 = dire2;
+            trusted_device.add(usu2);
+            usu3 = dire3;
+            trusted_device.add(usu3);
+            dir1 = dis2;
+            dir2 = dis1;
+            dir3 = dis3;
+            Log.d("TRUSTED_DEVICES", usu1 + usu2 + usu3 + dir1 + dir2);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Introduzca los usuarios y dispositivos para comenzar", Toast.LENGTH_LONG).show();
+
+        }
+
+    }
+
+
+    @Override
+    public void onFragmentInteractionConfiguration(String intervalosec, String numintrusos) {
+        segundos = Integer.parseInt(intervalosec) * 60 * 1000; //se pasa de minutos a milisegundos que es con lo que trabaja java
+        num_intrusos = Integer.parseInt(numintrusos);
+        Toast.makeText(this, "Segundos + intrusos" + segundos + "" + num_intrusos, Toast.LENGTH_LONG).show();
+    }
+
+    /*
+
+
+    */
+
+    public void fichero(String name) {
         try {
             Calendar calendarNow = new GregorianCalendar(TimeZone.getTimeZone("Europe/Madrid"));
-            int dia=calendarNow.get(Calendar.DAY_OF_MONTH);
-            int month = calendarNow.get(Calendar.MONTH)+1;
+            int dia = calendarNow.get(Calendar.DAY_OF_MONTH);
+            int month = calendarNow.get(Calendar.MONTH) + 1;
             int min = calendarNow.get(Calendar.MINUTE);
             int hora = calendarNow.get(Calendar.HOUR_OF_DAY);
-            if (latitud==null && longitud==null) {
+            if (latitud == null && longitud == null) {
                 getCoordenadas();
             }
             File ruta_sd = Environment.getExternalStorageDirectory();
@@ -526,23 +521,25 @@ public class MainActivity extends AppCompatActivity implements
             OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
             //fout = new OutputStreamWriter(openFileOutput("intruso.txt", Context.MODE_APPEND));
             Log.d("Ficheros", "Escribiendo intruso.txt");
-            fout.write("Intruso detectado[hora/día/mes]"+"["+hora+":"+ min + "/"+dia+"/"+month
-                    +"\n[MAC->NOMBRE]:" + dispositivos
+            fout.write("Intruso detectado[hora/día/mes]" + "[" + hora + ":" + min + "/" + dia + "/" + month
+                    + "\n[MAC->NOMBRE]:" + dispositivos
                     + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
             IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
             FragmentManager managerintruso = getSupportFragmentManager();
-            managerintruso.beginTransaction().replace(R.id.cmain,intrusosFragment,
+            managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
                     intrusosFragment.getTag()).commit();
             fout.close();
-            new Foto().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            Intent audio = new Intent(MainActivity.this,AudioService.class);
-            startService(audio);
-            cont +=1 ;
-            if(cont == 4){
+            new Camara().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+
+            cont += 1;
+            if (cont == 4) {
+                Intent audio = new Intent(MainActivity.this, AudioService.class);
+                stopService(audio);
                 email();
             }
             //bucle();
-            new Bluetooth().execute();
+            //new Bluetooth().execute();
         } catch (Exception ex) {
             Log.e("Ficheros", "Error al escribir fichero en memoria interna");
         }
@@ -550,16 +547,17 @@ public class MainActivity extends AppCompatActivity implements
     }//fichero
 
 
+    public void fin(View view) {
+        confirmacion();
+    }
 
-    public void fin (View view){confirmacion();}
-
-    private void startGps(){
-        Intent Gservice = new Intent(this,LocationService.class);
+    private void startGps() {
+        Intent Gservice = new Intent(this, LocationService.class);
         startService(Gservice);
     }
 
 
-    private void confirmacion(){
+    private void confirmacion() {
 
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(this);
@@ -567,14 +565,28 @@ public class MainActivity extends AppCompatActivity implements
         //builder.setView(inflater.inflate(R.layout.dialogo, null));
         builder.setTitle(R.string.dialogo_linea_1);
         builder.setMessage(R.string.dialogo_linea_2);
-        builder.setPositiveButton(R.string.aceptar, new DialogInterface.OnClickListener()  {
+        finalizar = true;
+        builder.setPositiveButton(R.string.aceptar, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+
+                SharedPreferences correos_activity = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                SharedPreferences.Editor editor = correos_activity.edit();
+
+                editor.remove("email1_ac").commit();
+                editor.remove("email2_ac").commit();
+                editor.remove("email3_ac").commit();
+                editor.remove("dispositivo1_ac").commit();
+                editor.remove("dispositivo2_ac").commit();
+                editor.remove("dispositivo3_ac").commit();
+
+
                 Log.i("Dialogos", "Confirmacion Aceptada.");
-                Intent intent = new Intent(MainActivity.this , FinalizarActivity.class);
-                intent.putCharSequenceArrayListExtra("lista",dispostivos_fin);
-                Toast.makeText(MainActivity.this, "Finalizando descubrimiento", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(MainActivity.this, FinalizarActivity.class);
+                intent.putCharSequenceArrayListExtra("lista", dispostivos_fin);
+                new Bluetooth().cancel(finalizar);
+
                 startActivity(intent);
-                finalizar = true ;
+                finalizar = true;
                 running = false;
                 dispostivos_fin = dispositivos;
                 stopGps();
@@ -590,21 +602,19 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 });
 
-        Dialog dialog= builder.create();
+        Dialog dialog = builder.create();
         dialog.show();
 
 
     }
 
 
-
-
-    private void stopGps(){
-        Log.d("STOP","Para el GPS");
+    private void stopGps() {
+        Log.d("STOP", "Para el GPS");
         stopService(new Intent(getBaseContext(), LocationService.class));
+
         //unregisterReceiver(gpsReceiver);
     }
-
 
 
     public void getCoordenadas() {
@@ -613,9 +623,9 @@ public class MainActivity extends AppCompatActivity implements
         BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                longitud = intent.getDoubleExtra("longitud",00000);
-                latitud = intent.getDoubleExtra("latitud",00000);
-        Log.d("GPS" , String.valueOf(latitud));
+                longitud = intent.getDoubleExtra("longitud", 00000);
+                latitud = intent.getDoubleExtra("latitud", 00000);
+                Log.d("GPS", String.valueOf(latitud));
             }
         };
         try {
@@ -624,8 +634,7 @@ public class MainActivity extends AppCompatActivity implements
             intentFilter.addAction(LOCATION_SERVICE);
             registerReceiver(gpsReceiver, intentFilter);
             stopGps();
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
 
         }
     }
@@ -634,18 +643,26 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onPause() {
         super.onPause();
-        try{
+        try {
             unregisterReceiver(gpsReceiver);
             unregisterReceiver(mReciever);
-            unregisterReceiver(disReceiver);
-            unregisterReceiver(usuReceiver);
-        }catch (Exception ex){
-            Log.e("Reciever" , "Error");
+
+
+        } catch (Exception ex) {
+            Log.e("Reciever", "Error");
         }
 
     }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//       unregisterReceiver(gpsReceiver);
+        // unregisterReceiver(mReciever);
+
+
+    }
 
     /***
      * Clase MailActivity para enviar correos de alerta
@@ -725,18 +742,18 @@ public class MainActivity extends AppCompatActivity implements
         //AsyckTask para hacer operaciones en segundo plano (background)
         protected String doInBackground(String... params) {
 
-            try{
-                BodyPart texto=new MimeBodyPart();
+            try {
+                BodyPart texto = new MimeBodyPart();
                 texto.setText(textMessage);
                 File out = new File(path);
                 File out2 = new File(path1);
                 MimeMultipart multiParte = new MimeMultipart();
-                if(out.exists()==true) {
+                if (out.exists() == true) {
                     multiParte.addBodyPart(adjunto_texto);
                 }
-                if(out2.exists()==true) {
+                if (out2.exists() == true) {
                     adjunto_audio.setFileName("intruso_audio.3gpp");
-                    Log.d("NO","existe");
+                    Log.d("NO", "existe");
                     multiParte.addBodyPart(adjunto_audio);
                 }
 
@@ -744,8 +761,8 @@ public class MainActivity extends AppCompatActivity implements
                 message.setFrom(new InternetAddress("peepholeuniovi@gmail.com", "[Peephole]"));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(dir1));
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(dir2));
-                message.addRecipient(Message.RecipientType.CC , new InternetAddress(dir3));
-                message.addRecipient(Message.RecipientType.CC , new InternetAddress(pol));
+                message.addRecipient(Message.RecipientType.CC, new InternetAddress(dir3));
+                message.addRecipient(Message.RecipientType.CC, new InternetAddress(pol));
 
                 // message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(extra));
                 message.setSubject(subject);
@@ -754,9 +771,9 @@ public class MainActivity extends AppCompatActivity implements
                 Transport.send(message);
 
 
-            } catch(MessagingException e) {
+            } catch (MessagingException e) {
                 e.printStackTrace();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
@@ -764,148 +781,55 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         protected void onPostExecute(String result) {
-           // pdialog.dismiss();
-            //email1.setText("");
-            //msg.setText("");
-            //sub.setText("");
-
-
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
         }
     }
 
-    /**
-     * AsycnTask para hacer video
-     *
-     *
-     */
 
-
-    public void graba(View view){
-        try{
-            camera = Camera.open();
-            Camera.Parameters camParams = camera.getParameters();
-            camera.lock();
-            //holder = videoView.getHolder();
-            // holder.addCallback(this);
-            //holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-            new Video().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
-        catch (RuntimeException ex){
-            ex.printStackTrace();
-
-
-        }
-
-
+    public int path() {
+        iterator = (int) (Math.random());
+        return iterator;
     }
 
-    class Video extends AsyncTask<Void , Void , Void >{
 
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            outputFilename = Environment.getExternalStorageDirectory() + "/intruso_video.mp4";
-            File outFile = new File(outputFilename);
-            recorderVideo = new MediaRecorder();
-            if(outFile.exists())
-                outFile.delete();
-
-            try {
-                camera.stopPreview();
-                camera.unlock();
-                recorderVideo.setCamera(camera);
-                recorderVideo.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-                recorderVideo.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-                recorderVideo.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-                recorderVideo.setVideoFrameRate(15);
-                recorderVideo.setVideoSize(176,144);
-                recorderVideo.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
-                recorderVideo.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-                recorderVideo.setOutputFile(outputFilename);
-                recorderVideo.prepare();
-                recorderVideo.start();
-                timer();
-                //temporizaVideo();
-
-
-
-
-                }catch (Exception ex){
-
-            }
-
-
-
-            return null;
-        }//onReceive
-
-        public void timer(){
-            new CountDownTimer(5000,1000){
-
-                @Override
-                public void onFinish() {
-                    Log.d("VIDEO","FINALIZA de grabar");
-
-
-                }
-
-                @Override
-                public void onTick(long millisUntilFinished) {
-
-                }};
-
-        }
-
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            Log.d("VIDEO","FINALIZA onPostExecute");
-            recorderVideo.stop();
-            recorderVideo.reset();
-            recorderVideo.release();
-            super.onPostExecute(aVoid);
-        }
-
-        @Override
-        protected void onCancelled() {
-            Log.d("VIDEO","Video cancelado");
-            super.onCancelled();
-        }
-    }
 
     /**
      * AsycnTask para capturar imágenes cada vez que se detecta un dispositivo
      */
 
-    class Foto extends AsyncTask<Void , Void , Void >{
+    class Camara extends AsyncTask<Void, Void, Void> {
 
 
         @Override
         protected Void doInBackground(Void... params) {
 
+            final Camera camarafotos;
 
-
-            Camera.PictureCallback jpegCallBack=new Camera.PictureCallback() {
+            Camera.PictureCallback jpegCallBack = new Camera.PictureCallback() {
                 public void onPictureTaken(byte[] data, Camera camera) {
                     // set file destination and file name
 
 
                     //Si la sd es de solo lectura escribe en memoria interna
 
-                    String nombrepath = String.valueOf(iterator)+"intruso.jpg";
-                    File destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
-                    iterator++;
-                    Log.d("CAMARA" , "Generado");;
+                    String nombrepath = String.valueOf(iterator) + "intruso.jpg";
+                    File destination = new File(Environment.getExternalStorageDirectory(), nombrepath);
+
+                    if (destination.exists()) {
+                        path();
+                        nombrepath = String.valueOf(iterator) + "intruso.jpg";
+                        destination = new File(Environment.getExternalStorageDirectory(), nombrepath);
+
+                    }
+                    //Log.d("CAMARA" , "Generado");;
                     try {
-                        Log.d("FOTO" , "Generado");
+                        //Log.d("FOTO" , "Generado");
                         Bitmap userImage = BitmapFactory.decodeByteArray(data, 0, data.length);
                         // set file out stream
                         FileOutputStream out = new FileOutputStream(destination);
                         // set compress format quality and stream
                         userImage.compress(Bitmap.CompressFormat.JPEG, 90, out);
-
+                        onCancelled();
                     } catch (FileNotFoundException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -916,29 +840,52 @@ public class MainActivity extends AppCompatActivity implements
 
             camarafotos = Camera.open();
             camarafotos.startPreview();
-            camarafotos.takePicture(null,null,null,jpegCallBack);
-
-
-
+            camarafotos.takePicture(null, null, null, jpegCallBack);
 
 
             return null;
         }
 
+        public int path() {
+            iterator = (int) (Math.random());
+            return iterator;
 
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+        }
+
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            //camarafotos.release();
+            //Log.d("FOTOFIN" , "Foto FInalizada");
+            super.onPostExecute(aVoid);
+        }
     }
 
 
-
-
-
-
-
-
-
-
+    /**
+     * Video
+     */
 
 
 
 
 }//MainActivity
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -10,10 +10,13 @@ import android.media.MediaRecorder;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Toast;
+
+import com.tfguniovi.grande.peephole.Fragment.IntrusosFragment;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,8 +41,11 @@ public class FotoService extends IntentService {
     // TODO: Rename parameters
     private static final String EXTRA_PARAM1 = "com.tfguniovi.grande.peephole.extra.PARAM1";
     private static final String EXTRA_PARAM2 = "com.tfguniovi.grande.peephole.extra.PARAM2";
-    private static int TAKE_PICTURE=1;
-    private  Camera camera;
+    private static int TAKE_PICTURE = 1;
+    private Camera camera;
+    private int iterator = 0;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
 
     public FotoService() {
         super("FotoService");
@@ -79,31 +85,19 @@ public class FotoService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             try {
-                camera = Camera.open();
-                camera.startPreview();
-            }catch (Exception ex){
-                Toast.makeText(this,"No tienes los permisos necesarios revisar configuración",Toast.LENGTH_LONG).show();
-            }
-            //SurfaceView view = new SurfaceView(this);
+            camera = Camera.open();
 
-           /* try {
-                //camera.setPreviewDisplay(view.getHolder()); // feed dummy surface to surface
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            */
+            } catch (Exception ex) {
 
-            startTimer();
+            }
+            //SurfaceView view = new SurfaceView(getApplicationContext());
+
 
         }
+        camera.startPreview();
+        startTimer();
 
     }
-
-    public void camara(){
-
-    }
-
 
 
     /**
@@ -125,16 +119,22 @@ public class FotoService extends IntentService {
     }
 
 
-    Camera.PictureCallback jpegCallBack=new Camera.PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera) {
+
+
+    Camera.PictureCallback jpegCallBack = new Camera.PictureCallback() {
+        public void onPictureTaken(byte[] data, Camera camera1) {
+            Log.d("CAMARA", "Callback");
             // set file destination and file name
 
+            String nombrepath = String.valueOf(iterator) + "intruso_audio.jpg";
 
+            //OUTPUT_FILE_AUDIO  = Environment.getExternalStorageDirectory() + nombrepath;
+            File destination = new File(Environment.getExternalStorageDirectory(), nombrepath);
+            iterator++;
             //Si la sd es de solo lectura escribe en memoria interna
-            File destination=new File(Environment.getExternalStorageDirectory(),"intruso.jpg");
-            Log.d("CAMARA" , "Generado");;
+
             try {
-                Log.d("FOTO" , "Generado");
+                Log.d("FOTO", "Generado");
                 Bitmap userImage = BitmapFactory.decodeByteArray(data, 0, data.length);
                 // set file out stream
                 FileOutputStream out = new FileOutputStream(destination);
@@ -144,28 +144,27 @@ public class FotoService extends IntentService {
             } catch (FileNotFoundException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+                Log.d("ERROR","QUE COJONES PASA CUCO");
             }
+
 
         }
     };
 
 
     public void startTimer(){
-
+        Log.d("ERROR","QUE COJONES PASA CUCO");
         /*String valor1=tiempo.getText().toString();
         //String valor2=et2.getText().toString();
         int nro1=Integer.parseInt(valor1);*/
-
-        // 5000ms=5s at intervals of 1000ms=1s so that means it lasts 5 seconds
-        Log.d("FOTO" , "Entra en timer");
         camera.takePicture(null, null, null, jpegCallBack);
-        /*new CountDownTimer(5000,1000){
+        // 5000ms=5s at intervals of 1000ms=1s so that means it lasts 5 seconds
+        /*new CountDownTimer(1000,1000){
 
             @Override
             public void onFinish() {
                 // count finished
-
-
+                camera.takePicture(null, null, null, jpegCallBack);
             }
 
             @Override
@@ -176,6 +175,5 @@ public class FotoService extends IntentService {
 
         }.start();*/
     }
-
 
 }

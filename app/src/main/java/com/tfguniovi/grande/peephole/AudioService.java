@@ -100,6 +100,9 @@ public class AudioService extends IntentService {
         //OUTPUT_FILE_AUDIO  = Environment.getExternalStorageDirectory() + nombrepath;
         File destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
         iterator++;
+        if (destination.exists()){
+            destination.delete();
+        }
 
 
 
@@ -112,8 +115,8 @@ public class AudioService extends IntentService {
             recorderAudio.setOutputFile(String.valueOf(destination));
             recorderAudio.prepare();
             recorderAudio.start();
-            //temporizaAudio();
-            recorderAudio.stop();
+            temporizaAudio();
+
 
         } catch (Exception e){
 
@@ -127,16 +130,19 @@ public class AudioService extends IntentService {
 
             @Override
             public void onTick(long millisUntilFinished) {
-                stopRecordingAudio();
+                if(recorderAudio!=null)
+                    recorderAudio.stop();
+                    recorderAudio.release();
+                Log.d("AUDIO","STOP AUDIO");
+
             }
 
             @Override
             public void onFinish() {
                 stopRecordingAudio();
             }
-        };
+        }.start();
     }
-
 
     public void stopRecordingAudio(){
         if(recorderAudio!=null)
@@ -144,6 +150,15 @@ public class AudioService extends IntentService {
         Log.d("AUDIO","STOP AUDIO");
 
     }
+    @Override
+    public void onDestroy() {
+        Log.d("SERVICIO" , "Servicio hecho");
+        super.onDestroy();
+    }
+
+
+
+
 
 
 }

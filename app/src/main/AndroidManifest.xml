@@ -33,7 +33,8 @@
             android:name=".MainActivity"
             android:label="Peephole"
             android:screenOrientation="portrait"
-            android:theme="@style/AppThemeRedLight">
+            android:theme="@style/AppThemeRedLight"
+            android:windowSoftInputMode = "adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.GPS" />
@@ -81,6 +82,9 @@
             android:exported="false" />
         <service
             android:name=".FotoService"
+            android:exported="false" />
+        <service
+            android:name=".BluetoothService"
             android:exported="false"></service>
     </application>
 

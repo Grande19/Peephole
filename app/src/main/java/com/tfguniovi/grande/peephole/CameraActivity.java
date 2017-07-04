@@ -4,8 +4,10 @@ package com.tfguniovi.grande.peephole;
  * Alvaro Grande
  */
 
+import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +29,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tfguniovi.grande.peephole.Fragment.IntrusosFragment;
 import com.tfguniovi.grande.peephole.R;
 
 public class CameraActivity extends Activity{
@@ -34,30 +37,30 @@ public class CameraActivity extends Activity{
     private TextView textTimeLeft; // time left field
     private MediaRecorder video;
     private EditText tiempo;
-
+    int iterator=0;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-        textTimeLeft=(TextView)findViewById(R.id.textTimeLeft); // make time left object
-        tiempo=(EditText) findViewById(R.id.segundos);
+
 
         try {
             camera = Camera.open();
         }catch (Exception ex){
             Toast.makeText(this,"No tienes los permisos necesarios revisar configuración",Toast.LENGTH_LONG).show();
         }
-        SurfaceView view = new SurfaceView(this);
+        //SurfaceView view = new SurfaceView(this);
 
-        try {
-            camera.setPreviewDisplay(view.getHolder()); // feed dummy surface to surface
-        } catch (IOException e) {
+       // try {
+            //camera.setPreviewDisplay(view.getHolder()); // feed dummy surface to surface
+        //} catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+           // e.printStackTrace();
+       // }
         camera.startPreview();
+        startTimer();
     }
 
     Camera.PictureCallback jpegCallBack=new Camera.PictureCallback() {
@@ -67,20 +70,11 @@ public class CameraActivity extends Activity{
             if (write == false){
                 Log.d("SD" , "Read Only , escribo en memoria interna");
             }
-            //Si la sd es de solo lectura escribe en memoria interna
-            File destination=new File(Environment.getExternalStorageDirectory(),"intruso.jpg");
-            File destination1=new File(Environment.getExternalStorageDirectory(),"intruso1.jpg");
-            File destination2=new File(Environment.getExternalStorageDirectory(),"intruso2.jpg");
-            File destination3=new File(Environment.getExternalStorageDirectory(),"intruso3.jpg");
-            File destination4=new File(Environment.getExternalStorageDirectory(),"intruso4.jpg");
-            File destination5=new File(Environment.getExternalStorageDirectory(),"intruso5.jpg");
-            File destination6=new File(Environment.getExternalStorageDirectory(),"intruso6.jpg");
-            File destination7=new File(Environment.getExternalStorageDirectory(),"intruso7.jpg");
-            File destination8=new File(Environment.getExternalStorageDirectory(),"intruso8.jpg");
-            File destination9=new File(Environment.getExternalStorageDirectory(),"intruso9.jpg");
-            File destination10=new File(Environment.getExternalStorageDirectory(),"intruso10.jpg");
-            File destination11=new File(Environment.getExternalStorageDirectory(),"intruso11.jpg");
+            String nombrepath = String.valueOf(iterator)+"intruso.jpg";
 
+            //OUTPUT_FILE_AUDIO  = Environment.getExternalStorageDirectory() + nombrepath;
+            File destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
+            iterator++;
 
 
 
@@ -97,8 +91,12 @@ public class CameraActivity extends Activity{
                 e.printStackTrace();
             }
 
+
+
         }
     };
+
+
 
     public boolean comprobar() {
         boolean sdDisponible = false;
@@ -125,26 +123,25 @@ public class CameraActivity extends Activity{
 
     }
 
-    public void startTimer(View v){
+    public void startTimer(){
 
         /*String valor1=tiempo.getText().toString();
         //String valor2=et2.getText().toString();
         int nro1=Integer.parseInt(valor1);*/
 
         // 5000ms=5s at intervals of 1000ms=1s so that means it lasts 5 seconds
-        new CountDownTimer(5000,1000){
+        new CountDownTimer(1000,1000){
 
             @Override
             public void onFinish() {
                 // count finished
-                textTimeLeft.setText("Picture Taken");
                 camera.takePicture(null, null, null, jpegCallBack);
             }
 
             @Override
             public void onTick(long millisUntilFinished) {
                 // every time 1 second passes
-                textTimeLeft.setText("Seconds Left: "+millisUntilFinished/1000);
+
             }
 
         }.start();

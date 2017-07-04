@@ -27,29 +27,34 @@
         android:onClick="fin"
         app:srcCompat="@mipmap/exit_circle" />
 
+
+    <VideoView
+        android:id="@+id/grabadora"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:visibility="visible"
+        android:layout_marginTop="16dp"
+        android:layout_alignTop="@+id/comenzar"
+        android:layout_alignRight="@+id/comenzar"
+        android:layout_alignEnd="@+id/comenzar"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp" />
+
+
     <ImageButton
         android:id="@+id/comenzar"
         android:layout_width="59dp"
         android:layout_height="54dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/end"
-        android:layout_marginLeft="22dp"
-        android:layout_marginStart="22dp"
         android:layout_weight="1"
         android:background="@color/common_google_signin_btn_text_dark_default"
         android:onClick="discover"
-        app:srcCompat="@mipmap/play" />
+        app:srcCompat="@mipmap/play"
+        android:layout_marginLeft="29dp"
+        android:layout_marginStart="29dp"
+        android:layout_alignTop="@+id/end"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
-    <Button
-        android:id="@+id/video"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/end"
-        android:layout_toLeftOf="@+id/end"
-        android:layout_toStartOf="@+id/end"
-        android:onClick="graba"
-        android:text="video" />
 
 
 </RelativeLayout>

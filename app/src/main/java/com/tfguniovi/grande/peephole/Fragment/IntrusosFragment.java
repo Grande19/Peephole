@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ListView;
 
 import com.tfguniovi.grande.peephole.R;
@@ -104,14 +105,14 @@ public class IntrusosFragment extends Fragment {
         View v =  inflater.inflate(R.layout.fragment_intrusos, container, false);
         if(v != null){
             lista = (ListView) v.findViewById(R.id.dispostivos_lista);
-            trusted = (ListView) v.findViewById(R.id.dispostivos_confianza);
+            //trusted = (ListView) v.findViewById(R.id.dispostivos_confianza);
            /* if(listaconfianza.isEmpty()==true){
                 Toast.makeText(IntrusosFragment.this.getActivity(), "Registre los paramteros", Toast.LENGTH_LONG).show();
             }*/
                 try {
 
-                    ArrayAdapter adapter1 = new ArrayAdapter(getActivity(),android.R.layout.simple_expandable_list_item_1,listaconfianza);
-                    trusted.setAdapter(adapter1);
+                    //ArrayAdapter adapter1 = new ArrayAdapter(getActivity(),android.R.layout.simple_expandable_list_item_1,listaconfianza);
+                   //rusted.setAdapter(adapter1);
                     ArrayAdapter adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_expandable_list_item_1,listadispositivos);
                     lista.setAdapter(adapter);
                     Log.d("LISTA", "Escribelista" + listaconfianza + listadispositivos);
