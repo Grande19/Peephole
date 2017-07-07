@@ -92,17 +92,21 @@ public class RegistroFragment extends Fragment {
         restablecer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("LIMPIA","LIMPIA");
                 SharedPreferences correos_activity = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 SharedPreferences.Editor editor = correos_activity.edit();
-
                 editor.remove("email1_bd").commit();
                 editor.remove("email2_bd").commit();
                 editor.remove("email3_bd").commit();
                 editor.remove("dispositivo1_bd").commit();
                 editor.remove("dispositivo2_bd").commit();
                 editor.remove("dispositivo3_bd").commit();
-
-
+                dis1.setText("");
+                dis2.setText("");
+                dis3.setText("");
+                dire1.setText("");
+                dire2.setText("");
+                dire3.setText("");
 
             }
         });

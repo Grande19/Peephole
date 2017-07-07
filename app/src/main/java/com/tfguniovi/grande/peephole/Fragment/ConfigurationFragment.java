@@ -92,7 +92,7 @@ public class ConfigurationFragment extends Fragment {
                 SharedPreferences.Editor editor = pref.edit();
                 editor.remove("segundos");
                 editor.remove("intervalo_switch");
-                editor.remove("intruso_switch");
+                editor.remove("intrusos");
                 editor.remove("intervalo_switch");
                 editor.commit();
 

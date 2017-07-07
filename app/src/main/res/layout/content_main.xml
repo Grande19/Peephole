@@ -41,6 +41,16 @@
         android:layout_marginEnd="16dp" />
 
 
+    <TextureView
+        android:id="@+id/pantallavideo"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignBottom="@+id/video"
+        android:layout_marginBottom="11dp"
+        android:visibility="visible"
+        android:layout_toLeftOf="@+id/grabadora"
+        android:layout_toStartOf="@+id/grabadora" />
+
     <ImageButton
         android:id="@+id/comenzar"
         android:layout_width="59dp"
@@ -49,9 +59,9 @@
         android:background="@color/common_google_signin_btn_text_dark_default"
         android:onClick="discover"
         app:srcCompat="@mipmap/play"
-        android:layout_marginLeft="24dp"
-        android:layout_marginStart="24dp"
-        android:layout_alignTop="@+id/end"
+        android:layout_marginLeft="13dp"
+        android:layout_marginStart="13dp"
+        android:layout_alignTop="@+id/video"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -62,7 +72,8 @@
         android:layout_alignTop="@+id/end"
         android:layout_centerHorizontal="true"
         android:onClick="grabar"
-        android:text="Button" />
+        android:text="Button"
+        android:visibility="visible" />
 
 
 </RelativeLayout>

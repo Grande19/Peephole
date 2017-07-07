@@ -20,6 +20,7 @@ public class AudioService extends IntentService {
 
     private MediaRecorder recorderAudio;
     int iterator = 0 ;
+    boolean isRecording = false;
     public AudioService() {
         super("AudioService");
     }
@@ -32,8 +33,27 @@ public class AudioService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
-            beginAudio();
+            if(isRecording){
+                try {
+                    recorderAudio.stop();
+                }catch (RuntimeException e){
 
+                }
+            }releaseRecorder();
+
+        }
+        beginAudio();
+    }
+
+    public void releaseRecorder(){
+        if (recorderAudio != null) {
+            // clear recorder configuration
+            recorderAudio.reset();
+            // release the recorder object
+            recorderAudio.release();
+            recorderAudio = null;
+            // Lock camera for later use i.e taking it back from MediaRecorder.
+            // MediaRecorder doesn't need it anymore and we will release it if the activity pauses.
         }
     }
 
@@ -55,9 +75,10 @@ public class AudioService extends IntentService {
             recorderAudio.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             recorderAudio.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
             recorderAudio.setOutputFile(String.valueOf(destination));
-            recorderAudio.setMaxDuration(20000);
+            recorderAudio.setMaxDuration(9000);
             recorderAudio.prepare();
             recorderAudio.start();
+            isRecording=true;
             temporizaAudio();
         } catch (Exception e){
         }
@@ -75,6 +96,7 @@ public class AudioService extends IntentService {
             public void onFinish() {
                 recorderAudio.stop();
                 recorderAudio.release();
+                isRecording=false;
                 Log.d("AUDIO","STOP AUDIO");
             }
         }.start();

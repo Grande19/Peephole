@@ -19,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -32,6 +33,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -42,6 +44,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -51,12 +54,16 @@ import com.tfguniovi.grande.peephole.Fragment.ConfigurationFragment;
 import com.tfguniovi.grande.peephole.Fragment.HomeFragment;
 import com.tfguniovi.grande.peephole.Fragment.IntrusosFragment;
 import com.tfguniovi.grande.peephole.Fragment.RegistroFragment;
+import com.tfguniovi.grande.peephole.common.media.CameraHelper;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.io.OutputStreamWriter;
@@ -85,7 +92,8 @@ public class MainActivity extends AppCompatActivity implements
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice device;
     private BluetoothAdapter BA;
-    private BroadcastReceiver mReciever, gReciever, gpsReceiver, usuReceiver, disReceiver;
+    private BroadcastReceiver mReceiver,
+    gpsReciever, gReciever, gpsReceiver, usuReceiver, disReceiver;
     public ArrayList dispositivos = new ArrayList();
     public ArrayList trusted_device = new ArrayList();
     public ArrayList discover = new ArrayList();
@@ -104,14 +112,24 @@ public class MainActivity extends AppCompatActivity implements
     BodyPart adjunto_imagen,adjunto_imagen1,adjunto_imagen2,adjunto_imagen3,adjunto_imagen4;
     boolean intrusos,intervalo;
     DrawerLayout drawerLayout;
-    int i = 0;
+    int i = 0,grabadora=0;
     int iterator = 0;
     int adjuntos=0;
     private Camera camarafotos=null;
-
+    //rutas para los adjuntos de correo
     String nombrepath = "intruso.jpg";
     String path = Environment.getExternalStorageDirectory()+"/0intruso.txt";
     String path1,path2,path3,path4,path5,path6,path7,path8,path9,path10;
+    //Grabacion de video
+    private Camera mCamera;
+    CamcorderProfile profile;
+    private TextureView mPreview;
+    private MediaRecorder mMediaRecorder;
+    private File destination;
+    private boolean isRecording = false;
+    private static final String TAG = "Recorder";
+    private Button captureButton;
+    String rutavideo;
     //Solicitud de permisos
     //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
@@ -143,7 +161,8 @@ public class MainActivity extends AppCompatActivity implements
             setSupportActionBar(toolbar1);
             drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start);
-
+            mPreview = (TextureView) findViewById(R.id.pantallavideo);
+            captureButton = (Button) findViewById(R.id.video);
 
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -461,7 +480,9 @@ public class MainActivity extends AppCompatActivity implements
         }
 
 
+
     }
+
 
     @Override
     public void onInfo(MediaRecorder mr, int what, int extra) {
@@ -491,10 +512,15 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 BA.startDiscovery();
                 pairedDevices = BA.getBondedDevices();
-                stopGps();
+                if(cont==0) {
+                    stopGps();
+                }
+                if(intervalo){
+                    temporizadorcorreo();
+                }
                 Log.d("DESCUBRIENDO", "DESCUBRIENDO INTRUSOS");
                 //BA.startDiscovery();
-                final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+                mReceiver = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
                         String action = intent.getAction();
@@ -527,24 +553,43 @@ public class MainActivity extends AppCompatActivity implements
                     }//onReceive
                 };
                 if (isCancelled()) {
-                    unregisterReceiver(mReciever);
+                    unregisterReceiver(mReceiver);
                 }
-
-
-                IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-                registerReceiver(mReceiver, filter);
-
-
+                try {
+                    IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+                    registerReceiver(mReceiver, filter);
+                }catch (Exception ex){
+                    unregisterReceiver(mReceiver);
+                }
             }
             //unregisterReceiver(mReciever);
             return dispositivos;
 
         }
 
+        public void temporizadorcorreo(){
+            new CountDownTimer(segundos,1000){
+
+                @Override
+                public void onFinish() {
+                    Log.d("INTERVALO","Entra");
+                    email();
+                }
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    // every time 1 second passes
+
+                }
+
+            }.start();
+        }
+
+
+
 
         @Override
         protected void onPreExecute() {
-
             Log.d("ASYCN", "Doing ASYCN Task");
 
         }
@@ -553,7 +598,7 @@ public class MainActivity extends AppCompatActivity implements
         protected void onCancelled() {
             Log.d("FIN", "Acaba");
             running = false;
-
+            //unregisterReceiver(mReceiver);
 
         }
 
@@ -561,7 +606,10 @@ public class MainActivity extends AppCompatActivity implements
         protected void onCancelled(ArrayList arrayList) {
             super.onCancelled(arrayList);
         }
+
+
     } //Fin de AsynTask
+
 
 
     @Override
@@ -605,13 +653,11 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("INTRUSOS:" , String.valueOf(num_intrusos));
     }
 
-    /*
 
-
-    */
 
     public void fichero(String name) {
         try {
+
             IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
             FragmentManager managerintruso = getSupportFragmentManager();
             managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
@@ -635,43 +681,45 @@ public class MainActivity extends AppCompatActivity implements
                     + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
             fout.close();
             Intent audio = new Intent(MainActivity.this, AudioService.class);
+
             try {
+                if(cont==0) {
+                    foto();
+                    if(isRecording==false){
+                        startService(audio);
+                    }
+                }
                 Thread.sleep(10000);
-                foto();
-                startService(audio);
-                if(cont==2) {
-                    foto();
-                    startService(audio);
+                if(cont==1) {
+
+                    captureButton.performClick();
+                    while (isRecording){
+                        running=false;
+                    }
+                    Thread.sleep(10000);
+                    running=true;
+                    //startService(audio);
                 }
-                if(cont==4) {
+                if(cont==3) {
+                    if(isRecording==false){
+                        startService(audio);
+                    }
                     foto();
-                    startService(audio);
+
+                }if(cont==4){
+                   // captureButton.performClick();
+                    Thread.sleep(10000);
                 }
-                if(cont==15) {
-                    foto();
+                if(cont==6) {
+                    if(isRecording==false){
+                        startService(audio);
+                    }
                     //audio();
                 }
                 int totalIntrusos = num_intrusos;
-                if(intervalo){
 
-                    new CountDownTimer(segundos,1000){
 
-                        @Override
-                        public void onFinish() {
-                            Log.d("INTERVALO","Entra");
-                            email();
-                        }
-
-                        @Override
-                        public void onTick(long millisUntilFinished) {
-                            // every time 1 second passes
-
-                        }
-
-                    }.start();
-                }
-
-                else if(intrusos){
+                    if(intrusos){
                     if(totalIntrusos==dispositivos.size()){
                         email();
                         num_intrusos = num_intrusos+num_intrusos;
@@ -762,7 +810,7 @@ public class MainActivity extends AppCompatActivity implements
     public void getCoordenadas() {
         //startGps();
         Log.d("Coordenadas", "entra en getCoordenadas");
-        BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
+        gpsReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 longitud = intent.getDoubleExtra("longitud", 00000);
@@ -781,11 +829,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    public void grabar (View v){
 
-
-
-    }
 
 
 
@@ -793,22 +837,25 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onPause() {
         super.onPause();
-        try {
-            unregisterReceiver(gpsReceiver);
-            unregisterReceiver(mReciever);
+        // if we are using MediaRecorder, release it first
+        releaseMediaRecorder();
+        // release the camera immediately on pause event
+        releaseCamera();
+       /* try {
+
 
 
         } catch (Exception ex) {
             Log.e("Reciever", "Error");
-        }
+        }*/
     }
 
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//       unregisterReceiver(gpsReceiver);
-        // unregisterReceiver(mReciever);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(gpsReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
 
 
     }
@@ -876,15 +923,15 @@ public class MainActivity extends AppCompatActivity implements
             adjunto_imagen2.setDataHandler(new DataHandler(new FileDataSource(path6)));
             adjunto_audio3.setDataHandler(new DataHandler(new FileDataSource(path7)));
             adjunto_imagen3.setDataHandler(new DataHandler(new FileDataSource(path8)));
-           adjunto_audio4.setDataHandler(new DataHandler(new FileDataSource(path9)));
-            adjunto_imagen4.setDataHandler(new DataHandler(new FileDataSource(path10)));
+           //adjunto_audio4.setDataHandler(new DataHandler(new FileDataSource(path9)));
+           // adjunto_imagen4.setDataHandler(new DataHandler(new FileDataSource(path10)));
         } catch (MessagingException e) {
             e.printStackTrace();
         }
 
 
         subject = "Alerta intruso"; //Poner de asunto algo significativo !
-        textMessage = "Hemos detectado los siguientes dispositivos sospechosos en su casa , adjuntamos información";
+        textMessage = "Hemos detectado los siguientes dispositivos sospechosos en su casa , adjuntamos los detalles";
 
         //Conectamos con los servicios de gmail
         Properties props = new Properties();
@@ -933,6 +980,7 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d("FILE imagen",String.valueOf(out2));
                 Log.d("FILE audio",String.valueOf(out1));
                 MimeMultipart multiParte = new MimeMultipart();
+                try{
                 if(out.exists()==true) {
                     multiParte.addBodyPart(adjunto_texto);
                 }else {Log.d("NO","existe");}
@@ -945,37 +993,40 @@ public class MainActivity extends AppCompatActivity implements
                     multiParte.addBodyPart(adjunto_imagen);
                 }else {Log.d("NO","existe imagen");}
                 if(out3.exists()==true) {
-                    adjunto_audio1.setFileName("intruso_audio.3gpp");
+                    adjunto_audio1.setFileName("intruso_audio_1.3gpp");
                     multiParte.addBodyPart(adjunto_audio1);
                 }else {Log.d("NO","existe audio");}
                 if(out4.exists()==true) {
-                    adjunto_imagen1.setFileName("intruso_imagen.jgp");
+                    adjunto_imagen1.setFileName("intruso_imagen_1.jgp");
                     multiParte.addBodyPart(adjunto_imagen1);
                 }else {Log.d("NO","existe imagen");}
                 if(out5.exists()==true) {
-                    adjunto_audio2.setFileName("intruso_audio.3gpp");
+                    adjunto_audio2.setFileName("intruso_audio_2.3gpp");
                     multiParte.addBodyPart(adjunto_audio2);
                 }else {Log.d("NO","existe audio");}
                 if(out6.exists()==true) {
-                    adjunto_imagen3.setFileName("intruso_imagen.jgp");
+                    adjunto_imagen3.setFileName("intruso_imagen_2.jgp");
                     multiParte.addBodyPart(adjunto_imagen3);
                 }else {Log.d("NO","existe imagen");}
                 if(out7.exists()==true) {
-                    adjunto_audio4.setFileName("intruso_audio.3gpp");
+                    adjunto_audio4.setFileName("intruso_audio_3.3gpp");
                     multiParte.addBodyPart(adjunto_audio4);
                 }else {Log.d("NO","existe audio");}
                 if(out8.exists()==true) {
-                    adjunto_imagen4.setFileName("intruso_imagen.jgp");
+                    adjunto_imagen4.setFileName("intruso_imagen_3.jgp");
                     multiParte.addBodyPart(adjunto_imagen4);
                 }else {Log.d("NO","existe imagen");}
                 if(out9.exists()==true) {
-                    adjunto_audio.setFileName("intruso_audio.3gpp");
+                    adjunto_audio.setFileName("intruso_audio_4.3gpp");
                     multiParte.addBodyPart(adjunto_audio);
                 }else {Log.d("NO","existe audio");}
                 if(out10.exists()==true) {
-                    adjunto_imagen.setFileName("intruso_imagen.jgp");
+                    adjunto_imagen.setFileName("intruso_imagen_4.jgp");
                     multiParte.addBodyPart(adjunto_imagen);
-                }else {Log.d("NO","existe imagen");}
+                }else {Log.d("NO","existe imagen");}}
+                catch (Exception ex){
+
+                }
 
                 Message message = new MimeMessage(session);
                 message.setFrom(new InternetAddress("peepholeuniovi@gmail.com", "[Peephole]"));
@@ -1070,6 +1121,196 @@ public class MainActivity extends AppCompatActivity implements
             super.onPostExecute(aVoid);
         }
     }
+
+    /**
+     * Captura de video
+     */
+
+    public void grabar(View view) {
+        if (isRecording) {
+            // BEGIN_INCLUDE(stop_release_media_recorder)
+
+            // stop recording and release camera
+            try {
+                mMediaRecorder.stop();  // stop the recording
+            } catch (RuntimeException e) {
+                // RuntimeException is thrown when stop() is called immediately after start().
+                // In this case the output file is not properly constructed ans should be deleted.
+                Log.d(TAG, "RuntimeException: stop() is called immediately after start()");
+                //noinspection ResultOfMethodCallIgnored
+                destination.delete();
+            }
+            releaseMediaRecorder(); // release the MediaRecorder object
+            mCamera.lock();         // take camera access back from MediaRecorder
+
+            // inform the user that recording has stopped
+            setCaptureButtonText("Capture");
+            isRecording = false;
+            releaseCamera();
+            // END_INCLUDE(stop_release_media_recorder)
+
+        } else {
+
+            // BEGIN_INCLUDE(prepare_start_media_recorder)
+
+            new MediaPrepareTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+            // END_INCLUDE(prepare_start_media_recorder)
+
+        }
+    }
+
+    private void setCaptureButtonText(String title) {
+        captureButton.setText(title);
+    }
+
+
+
+    private void releaseMediaRecorder(){
+        if (mMediaRecorder != null) {
+            // clear recorder configuration
+            mMediaRecorder.reset();
+            // release the recorder object
+            mMediaRecorder.release();
+            mMediaRecorder = null;
+            // Lock camera for later use i.e taking it back from MediaRecorder.
+            // MediaRecorder doesn't need it anymore and we will release it if the activity pauses.
+            mCamera.lock();
+        }
+    }
+
+    private void releaseCamera(){
+        if (mCamera != null){
+            // release the camera for other applications
+            mCamera.release();
+            mCamera = null;
+        }
+    }
+
+    private boolean prepareVideoRecorder(){
+
+        // BEGIN_INCLUDE (configure_preview)
+        try {
+            mCamera = CameraHelper.getDefaultCameraInstance();
+
+            // We need to make sure that our preview and recording video size are supported by the
+            // camera. Query camera to find all the sizes and choose the optimal size given the
+            // dimensions of our preview surface.
+            Camera.Parameters parameters = mCamera.getParameters();
+            List<Camera.Size> mSupportedPreviewSizes = parameters.getSupportedPreviewSizes();
+            List<Camera.Size> mSupportedVideoSizes = parameters.getSupportedVideoSizes();
+            Camera.Size optimalSize = CameraHelper.getOptimalVideoSize(mSupportedVideoSizes,
+                    mSupportedPreviewSizes, mPreview.getWidth(), mPreview.getHeight());
+
+            // Use the same size for recording profile.
+            profile = CamcorderProfile.get(CamcorderProfile.QUALITY_LOW);
+            profile.videoFrameWidth = optimalSize.width;
+            profile.videoFrameHeight = optimalSize.height;
+
+            // likewise for the camera object itself.
+            parameters.setPreviewSize(profile.videoFrameWidth, profile.videoFrameHeight);
+            mCamera.setParameters(parameters);
+        }catch (Exception ex){
+            return false;
+        }
+
+
+
+        try {
+            // Requires API level 11+, For backward compatibility use {@link setPreviewDisplay}
+            // with {@link SurfaceView}
+            mCamera.setPreviewTexture(mPreview.getSurfaceTexture());
+        } catch (IOException e) {
+            Log.e(TAG, "Surface texture is unavailable or unsuitable" + e.getMessage());
+            return false;
+        }
+        // END_INCLUDE (configure_preview)
+
+
+        // BEGIN_INCLUDE (configure_media_recorder)
+        mMediaRecorder = new MediaRecorder();
+
+        // Step 1: Unlock and set camera to MediaRecorder
+        mCamera.unlock();
+        mMediaRecorder.setCamera(mCamera);
+
+        // Step 2: Set sources
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER );
+        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+
+        // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
+        mMediaRecorder.setProfile(profile);
+        mMediaRecorder.setMaxDuration(30000);
+
+        rutavideo = String.valueOf(grabadora)+"intruso_video.mp4";
+        destination=new File(Environment.getExternalStorageDirectory(),rutavideo);
+
+        if (destination.exists()) {
+            grabadora++;
+            rutavideo = String.valueOf(grabadora)+"intruso_video.mp4";
+            destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
+            iterator++;
+        }
+
+        // Step 4: Set output file
+        /*mOutputFile = CameraHelper.getOutputMediaFile(CameraHelper.MEDIA_TYPE_VIDEO);
+        if (mOutputFile == null) {
+            return false;
+        }*/
+        mMediaRecorder.setOutputFile(destination.getPath());
+        // END_INCLUDE (configure_media_recorder)
+
+        // Step 5: Prepare configured MediaRecorder
+        try {
+            mMediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            Log.d(TAG, "IllegalStateException preparing MediaRecorder: " + e.getMessage());
+            releaseMediaRecorder();
+            return false;
+        } catch (IOException e) {
+            Log.d(TAG, "IOException preparing MediaRecorder: " + e.getMessage());
+            releaseMediaRecorder();
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Asynchronous task para grabacion de video
+     */
+    class MediaPrepareTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            // initialize video camera
+            if (prepareVideoRecorder()) {
+                // Camera is available and unlocked, MediaRecorder is prepared,
+                // now you can start recording
+                mMediaRecorder.start();
+
+                isRecording = true;
+            } else {
+                // prepare didn't work, release the camera
+                releaseMediaRecorder();
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (!result) {
+                MainActivity.this.finish();
+            }
+            // inform the user that recording has started
+            setCaptureButtonText("Stop");
+
+        }
+    }
+
+
+
 
 }//MainActivity
 
