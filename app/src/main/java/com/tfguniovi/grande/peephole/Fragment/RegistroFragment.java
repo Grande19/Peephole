@@ -22,16 +22,10 @@ import java.util.ArrayList;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link RegistroFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link RegistroFragment#newInstance} factory method to
- * create an instance of this fragment.
+ Fragmento para el registro de los dispositivos y correos electronicos
  */
 public class RegistroFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String ARG_PARAM3 = "param3";
@@ -40,8 +34,6 @@ public class RegistroFragment extends Fragment {
     private static final String ARG_PARAM6 = "param6";
 
 
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private String mParam3;
@@ -64,15 +56,6 @@ public class RegistroFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment RegistroFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static RegistroFragment newInstance(String param1, String param2 , String param3 , String param4,
                                                String param5,String param6) {
         RegistroFragment fragment = new RegistroFragment();
@@ -204,15 +187,7 @@ public class RegistroFragment extends Fragment {
                         if (TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false
                                 && TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false) {
                             Toast.makeText(RegistroFragment.this.getActivity(), "Registrado,puede empezar el descubrimiento", Toast.LENGTH_LONG).show();
-                       /* dis1.setText(d1);
-                        dis2.setText(d2);
-                        dis3.setText(d3);
-                        dire1.setText(e1);
-                        dire2.setText(e2);
-                        dire3.setText(e3);*/
                         onButtonPressed(d1,d2,d3,e1,e2,e3);
-                            //Intent intent= new Intent(RegistroFragment.this.getActivity(),MainActivity.class);
-                            //startActivity(intent);
                         } else {
 
                             Toast.makeText(RegistroFragment.this.getActivity(), "Introduzca todos los campos", Toast.LENGTH_LONG).show();
@@ -227,14 +202,6 @@ public class RegistroFragment extends Fragment {
 
 
         }
-
-
-
-
-
-
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -256,12 +223,6 @@ public class RegistroFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        /*if(savedInstanceState !=null) {
-            e1 = savedInstanceState.getString("email1");
-            e2 = savedInstanceState.getString("emai2");
-            e3 = savedInstanceState.getString("email3");
-            congelar = true;
-        }*/
 
         return inflater.inflate(R.layout.fragment_registro, container, false);
     }
@@ -274,7 +235,7 @@ public class RegistroFragment extends Fragment {
             public void onClick(View v) {
 
                 if(guardar.isChecked()){
-            Toast.makeText(RegistroFragment.this.getActivity(), "Marcado", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegistroFragment.this.getActivity(), "Datos guardados", Toast.LENGTH_LONG).show();
             SharedPreferences correos_bd = PreferenceManager.getDefaultSharedPreferences(getActivity());
             SharedPreferences.Editor editor = correos_bd.edit();
 
@@ -355,17 +316,8 @@ public class RegistroFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    //Despues de hacer algo, pasa los datos fuera(al main por ejemplo para que empiece a registrar usuarios)
+
+
     public interface OnFragmentInteractionListener {
 
 
@@ -373,11 +325,7 @@ public class RegistroFragment extends Fragment {
         void onFragmentInteraction(String data, String dir2, String dir3, String dis1, String dis2, String dis3);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
 
-    }
 
 
     @Override

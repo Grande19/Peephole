@@ -109,11 +109,6 @@ public class MailActivity extends AppCompatActivity {
     }//correo
 
     class RetreiveFeedTask extends AsyncTask<String, Void, String> {
-        //doInbackground recibe un string como parametro de entrada
-        //publishProgress y onProgressUpdate reciben vacío
-        //doInBackground devuelve un String que lo recibe onPostexecute
-
-
         @Override
         //AsyckTask para hacer operaciones en segundo plano (background)
         protected String doInBackground(String... params) {
@@ -145,13 +140,7 @@ public class MailActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            // pdialog.dismiss();
-            //email1.setText("");
-            //msg.setText("");
-            //sub.setText("");
-
-
-            Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Mensaje enviado", Toast.LENGTH_LONG).show();
         }
     }
 

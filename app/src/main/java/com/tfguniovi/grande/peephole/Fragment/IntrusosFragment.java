@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.tfguniovi.grande.peephole.R;
 
@@ -17,19 +18,12 @@ import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link IntrusosFragment interface
- * to handle interaction events.
- * Use the {@link IntrusosFragment#newInstance} factory method to
- * create an instance of this fragment.
+ Fragmento que muesntra los dispositivos descubiertos en tiempo real
  */
 public class IntrusosFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private ArrayList<String> mParam1 , listaDips;
     private ArrayList<String> mParam2;
     ListView lista,trusted;
@@ -41,15 +35,6 @@ public class IntrusosFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param trusted_device
-     * @return A new instance of fragment IntrusosFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static IntrusosFragment newInstance(ArrayList param1, ArrayList trusted_device) {
 
 
@@ -105,14 +90,15 @@ public class IntrusosFragment extends Fragment {
         View v =  inflater.inflate(R.layout.fragment_intrusos, container, false);
         if(v != null){
             lista = (ListView) v.findViewById(R.id.dispostivos_lista);
-            //trusted = (ListView) v.findViewById(R.id.dispostivos_confianza);
-           /* if(listaconfianza.isEmpty()==true){
+            trusted = (ListView) v.findViewById(R.id.dispostivos_confianza);
+            if(listaconfianza.isEmpty()==true){
                 Toast.makeText(IntrusosFragment.this.getActivity(), "Registre los paramteros", Toast.LENGTH_LONG).show();
-            }*/
+            }
                 try {
 
-                    //ArrayAdapter adapter1 = new ArrayAdapter(getActivity(),android.R.layout.simple_expandable_list_item_1,listaconfianza);
-                   //rusted.setAdapter(adapter1);
+                    ArrayAdapter adapter1 = new ArrayAdapter(getActivity(),android.R.layout.simple_expandable_list_item_1,listaconfianza);
+                    trusted.setAdapter(adapter1);
+
                     ArrayAdapter adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_expandable_list_item_1,listadispositivos);
                     lista.setAdapter(adapter);
                     Log.d("LISTA", "Escribelista" + listaconfianza + listadispositivos);
@@ -132,18 +118,6 @@ public class IntrusosFragment extends Fragment {
 
 
     }
-
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(ArrayList disp,ArrayList arrayList);

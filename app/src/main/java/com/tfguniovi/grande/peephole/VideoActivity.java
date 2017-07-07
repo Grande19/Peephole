@@ -1,5 +1,3 @@
-
-
 package com.tfguniovi.grande.peephole;
 
 import android.Manifest;
@@ -75,43 +73,28 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
         startaudio = (Button) findViewById(R.id.startaudio);
         stopaudio = (Button) findViewById(R.id.stopaudio);
 
-      /*      if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.CAPTURE_VIDEO_OUTPUT)
-                    != PackageManager.PERMISSION_GRANTED) {
+      /*if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAPTURE_VIDEO_OUTPUT)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.CAPTURE_VIDEO_OUTPUT)) {
+
+            } else {
 
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.CAPTURE_VIDEO_OUTPUT)) {
-
-                } else {
-
-                    if(ActivityCompat.shouldShowRequestPermissionRationale(this,
-                            Manifest.permission.CAPTURE_VIDEO_OUTPUT)){
-                        Toast.makeText(this, "El permiso es necesario para utilizar la cámara.",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-
+                    Toast.makeText(this, "El permiso es necesario para utilizar la cámara.",
+                            Toast.LENGTH_SHORT).show();
                 }
-                requestPermissions(new String[]{Manifest.permission.CAPTURE_AUDIO_OUTPUT}, MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT);
+
 
             }
+            requestPermissions(new String[]{Manifest.permission.CAPTURE_AUDIO_OUTPUT}, MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT);
 
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.RECORD_AUDIO)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.RECORD_AUDIO)) {
-
-                } else {
-
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.RECORD_AUDIO},
-                            MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
-
-                }
-            }
         }
+
+    }
 
 
 
@@ -123,26 +106,19 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
                 if (grantResults.length > i && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
+                    Toast.makeText(this, "El permiso es necesario para utilizar la cámara.",Toast.LENGTH_SHORT).show();
 
                 }
                 return;
             }
-            case MY_PERMISSIONS_REQUEST_RECORD_AUDIO: {
-                    // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > i  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                } else {
-
-                }
-                return;
-            }
         }*/
     }
 
 
     public void start_audio (View v) throws IOException {
 
-       beginAudio();
+        beginAudio();
         //ditchMediaRecorder();
     }
 
@@ -158,8 +134,8 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
     public void stopRecordingAudio(){
         if(recorderAudio!=null)
             Toast.makeText(this, "Deteniendo grabación de audio", Toast.LENGTH_LONG).show();
-            recorderAudio.stop();
-            startaudio.setEnabled(true);
+        recorderAudio.stop();
+        startaudio.setEnabled(true);
     }
 
     public void rep(View v){
@@ -232,28 +208,21 @@ public class VideoActivity extends AppCompatActivity implements SurfaceHolder.Ca
 
 
     }
-
-
-
-
-
-
-
     public void stopRecording(){
         if(recorderVideo!=null)
             recorderVideo.setOnErrorListener(null);
-            recorderVideo.setOnInfoListener(null);
-            try {
-                Toast.makeText(this, "Vídeo detenido", Toast.LENGTH_LONG).show();
-                recorderVideo.stop();
-            }catch (IllegalStateException e){
-                //Log.e("ERROR" , "Fallo al parar de grabar");
-            }
-            releaseRecorder();
-            releaseCamera();
-            startBtn.setEnabled(false);
-            stopBtn.setEnabled(false);
-            playBtn.setEnabled(true);
+        recorderVideo.setOnInfoListener(null);
+        try {
+            Toast.makeText(this, "Vídeo detenido", Toast.LENGTH_LONG).show();
+            recorderVideo.stop();
+        }catch (IllegalStateException e){
+            //Log.e("ERROR" , "Fallo al parar de grabar");
+        }
+        releaseRecorder();
+        releaseCamera();
+        startBtn.setEnabled(false);
+        stopBtn.setEnabled(false);
+        playBtn.setEnabled(true);
     }
 
     private void releaseRecorder() {

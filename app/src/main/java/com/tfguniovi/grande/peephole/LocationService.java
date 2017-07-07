@@ -2,6 +2,7 @@ package com.tfguniovi.grande.peephole;
 
 /**
  * Alvaro Grande
+ * Clase para obtener la localizacion del dispositivo
  */
 
 import android.Manifest;
@@ -35,10 +36,6 @@ public class LocationService extends Service implements com.google.android.gms.l
     }
 
     public void onCreate(){
-        // Start up the thread running the service.  Note that we create a
-        // separate thread because the service normally runs in the process's
-        // main thread, which we don't want to block.  We also make it
-        // background priority so CPU-intensive work will not disrupt our UI.
         Log.d("Service","Entra en el service");
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -53,26 +50,16 @@ public class LocationService extends Service implements com.google.android.gms.l
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         //mLocationManager = (LocationManager) getApplicationContext().getSystemService(this.LOCATION_SERVICE);
-        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Comienza el descubrimiento", Toast.LENGTH_SHORT).show();
         if (!mGoogleApiClient.isConnected())
             mGoogleApiClient.connect();
         return START_STICKY;
-
-
-        //return super.onStartCommand(intent, flags, startId);
-        //return START_STICKY;
-
-
-
-        //lo que quieras que haga tu servicio
     }
 
 
 
     @Override
     public void onConnectionSuspended(int i) {
-        //Se ha interrumpido la conexión con Google Play Services
-
         Log.e("Interrupción", "Se ha interrumpido la conexión con Google Play Services");
     }
 
@@ -80,8 +67,6 @@ public class LocationService extends Service implements com.google.android.gms.l
         System.out.println("El servicio a comenzado");
         this.stopSelf();
     }
-
-
 
     @Override
     public void onConnectionFailed (@NonNull ConnectionResult connectionResult){
@@ -96,12 +81,10 @@ public class LocationService extends Service implements com.google.android.gms.l
         longitud= (float)location.getLongitude();
         precision= location.getAccuracy();
         Log.d("GET" , "Location");
-
             Intent i = new Intent();
             i.setAction("android.intent.action.GPS");
             i.putExtra("latitud",latitud);
             i.putExtra("longitud" , longitud);
-
             //Se envian los valores de latitud y longitud a la MainActivity
             sendBroadcast(i);
             stopSelf();
@@ -117,12 +100,6 @@ public class LocationService extends Service implements com.google.android.gms.l
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         LocationServices.FusedLocationApi
@@ -155,9 +132,8 @@ public class LocationService extends Service implements com.google.android.gms.l
 
     @Override
     public void onDestroy(){
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
         super.onDestroy();
-        //stopService()
+
     }
 
 

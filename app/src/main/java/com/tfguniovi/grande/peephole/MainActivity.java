@@ -4,6 +4,8 @@ package com.tfguniovi.grande.peephole;
  * Alvaro Grande
  */
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -13,10 +15,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -26,8 +28,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -37,25 +41,19 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
-import android.widget.VideoView;
-
 import com.tfguniovi.grande.peephole.Fragment.AcercadeFragment;
 import com.tfguniovi.grande.peephole.Fragment.ConfigurationFragment;
 import com.tfguniovi.grande.peephole.Fragment.HomeFragment;
 import com.tfguniovi.grande.peephole.Fragment.IntrusosFragment;
 import com.tfguniovi.grande.peephole.Fragment.RegistroFragment;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -63,7 +61,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.io.OutputStreamWriter;
 import java.util.TimeZone;
-
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
@@ -80,7 +77,8 @@ import javax.mail.internet.MimeMultipart;
 
 
 public class MainActivity extends AppCompatActivity implements
-        RegistroFragment.OnFragmentInteractionListener,ConfigurationFragment.OnFragmentInteractionListener{
+        RegistroFragment.OnFragmentInteractionListener,ConfigurationFragment.OnFragmentInteractionListener
+        , MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener {
 
     private ImageButton homebutton;
     private final static int REQUEST_ENABLE_BT = 1;
@@ -102,31 +100,29 @@ public class MainActivity extends AppCompatActivity implements
     String pol;
     String subject, textMessage;
     BodyPart adjunto_texto;
-    BodyPart adjunto_audio;
-    String path = Environment.getExternalStorageDirectory() + "/intruso.txt";
-    String path1 = Environment.getExternalStorageDirectory() + "/intruso_audio.3gpp";
-    //Solicitud de permisos
+    BodyPart adjunto_audio,adjunto_audio1,adjunto_audio2,adjunto_audio3,adjunto_audio4;
+    BodyPart adjunto_imagen,adjunto_imagen1,adjunto_imagen2,adjunto_imagen3,adjunto_imagen4;
+    boolean intrusos,intervalo;
     DrawerLayout drawerLayout;
-    Button video;
-    private MediaRecorder recorderVideo;
-    //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
     int i = 0;
     int iterator = 0;
-    private VideoView videoView = null;
-    private SurfaceHolder holder = null;
-    private Camera camera = null;
+    int adjuntos=0;
+    private Camera camarafotos=null;
 
-
-
+    String nombrepath = "intruso.jpg";
+    String path = Environment.getExternalStorageDirectory()+"/0intruso.txt";
+    String path1,path2,path3,path4,path5,path6,path7,path8,path9,path10;
+    //Solicitud de permisos
+    //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
-    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 8;
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 9;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH = 2;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 3;
     private static final int MY_PERMISSIONS_REQUEST_INTERNET = 4;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN = 5;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE = 6;
     private static final int MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT = 7;
-
+    private static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 8 ;
 
     /***
      * Creacion de la Pantalla principal
@@ -147,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements
             setSupportActionBar(toolbar1);
             drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start);
-            videoView = (VideoView) findViewById(R.id.grabadora);
 
 
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -164,6 +159,42 @@ public class MainActivity extends AppCompatActivity implements
             setupNavigationDrawerContent(navigationView);
             setFragment(4);
 
+            /**
+             * Permisos para android superior a 6.0
+             */
+
+             if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.BLUETOOTH)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.BLUETOOTH)) {
+
+                } else {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.BLUETOOTH},
+                            MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH);
+
+                }
+            }
+             if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.BLUETOOTH_ADMIN)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.BLUETOOTH_ADMIN)) {
+
+                } else {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.BLUETOOTH_ADMIN},
+                            MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN);
+
+                }
+            }
+
+
 
             if (!BA.isEnabled()) {
                 Intent ONintent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -173,36 +204,114 @@ public class MainActivity extends AppCompatActivity implements
                 Toast.makeText(this, "Bluetooth is already active", Toast.LENGTH_LONG).show();
             }
 
-        } else {
-            Log.d("ENTRANDO", "SEGUNDA VED");
-            /*outState.putCharSequenceArrayList("dispostiivos de confianza", trusted_device);
-            outState.putInt("segundos",segundos);
-            outState.putInt("nintrusos",num_intrusos);
-            outState.putString("email1",dir1);
-            outState.putString("email2",dir2);
-            outState.putString("email3",dir3);*/
-            try {
-                segundos = savedInstanceState.getInt("segundos");
-                num_intrusos = savedInstanceState.getInt("nintrusos");
-                trusted_device = savedInstanceState.getCharSequenceArrayList("dispositivos de confianza");
-                dir1 = savedInstanceState.getString("email1");
-                dir2 = savedInstanceState.getString("email2");
-                dir3 = savedInstanceState.getString("email3");
 
-            } catch (Exception ex) {
+        } //OnCreate
 
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void requestPermission() {
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+        }else {
+            requestPermissions(
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                //Si la petición es cancelada, el resultado estará vacío.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    //Permiso denegado.
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH:
+            {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado,
+
+                } else {
+                    //Permiso denegado.
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_ACCESS_BLUETOOTH_ADMIN:
+            {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+
+                } else {
+                    //Permiso denegado.
+                }
+                return;
             }
 
+            case MY_PERMISSIONS_REQUEST_INTERNET:
+            {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado,
+
+                } else {
+                    //Permiso denegado.
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
+            {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permiso aceptado, se
+                } else {
+                    //Permiso denegado.
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > i && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_RECORD_AUDIO: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > i  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_CAMERA: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > i  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+
+                }
+                return;
+            }
+
+
         }
-
-
-    }//OnCreate
+    }
 
     /**
      * Creación del NavigationDraver
-     *
-     * @param
-     * @return
      */
 
 
@@ -217,21 +326,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main2, menu);
-        //getMenuInflater().inflate(R.menu.menu_audio, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -345,19 +442,15 @@ public class MainActivity extends AppCompatActivity implements
     public void discover(View view) {
         try {
 
-            if (trusted_device.isEmpty() == false) {
-                //Intent serviceBluetooth = new Intent(this,BluetoothService.class);
-                //serviceBluetooth.putCharSequenceArrayListExtra("trusted_devices",trusted_device);
-                //startService(serviceBluetooth);
+            if (trusted_device.isEmpty() == false && segundos+num_intrusos>1) {
                 new Bluetooth().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 Bundle arguments = new Bundle();
                 arguments.putCharSequenceArrayList("id", dispositivos);
                 IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
-                // intrusosFragment.setArguments(bundle);
                 FragmentManager managerintruso = getSupportFragmentManager();
+                Log.d("CONFIG", String.valueOf(segundos+num_intrusos));
                 managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
                         intrusosFragment.getTag()).commit();
-
                 startGps();
                 getCoordenadas();
             } else {
@@ -370,24 +463,30 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    @Override
+    public void onInfo(MediaRecorder mr, int what, int extra) {
+
+    }
+
+    @Override
+    public void onError(MediaRecorder mr, int what, int extra) {
+
+    }
 
 
     //Clase para ejecutar la tarea de descubrimiento de Bluetooth en segundo plano
     class Bluetooth extends AsyncTask<Void, Void, ArrayList> {
-
-
         @Override
         protected ArrayList doInBackground(Void... params) {
 
-
             while (running) {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 if (BA.isDiscovering()) {
-                    // El Bluetooth ya está en modo discover, lo cancelamos para iniciarlo de nuevo
+                    // El Bluetooth ya esta en modo discover, lo cancelamos para iniciarlo de nuevo
                     BA.cancelDiscovery();
                 }
                 BA.startDiscovery();
@@ -400,7 +499,6 @@ public class MainActivity extends AppCompatActivity implements
                     public void onReceive(Context context, Intent intent) {
                         String action = intent.getAction();
                         if (BluetoothDevice.ACTION_FOUND.equals(action) && pairedDevices.contains(device) == false) {
-                            //Get the bluetoothDevice from the intent
                             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                             //señal de bluetooth recibida
                             int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
@@ -412,10 +510,11 @@ public class MainActivity extends AppCompatActivity implements
                                     && dispositivos.contains(device + "->" + name) == false) {
                                 discover.add(device);
                                 dispositivos.add(device + "->" + name);
-                                //Log.d("DESCUBRE : nombre_disp" , name);
                                 fichero(name);
 
                             }
+
+
                         } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                             Log.d("FINISHED", "Descubriendo otra vez");
                             BA.startDiscovery();
@@ -437,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
             }
-            unregisterReceiver(mReciever);
+            //unregisterReceiver(mReciever);
             return dispositivos;
 
         }
@@ -452,9 +551,6 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         protected void onCancelled() {
-            Intent intent = new Intent(MainActivity.this, FinalizarActivity.class);
-            startActivity(intent);
-            //unregisterReceiver(mReciever);
             Log.d("FIN", "Acaba");
             running = false;
 
@@ -496,9 +592,17 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFragmentInteractionConfiguration(String intervalosec, String numintrusos) {
+        //Intervalo para enviar correos
         segundos = Integer.parseInt(intervalosec) * 60 * 1000; //se pasa de minutos a milisegundos que es con lo que trabaja java
+        //numero de intrusos
         num_intrusos = Integer.parseInt(numintrusos);
-        Toast.makeText(this, "Segundos + intrusos" + segundos + "" + num_intrusos, Toast.LENGTH_LONG).show();
+        if(segundos!=0){
+            intervalo=true;
+        }if(num_intrusos!=0){
+            intrusos = true;
+        }
+        Log.d("SEC","Segudos:" + segundos);
+        Log.d("INTRUSOS:" , String.valueOf(num_intrusos));
     }
 
     /*
@@ -508,6 +612,10 @@ public class MainActivity extends AppCompatActivity implements
 
     public void fichero(String name) {
         try {
+            IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
+            FragmentManager managerintruso = getSupportFragmentManager();
+            managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
+                    intrusosFragment.getTag()).commit();
             Calendar calendarNow = new GregorianCalendar(TimeZone.getTimeZone("Europe/Madrid"));
             int dia = calendarNow.get(Calendar.DAY_OF_MONTH);
             int month = calendarNow.get(Calendar.MONTH) + 1;
@@ -517,35 +625,76 @@ public class MainActivity extends AppCompatActivity implements
                 getCoordenadas();
             }
             File ruta_sd = Environment.getExternalStorageDirectory();
-            File f = new File(ruta_sd.getAbsolutePath(), "intruso.txt");
+            File f = new File(ruta_sd.getAbsolutePath(), "0intruso.txt");
+            Log.d("RUTA",String.valueOf(f));
             OutputStreamWriter fout = new OutputStreamWriter(new FileOutputStream(f));
             //fout = new OutputStreamWriter(openFileOutput("intruso.txt", Context.MODE_APPEND));
             Log.d("Ficheros", "Escribiendo intruso.txt");
-            fout.write("Intruso detectado[hora/día/mes]" + "[" + hora + ":" + min + "/" + dia + "/" + month
+            fout.write("Intruso detectado[hora/dia/mes]" + "[" + hora + ":" + min + "/" + dia + "/" + month
                     + "\n[MAC->NOMBRE]:" + dispositivos
                     + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
-            IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
-            FragmentManager managerintruso = getSupportFragmentManager();
-            managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
-                    intrusosFragment.getTag()).commit();
             fout.close();
-            new Camara().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            Intent audio = new Intent(MainActivity.this, AudioService.class);
+            try {
+                Thread.sleep(10000);
+                foto();
+                startService(audio);
+                if(cont==2) {
+                    foto();
+                    startService(audio);
+                }
+                if(cont==4) {
+                    foto();
+                    startService(audio);
+                }
+                if(cont==15) {
+                    foto();
+                    //audio();
+                }
+                int totalIntrusos = num_intrusos;
+                if(intervalo){
+
+                    new CountDownTimer(segundos,1000){
+
+                        @Override
+                        public void onFinish() {
+                            Log.d("INTERVALO","Entra");
+                            email();
+                        }
+
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            // every time 1 second passes
+
+                        }
+
+                    }.start();
+                }
+
+                else if(intrusos){
+                    if(totalIntrusos==dispositivos.size()){
+                        email();
+                        num_intrusos = num_intrusos+num_intrusos;
+                    }
+                }
 
 
-            cont += 1;
-            if (cont == 4) {
-                Intent audio = new Intent(MainActivity.this, AudioService.class);
-                stopService(audio);
-                email();
+                cont++;
+            }catch (Exception ex){
+
             }
-            //bucle();
-            //new Bluetooth().execute();
+
+
         } catch (Exception ex) {
             Log.e("Ficheros", "Error al escribir fichero en memoria interna");
         }
 
     }//fichero
 
+    public void foto(){
+        new Camara().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+    }
 
     public void fin(View view) {
         confirmacion();
@@ -579,13 +728,8 @@ public class MainActivity extends AppCompatActivity implements
                 editor.remove("dispositivo2_ac").commit();
                 editor.remove("dispositivo3_ac").commit();
 
-
                 Log.i("Dialogos", "Confirmacion Aceptada.");
-                Intent intent = new Intent(MainActivity.this, FinalizarActivity.class);
-                intent.putCharSequenceArrayListExtra("lista", dispostivos_fin);
                 new Bluetooth().cancel(finalizar);
-
-                startActivity(intent);
                 finalizar = true;
                 running = false;
                 dispostivos_fin = dispositivos;
@@ -598,7 +742,7 @@ public class MainActivity extends AppCompatActivity implements
                 .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Log.i("Dialogos", "Confirmacion Cancelada.");
-                        Toast.makeText(MainActivity.this, "Continua el descubrimto", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Continua el descubrimiento", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -615,8 +759,6 @@ public class MainActivity extends AppCompatActivity implements
 
         //unregisterReceiver(gpsReceiver);
     }
-
-
     public void getCoordenadas() {
         //startGps();
         Log.d("Coordenadas", "entra en getCoordenadas");
@@ -639,6 +781,14 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    public void grabar (View v){
+
+
+
+    }
+
+
+
 
     @Override
     public void onPause() {
@@ -651,7 +801,6 @@ public class MainActivity extends AppCompatActivity implements
         } catch (Exception ex) {
             Log.e("Reciever", "Error");
         }
-
     }
 
 
@@ -686,14 +835,49 @@ public class MainActivity extends AppCompatActivity implements
         }
         pol = "policia@policia.com";
 
-        adjunto_audio = new MimeBodyPart();
         adjunto_texto = new MimeBodyPart();
+        adjunto_audio = new MimeBodyPart();
+        adjunto_imagen = new MimeBodyPart();
+        adjunto_audio1 = new MimeBodyPart();
+        adjunto_imagen1 = new MimeBodyPart();
+        adjunto_audio2 = new MimeBodyPart();
+        adjunto_imagen2 = new MimeBodyPart();
+        adjunto_audio3 = new MimeBodyPart();
+        adjunto_imagen3 = new MimeBodyPart();
+        adjunto_audio4 = new MimeBodyPart();
+        adjunto_imagen4 = new MimeBodyPart();
+
+
+        adjuntos = 0;
+        path1 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso_audio.3gpp";
+        path2 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso.jpg";
+        adjuntos++;
+        path3 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso_audio.3gpp";
+        path4 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso.jpg";
+        adjuntos++;
+        path5 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso_audio.3gpp";
+        path6 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso.jpg";
+        adjuntos++;
+        path7 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso_audio.3gpp";
+        path8 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso.jpg";
+        adjuntos++;
+        path9 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso_audio.3gpp";
+        path10 = Environment.getExternalStorageDirectory()+"/"+String.valueOf(adjuntos)+"intruso.jpg";
 
 
         try {
             adjunto_texto.setDataHandler(new DataHandler(new FileDataSource(path)));
             adjunto_texto.setFileName("intruso.txt");
             adjunto_audio.setDataHandler(new DataHandler(new FileDataSource(path1)));
+            adjunto_imagen.setDataHandler(new DataHandler(new FileDataSource(path2)));
+            adjunto_audio1.setDataHandler(new DataHandler(new FileDataSource(path3)));
+            adjunto_imagen1.setDataHandler(new DataHandler(new FileDataSource(path4)));
+            adjunto_audio2.setDataHandler(new DataHandler(new FileDataSource(path5)));
+            adjunto_imagen2.setDataHandler(new DataHandler(new FileDataSource(path6)));
+            adjunto_audio3.setDataHandler(new DataHandler(new FileDataSource(path7)));
+            adjunto_imagen3.setDataHandler(new DataHandler(new FileDataSource(path8)));
+           adjunto_audio4.setDataHandler(new DataHandler(new FileDataSource(path9)));
+            adjunto_imagen4.setDataHandler(new DataHandler(new FileDataSource(path10)));
         } catch (MessagingException e) {
             e.printStackTrace();
         }
@@ -713,56 +897,92 @@ public class MainActivity extends AppCompatActivity implements
         session = Session.getDefaultInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
 
-                //Registro del correo en servidor Gmail
-                //ACORDARSE DE METER PASSWORD CUANDO QUIERA MANDAR CORREO!!!!!!!!!!!!!!!!
-                //Aplicación creada para que envie correos a los usuarios
                 return new PasswordAuthentication("peepholeuniovi@gmail.com", "tfg_2017");
             }
         });
 
-        //pdialog = ProgressDialog.show(context, "", "Sending Mail...", true);
-
-        //MainActivity.RetreiveFeedTask task = new MainActivity.RetreiveFeedTask(); //crea una tarea asíncrona
-        //task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);//ejecuta la tarea asíncrona
-
-        new RetreiveFeedTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        //Intent intent = new Intent(this, MainActivity.class);
-        //startActivity(intent);
-
+        new Email().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         //}//if
     }//correo
 
-    class RetreiveFeedTask extends AsyncTask<String, Void, String> {
-        //doInbackground recibe un string como parametro de entrada
-        //publishProgress y onProgressUpdate reciben vacío
-        //doInBackground devuelve un String que lo recibe onPostexecute
+    class Email extends AsyncTask<String, Void, String> {
 
 
         @Override
         //AsyckTask para hacer operaciones en segundo plano (background)
         protected String doInBackground(String... params) {
 
-            try {
-                BodyPart texto = new MimeBodyPart();
+            try{
+                BodyPart texto=new MimeBodyPart();
                 texto.setText(textMessage);
                 File out = new File(path);
-                File out2 = new File(path1);
+                File out1 = new File(path1);//audio
+                File out2 = new File(path2);//imagen
+                File out3 = new File(path3);//audio
+                File out4 = new File(path4);//imagen
+                File out5 = new File(path5);//audio
+                File out6 = new File(path6);//imagen
+                File out7 = new File(path6);//audio
+                File out8 = new File(path8);//imagen
+                File out9 = new File(path9);//audio
+                File out10 = new File(path10);//imagen
+
+
+
+                Log.d("FILE texto",String.valueOf(out));
+                Log.d("FILE imagen",String.valueOf(out2));
+                Log.d("FILE audio",String.valueOf(out1));
                 MimeMultipart multiParte = new MimeMultipart();
-                if (out.exists() == true) {
+                if(out.exists()==true) {
                     multiParte.addBodyPart(adjunto_texto);
-                }
-                if (out2.exists() == true) {
+                }else {Log.d("NO","existe");}
+                if(out1.exists()==true) {
                     adjunto_audio.setFileName("intruso_audio.3gpp");
-                    Log.d("NO", "existe");
                     multiParte.addBodyPart(adjunto_audio);
-                }
+                }else {Log.d("NO","existe audio");}
+                if(out2.exists()==true) {
+                    adjunto_imagen.setFileName("intruso_imagen.jgp");
+                    multiParte.addBodyPart(adjunto_imagen);
+                }else {Log.d("NO","existe imagen");}
+                if(out3.exists()==true) {
+                    adjunto_audio1.setFileName("intruso_audio.3gpp");
+                    multiParte.addBodyPart(adjunto_audio1);
+                }else {Log.d("NO","existe audio");}
+                if(out4.exists()==true) {
+                    adjunto_imagen1.setFileName("intruso_imagen.jgp");
+                    multiParte.addBodyPart(adjunto_imagen1);
+                }else {Log.d("NO","existe imagen");}
+                if(out5.exists()==true) {
+                    adjunto_audio2.setFileName("intruso_audio.3gpp");
+                    multiParte.addBodyPart(adjunto_audio2);
+                }else {Log.d("NO","existe audio");}
+                if(out6.exists()==true) {
+                    adjunto_imagen3.setFileName("intruso_imagen.jgp");
+                    multiParte.addBodyPart(adjunto_imagen3);
+                }else {Log.d("NO","existe imagen");}
+                if(out7.exists()==true) {
+                    adjunto_audio4.setFileName("intruso_audio.3gpp");
+                    multiParte.addBodyPart(adjunto_audio4);
+                }else {Log.d("NO","existe audio");}
+                if(out8.exists()==true) {
+                    adjunto_imagen4.setFileName("intruso_imagen.jgp");
+                    multiParte.addBodyPart(adjunto_imagen4);
+                }else {Log.d("NO","existe imagen");}
+                if(out9.exists()==true) {
+                    adjunto_audio.setFileName("intruso_audio.3gpp");
+                    multiParte.addBodyPart(adjunto_audio);
+                }else {Log.d("NO","existe audio");}
+                if(out10.exists()==true) {
+                    adjunto_imagen.setFileName("intruso_imagen.jgp");
+                    multiParte.addBodyPart(adjunto_imagen);
+                }else {Log.d("NO","existe imagen");}
 
                 Message message = new MimeMessage(session);
                 message.setFrom(new InternetAddress("peepholeuniovi@gmail.com", "[Peephole]"));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(dir1));
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(dir2));
-                message.addRecipient(Message.RecipientType.CC, new InternetAddress(dir3));
-                message.addRecipient(Message.RecipientType.CC, new InternetAddress(pol));
+                message.addRecipient(Message.RecipientType.CC , new InternetAddress(dir3));
+                message.addRecipient(Message.RecipientType.CC , new InternetAddress(pol));
 
                 // message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(extra));
                 message.setSubject(subject);
@@ -771,9 +991,9 @@ public class MainActivity extends AppCompatActivity implements
                 Transport.send(message);
 
 
-            } catch (MessagingException e) {
+            } catch(MessagingException e) {
                 e.printStackTrace();
-            } catch (Exception e) {
+            } catch(Exception e) {
                 e.printStackTrace();
             }
             return null;
@@ -781,16 +1001,12 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
+
+
+
+            //Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
         }
     }
-
-
-    public int path() {
-        iterator = (int) (Math.random());
-        return iterator;
-    }
-
 
 
     /**
@@ -798,36 +1014,26 @@ public class MainActivity extends AppCompatActivity implements
      */
 
     class Camara extends AsyncTask<Void, Void, Void> {
-
-
         @Override
         protected Void doInBackground(Void... params) {
 
-            final Camera camarafotos;
+
 
             Camera.PictureCallback jpegCallBack = new Camera.PictureCallback() {
                 public void onPictureTaken(byte[] data, Camera camera) {
                     // set file destination and file name
-
-
                     //Si la sd es de solo lectura escribe en memoria interna
-
-                    String nombrepath = String.valueOf(iterator) + "intruso.jpg";
-                    File destination = new File(Environment.getExternalStorageDirectory(), nombrepath);
-
+                    nombrepath = String.valueOf(iterator)+"intruso.jpg";
+                    File destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
                     if (destination.exists()) {
-                        path();
-                        nombrepath = String.valueOf(iterator) + "intruso.jpg";
-                        destination = new File(Environment.getExternalStorageDirectory(), nombrepath);
-
+                        iterator++;
+                        nombrepath = String.valueOf(iterator)+"intruso.jpg";
+                        destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
+                        iterator++;
                     }
-                    //Log.d("CAMARA" , "Generado");;
                     try {
-                        //Log.d("FOTO" , "Generado");
                         Bitmap userImage = BitmapFactory.decodeByteArray(data, 0, data.length);
-                        // set file out stream
                         FileOutputStream out = new FileOutputStream(destination);
-                        // set compress format quality and stream
                         userImage.compress(Bitmap.CompressFormat.JPEG, 90, out);
                         onCancelled();
                     } catch (FileNotFoundException e) {
@@ -837,20 +1043,20 @@ public class MainActivity extends AppCompatActivity implements
 
                 }
             };
+            try {
+                camarafotos = Camera.open();
+                camarafotos.startPreview();
+                camarafotos.takePicture(null, null, null, jpegCallBack);
+            }catch (Exception ex){
 
-            camarafotos = Camera.open();
-            camarafotos.startPreview();
-            camarafotos.takePicture(null, null, null, jpegCallBack);
+            }
+
 
 
             return null;
         }
 
-        public int path() {
-            iterator = (int) (Math.random());
-            return iterator;
 
-        }
 
         @Override
         protected void onCancelled() {
@@ -860,19 +1066,10 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            //camarafotos.release();
             //Log.d("FOTOFIN" , "Foto FInalizada");
             super.onPostExecute(aVoid);
         }
     }
-
-
-    /**
-     * Video
-     */
-
-
-
 
 }//MainActivity
 
