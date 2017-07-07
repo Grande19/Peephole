@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-                    //Permiso denegado.
+                    Toast.makeText(this, "Permiso necesario para crear los archivos de alerta, revisar configuración/permisos", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements
                     //Permiso aceptado,
 
                 } else {
-                    //Permiso denegado.
+
                 }
                 return;
             }
@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //Permiso aceptado, se
                 } else {
-                    //Permiso denegado.
+                    Toast.makeText(this, "Sin este permiso no se podrá localizar el dispositivo. Revisar configuración/permisos", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -302,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements
                 if (grantResults.length > i && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-
+                    Toast.makeText(this, "Necesario para la grabación de vídeo. Revisar configuración/permisos", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements
                 if (grantResults.length > i  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-
+                    Toast.makeText(this, "Necesario para la grabación de vídeo. Revisar configuración/permisos", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements
                 if (grantResults.length > i  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-
+                    Toast.makeText(this, "Necesario para hacer fotografias de intrusos. Revisar configuración/permisos", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -368,6 +368,21 @@ public class MainActivity extends AppCompatActivity implements
                                 drawerLayout.closeDrawer(GravityCompat.START);
                                 return true;
                             case R.id.registro:
+                                if (ContextCompat.checkSelfPermission(MainActivity.this,
+                                        Manifest.permission.ACCESS_FINE_LOCATION)
+                                        != PackageManager.PERMISSION_GRANTED) {
+
+                                    if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                                            Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                                    } else {
+
+                                        ActivityCompat.requestPermissions(MainActivity.this,
+                                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                                MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
+                                    }
+                                }
                                 menuItem.setChecked(true);
                                 setFragment(1);
                                 drawerLayout.closeDrawer(GravityCompat.START);
@@ -385,12 +400,42 @@ public class MainActivity extends AppCompatActivity implements
                                 setFragment(3);
                                 return true;
                             case R.id.intrusos:
+                                if (ContextCompat.checkSelfPermission(MainActivity.this,
+                                        Manifest.permission.CAPTURE_VIDEO_OUTPUT)
+                                        != PackageManager.PERMISSION_GRANTED) {
+
+                                    if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                                            Manifest.permission.CAPTURE_VIDEO_OUTPUT)) {
+
+                                    } else {
+
+                                        ActivityCompat.requestPermissions(MainActivity.this,
+                                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                                MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT);
+
+                                    }
+                                }
                                 menuItem.setChecked(true);
                                 Toast.makeText(MainActivity.this, "Launching " + menuItem.getTitle().toString(), Toast.LENGTH_SHORT).show();
                                 drawerLayout.closeDrawer(GravityCompat.START);
                                 setFragment(2);
                                 return true;
                             case R.id.home:
+                                if (ContextCompat.checkSelfPermission(MainActivity.this,
+                                        Manifest.permission.RECORD_AUDIO)
+                                        != PackageManager.PERMISSION_GRANTED) {
+
+                                    if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                                            Manifest.permission.RECORD_AUDIO)) {
+
+                                    } else {
+
+                                        ActivityCompat.requestPermissions(MainActivity.this,
+                                                new String[]{Manifest.permission.RECORD_AUDIO},
+                                                MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
+
+                                    }
+                                }
                                 menuItem.setChecked(true);
                                 drawerLayout.closeDrawer(GravityCompat.START);
                                 setFragment(4);
