@@ -16,16 +16,15 @@
         android:id="@+id/end"
         android:layout_width="59dp"
         android:layout_height="54dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="24dp"
         android:layout_marginEnd="12dp"
         android:layout_marginRight="12dp"
         android:layout_weight="1"
         android:background="@color/common_google_signin_btn_text_dark_default"
         android:onClick="fin"
-        app:srcCompat="@mipmap/exit_circle" />
+        app:srcCompat="@mipmap/exit_circle"
+        android:layout_alignTop="@+id/comenzar"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 
     <VideoView
@@ -45,11 +44,12 @@
         android:id="@+id/pantallavideo"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_alignBottom="@+id/video"
-        android:layout_marginBottom="11dp"
         android:visibility="visible"
-        android:layout_toLeftOf="@+id/grabadora"
-        android:layout_toStartOf="@+id/grabadora" />
+        android:layout_below="@+id/video"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="27dp"
+        android:layout_marginStart="27dp" />
 
     <ImageButton
         android:id="@+id/comenzar"
@@ -59,21 +59,26 @@
         android:background="@color/common_google_signin_btn_text_dark_default"
         android:onClick="discover"
         app:srcCompat="@mipmap/play"
-        android:layout_marginLeft="13dp"
-        android:layout_marginStart="13dp"
-        android:layout_alignTop="@+id/video"
+        android:layout_marginLeft="14dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginBottom="16dp"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
     <Button
         android:id="@+id/video"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/end"
-        android:layout_centerHorizontal="true"
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        android:layout_marginEnd="17dp"
+        android:layout_marginRight="17dp"
+        android:backgroundTint="@color/common_google_signin_btn_text_dark_default"
         android:onClick="grabar"
         android:text="Button"
-        android:visibility="visible" />
+        android:visibility="visible"
+        android:layout_alignTop="@+id/grabadora"
+        android:layout_alignRight="@+id/end"
+        android:layout_alignEnd="@+id/end" />
 
 
 </RelativeLayout>

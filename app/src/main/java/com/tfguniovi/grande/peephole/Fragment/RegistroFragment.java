@@ -190,7 +190,7 @@ public class RegistroFragment extends Fragment {
 
                         if (TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false
                                 && TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false && TextUtils.isEmpty(d1) == false) {
-                            Toast.makeText(RegistroFragment.this.getActivity(), "Registrado,puede empezar el descubrimiento", Toast.LENGTH_LONG).show();
+                            Toast.makeText(RegistroFragment.this.getActivity(), "Registrado,recuerde revisar la configuracion", Toast.LENGTH_LONG).show();
                         onButtonPressed(d1,d2,d3,e1,e2,e3);
                         } else {
 

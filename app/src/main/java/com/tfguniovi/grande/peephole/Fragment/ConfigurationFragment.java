@@ -185,7 +185,7 @@ public class ConfigurationFragment extends Fragment {
                     }
                     else if(intrusos.isChecked()==true){
                         numintrusos=String.valueOf(nintrusos.getText());
-                        if(numintrusos=="" || numintrusos=="0" || numintrusos=="2"){
+                        if(numintrusos=="" || numintrusos=="0" ){
                             Toast.makeText(ConfigurationFragment.this.getActivity(),  "Introduzca los intrusos,mínimo 2", Toast.LENGTH_LONG).show();
                         }
                         segundos="0";

@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements
     private BroadcastReceiver mReceiver,
     gpsReciever, gReciever, gpsReceiver, usuReceiver, disReceiver;
     public ArrayList dispositivos = new ArrayList();
+    public ArrayList configuracion = new ArrayList();
     public ArrayList trusted_device = new ArrayList();
     public ArrayList discover = new ArrayList();
     public ArrayList dispostivos_fin = new ArrayList();
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements
     public String dir1, dir2, dir3, usu1, usu2, usu3;
     public boolean finalizar = false;
     boolean running = true;
-    public int cont = 0;
+    public int conta = 0;
     int segundos, num_intrusos;
     Session session = null;
     String pol;
@@ -129,7 +130,9 @@ public class MainActivity extends AppCompatActivity implements
     private boolean isRecording = false;
     private static final String TAG = "Recorder";
     private Button captureButton;
-    String rutavideo;
+    private File mOutputFile;
+    int totalIntrusos ;
+    int cont=0;
     //Solicitud de permisos
     //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
@@ -388,6 +391,7 @@ public class MainActivity extends AppCompatActivity implements
                                 drawerLayout.closeDrawer(GravityCompat.START);
                                 return true;
                             case R.id.nav_camera:
+
                                 menuItem.setChecked(true);
                                 drawerLayout.closeDrawer(GravityCompat.START);
                                 Intent i = new Intent(MainActivity.this, VideoActivity.class);
@@ -401,20 +405,21 @@ public class MainActivity extends AppCompatActivity implements
                                 return true;
                             case R.id.intrusos:
                                 if (ContextCompat.checkSelfPermission(MainActivity.this,
-                                        Manifest.permission.CAPTURE_VIDEO_OUTPUT)
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
                                         != PackageManager.PERMISSION_GRANTED) {
 
                                     if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-                                            Manifest.permission.CAPTURE_VIDEO_OUTPUT)) {
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
                                     } else {
 
                                         ActivityCompat.requestPermissions(MainActivity.this,
-                                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                                MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT);
+                                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
 
                                     }
                                 }
+
                                 menuItem.setChecked(true);
                                 Toast.makeText(MainActivity.this, "Launching " + menuItem.getTitle().toString(), Toast.LENGTH_SHORT).show();
                                 drawerLayout.closeDrawer(GravityCompat.START);
@@ -462,6 +467,7 @@ public class MainActivity extends AppCompatActivity implements
         FragmentTransaction fragmentTransaction;
         switch (position) {
             case 0:
+
                 fragmentManager = getSupportFragmentManager();
                 fragmentTransaction = fragmentManager.beginTransaction();
                 ConfigurationFragment configurationFragment = new ConfigurationFragment();
@@ -506,8 +512,9 @@ public class MainActivity extends AppCompatActivity implements
     public void discover(View view) {
         try {
 
-            if (trusted_device.isEmpty() == false && segundos+num_intrusos>1) {
-                new Bluetooth().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            if (trusted_device.isEmpty() == false && configuracion.isEmpty()==false) {
+
+                new Bluetooth().execute();
                 Bundle arguments = new Bundle();
                 arguments.putCharSequenceArrayList("id", dispositivos);
                 IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
@@ -515,6 +522,21 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d("CONFIG", String.valueOf(segundos+num_intrusos));
                 managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
                         intrusosFragment.getTag()).commit();
+                if (ContextCompat.checkSelfPermission(MainActivity.this,
+                        Manifest.permission.RECORD_AUDIO)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                            Manifest.permission.RECORD_AUDIO)) {
+
+                    } else {
+
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.RECORD_AUDIO},
+                                MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
+
+                    }
+                }
                 startGps();
                 getCoordenadas();
             } else {
@@ -544,6 +566,21 @@ public class MainActivity extends AppCompatActivity implements
     class Bluetooth extends AsyncTask<Void, Void, ArrayList> {
         @Override
         protected ArrayList doInBackground(Void... params) {
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    Manifest.permission.CAPTURE_VIDEO_OUTPUT)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                        Manifest.permission.CAPTURE_VIDEO_OUTPUT)) {
+
+                } else {
+
+                    ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSIONS_REQUEST_CAPTURE_VIDEO_OUTPUT);
+
+                }
+            }
 
             while (running) {
                 try {
@@ -555,11 +592,27 @@ public class MainActivity extends AppCompatActivity implements
                     // El Bluetooth ya esta en modo discover, lo cancelamos para iniciarlo de nuevo
                     BA.cancelDiscovery();
                 }
+                if (ContextCompat.checkSelfPermission(MainActivity.this,
+                        Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                            Manifest.permission.CAMERA)) {
+
+                    } else {
+
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.CAMERA},
+                                MY_PERMISSIONS_REQUEST_CAMERA);
+
+                    }
+                }
                 BA.startDiscovery();
                 pairedDevices = BA.getBondedDevices();
                 if(cont==0) {
                     stopGps();
                 }
+
                 if(intervalo){
                     temporizadorcorreo();
                 }
@@ -581,6 +634,8 @@ public class MainActivity extends AppCompatActivity implements
                                     && dispositivos.contains(device + "->" + name) == false) {
                                 discover.add(device);
                                 dispositivos.add(device + "->" + name);
+
+
                                 fichero(name);
 
                             }
@@ -690,10 +745,14 @@ public class MainActivity extends AppCompatActivity implements
         //numero de intrusos
         num_intrusos = Integer.parseInt(numintrusos);
         if(segundos!=0){
+            configuracion.add(segundos);
             intervalo=true;
         }if(num_intrusos!=0){
+            configuracion.add(num_intrusos);
             intrusos = true;
         }
+
+
         Log.d("SEC","Segudos:" + segundos);
         Log.d("INTRUSOS:" , String.valueOf(num_intrusos));
     }
@@ -703,10 +762,7 @@ public class MainActivity extends AppCompatActivity implements
     public void fichero(String name) {
         try {
 
-            IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
-            FragmentManager managerintruso = getSupportFragmentManager();
-            managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
-                    intrusosFragment.getTag()).commit();
+
             Calendar calendarNow = new GregorianCalendar(TimeZone.getTimeZone("Europe/Madrid"));
             int dia = calendarNow.get(Calendar.DAY_OF_MONTH);
             int month = calendarNow.get(Calendar.MONTH) + 1;
@@ -724,6 +780,10 @@ public class MainActivity extends AppCompatActivity implements
             fout.write("Intruso detectado[hora/dia/mes]" + "[" + hora + ":" + min + "/" + dia + "/" + month
                     + "\n[MAC->NOMBRE]:" + dispositivos
                     + "\nUbicacion de Peephole:[longitud,latitud]" + "[" + longitud + "," + latitud + "]");
+            FragmentManager managerintruso = getSupportFragmentManager();
+            IntrusosFragment intrusosFragment = new IntrusosFragment().newInstance(dispositivos, trusted_device);
+            managerintruso.beginTransaction().replace(R.id.cmain, intrusosFragment,
+                    intrusosFragment.getTag()).commit();
             fout.close();
             Intent audio = new Intent(MainActivity.this, AudioService.class);
 
@@ -761,10 +821,10 @@ public class MainActivity extends AppCompatActivity implements
                     }
                     //audio();
                 }
-                int totalIntrusos = num_intrusos;
 
 
-                    if(intrusos){
+                totalIntrusos=num_intrusos;
+                if(intrusos){
                     if(totalIntrusos==dispositivos.size()){
                         email();
                         num_intrusos = num_intrusos+num_intrusos;
@@ -905,6 +965,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    public void mail(View view){
+        email();
+    }
+
     /***
      * Clase MailActivity para enviar correos de alerta
      */
@@ -1026,49 +1090,65 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d("FILE audio",String.valueOf(out1));
                 MimeMultipart multiParte = new MimeMultipart();
                 try{
-                if(out.exists()==true) {
-                    multiParte.addBodyPart(adjunto_texto);
-                }else {Log.d("NO","existe");}
+                    if(out.exists()==true) {
+                        multiParte.addBodyPart(adjunto_texto);
+
+                if (conta==0){
+
+
                 if(out1.exists()==true) {
                     adjunto_audio.setFileName("intruso_audio.3gpp");
                     multiParte.addBodyPart(adjunto_audio);
-                }else {Log.d("NO","existe audio");}
-                if(out2.exists()==true) {
-                    adjunto_imagen.setFileName("intruso_imagen.jgp");
-                    multiParte.addBodyPart(adjunto_imagen);
-                }else {Log.d("NO","existe imagen");}
+                }}
+
+                    if(out2.exists()==true) {
+                        adjunto_imagen.setFileName("intruso_imagen.jgp");
+                        multiParte.addBodyPart(adjunto_imagen);
+                    }    }
+                else if(conta==2){
+
                 if(out3.exists()==true) {
                     adjunto_audio1.setFileName("intruso_audio_1.3gpp");
                     multiParte.addBodyPart(adjunto_audio1);
-                }else {Log.d("NO","existe audio");}
-                if(out4.exists()==true) {
+                }
+
+               if(out4.exists()==true) {
                     adjunto_imagen1.setFileName("intruso_imagen_1.jgp");
                     multiParte.addBodyPart(adjunto_imagen1);
-                }else {Log.d("NO","existe imagen");}
+                }}
+                else if(conta==3){
                 if(out5.exists()==true) {
                     adjunto_audio2.setFileName("intruso_audio_2.3gpp");
                     multiParte.addBodyPart(adjunto_audio2);
-                }else {Log.d("NO","existe audio");}
+                }
                 if(out6.exists()==true) {
                     adjunto_imagen3.setFileName("intruso_imagen_2.jgp");
                     multiParte.addBodyPart(adjunto_imagen3);
-                }else {Log.d("NO","existe imagen");}
-                if(out7.exists()==true) {
-                    adjunto_audio4.setFileName("intruso_audio_3.3gpp");
-                    multiParte.addBodyPart(adjunto_audio4);
-                }else {Log.d("NO","existe audio");}
+                }}
+                else if(conta==4){
+                        if(out7.exists()==true) {
+                            adjunto_audio4.setFileName("intruso_audio_3.3gpp");
+                            multiParte.addBodyPart(adjunto_audio4);
+                        }
+
                 if(out8.exists()==true) {
                     adjunto_imagen4.setFileName("intruso_imagen_3.jgp");
                     multiParte.addBodyPart(adjunto_imagen4);
-                }else {Log.d("NO","existe imagen");}
-                if(out9.exists()==true) {
-                    adjunto_audio.setFileName("intruso_audio_4.3gpp");
-                    multiParte.addBodyPart(adjunto_audio);
-                }else {Log.d("NO","existe audio");}
+                }}
+               else if(conta==5){
+                    if(out9.exists()==true) {
+                        adjunto_audio.setFileName("intruso_audio_4.3gpp");
+                        multiParte.addBodyPart(adjunto_audio);
+                    }
+
                 if(out10.exists()==true) {
                     adjunto_imagen.setFileName("intruso_imagen_4.jgp");
                     multiParte.addBodyPart(adjunto_imagen);
-                }else {Log.d("NO","existe imagen");}}
+                }}
+                    else {Log.d("NO","existe imagen");}
+
+                    cont++;
+                }
                 catch (Exception ex){
 
                 }
@@ -1287,22 +1367,14 @@ public class MainActivity extends AppCompatActivity implements
         mMediaRecorder.setProfile(profile);
         mMediaRecorder.setMaxDuration(30000);
 
-        rutavideo = String.valueOf(grabadora)+"intruso_video.mp4";
-        destination=new File(Environment.getExternalStorageDirectory(),rutavideo);
-
-        if (destination.exists()) {
-            grabadora++;
-            rutavideo = String.valueOf(grabadora)+"intruso_video.mp4";
-            destination=new File(Environment.getExternalStorageDirectory(),nombrepath);
-            iterator++;
-        }
-
-        // Step 4: Set output file
-        /*mOutputFile = CameraHelper.getOutputMediaFile(CameraHelper.MEDIA_TYPE_VIDEO);
+        mOutputFile = CameraHelper.getOutputMediaFile(CameraHelper.MEDIA_TYPE_VIDEO);
         if (mOutputFile == null) {
             return false;
-        }*/
-        mMediaRecorder.setOutputFile(destination.getPath());
+        }
+        mMediaRecorder.setOutputFile(mOutputFile.getPath());
+
+
+
         // END_INCLUDE (configure_media_recorder)
 
         // Step 5: Prepare configured MediaRecorder
@@ -1328,13 +1400,18 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            // initialize video camera
+                    // initialize video camera
             if (prepareVideoRecorder()) {
-                // Camera is available and unlocked, MediaRecorder is prepared,
-                // now you can start recording
-                mMediaRecorder.start();
+                try {
+                    // Camera is available and unlocked, MediaRecorder is prepared,
+                    // now you can start recording
+                    mMediaRecorder.start();
 
-                isRecording = true;
+                    isRecording = true;
+                }
+                catch (Exception ex){
+
+                }
             } else {
                 // prepare didn't work, release the camera
                 releaseMediaRecorder();
